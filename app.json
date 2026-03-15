@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Ummah",
+    "slug": "ummah-app",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "ummah",
+    "userInterfaceStyle": "automatic",
+    "splash": { "backgroundColor": "#0A1628" },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ummah.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Wird für die Berechnung der Gebetszeiten und Qibla-Richtung benötigt.",
+        "NSMotionUsageDescription": "Wird für den Qibla-Kompass benötigt."
+      }
+    },
+    "android": {
+      "adaptiveIcon": { "backgroundColor": "#0A1628" },
+      "package": "com.ummah.app",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "VIBRATE"]
+    },
+    "plugins": ["expo-router", "expo-location", "expo-sensors", "expo-notifications"],
+    "experiments": { "typedRoutes": true }
+  }
+}

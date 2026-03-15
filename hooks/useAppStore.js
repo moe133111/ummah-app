@@ -1,0 +1,26 @@
+import { create } from 'zustand';
+
+export const useAppStore = create((set, get) => ({
+  location: null,
+  setLocation: (location) => set({ location }),
+  theme: 'dark',
+  toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
+  calculationMethod: 'MWL',
+  setCalculationMethod: (method) => set({ calculationMethod: method }),
+  notifications: { fajr: true, sunrise: false, dhuhr: true, asr: true, maghrib: true, isha: true },
+  toggleNotification: (prayer) => set((s) => ({ notifications: { ...s.notifications, [prayer]: !s.notifications[prayer] } })),
+  quranLanguage: 'ar',
+  quranSecondLanguage: '',
+  lastReadSurah: 1,
+  lastReadAyah: 1,
+  setQuranLanguage: (lang) => set({ quranLanguage: lang }),
+  setQuranSecondLanguage: (lang) => set({ quranSecondLanguage: lang }),
+  setLastRead: (surah, ayah) => set({ lastReadSurah: surah, lastReadAyah: ayah }),
+  todayPrayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
+  togglePrayerDone: (prayer) => set((s) => ({ todayPrayers: { ...s.todayPrayers, [prayer]: !s.todayPrayers[prayer] } })),
+  streak: 0,
+  onboardingComplete: false,
+  setOnboardingComplete: () => set({ onboardingComplete: true }),
+  appLanguage: 'de',
+  setAppLanguage: (lang) => set({ appLanguage: lang }),
+}));
