@@ -7,6 +7,7 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../co
 import Card from '../../components/ui/Card';
 import FeaturePreview from '../../components/ui/FeaturePreview';
 import HijriCalendar from '../../components/ui/HijriCalendar';
+import HeaderBar from '../../components/ui/HeaderBar';
 
 export default function MoreScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
@@ -28,9 +29,7 @@ export default function MoreScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 40 }}>
-        <View style={{ alignItems: 'center', paddingVertical: Spacing.xl }}>
-          <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.text }}>Mehr</Text>
-        </View>
+        <HeaderBar title="Mehr" t={t} />
 
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: Spacing.lg }}>
           {sections.map((s) => (

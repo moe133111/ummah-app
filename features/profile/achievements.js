@@ -1,0 +1,72 @@
+export const ACHIEVEMENTS = [
+  {
+    id: 'first_steps',
+    emoji: '🌟',
+    name: 'Erste Schritte',
+    description: 'App zum ersten Mal geöffnet',
+    check: () => true, // always unlocked
+  },
+  {
+    id: 'first_prayer',
+    emoji: '🕌',
+    name: 'Erstes Gebet',
+    description: 'Erstes Gebet im Tracker markiert',
+    check: (s) => s.totalPrayers >= 1,
+  },
+  {
+    id: 'quran_reader',
+    emoji: '📖',
+    name: 'Quran-Leser',
+    description: 'Erste Sure gelesen',
+    check: (s) => (s.surahsRead || []).length >= 1,
+  },
+  {
+    id: 'dhikr_starter',
+    emoji: '📿',
+    name: 'Dhikr-Starter',
+    description: '100 Dhikr insgesamt',
+    check: (s) => s.totalDhikr >= 100,
+  },
+  {
+    id: 'week_warrior',
+    emoji: '🔥',
+    name: 'Wochenkrieger',
+    description: '7 Tage Streak',
+    check: (s) => s.longestStreak >= 7,
+  },
+  {
+    id: 'month_master',
+    emoji: '⭐',
+    name: 'Monatsmeister',
+    description: '30 Tage Streak',
+    check: (s) => s.longestStreak >= 30,
+  },
+  {
+    id: 'quran_explorer',
+    emoji: '🗺',
+    name: 'Quran-Entdecker',
+    description: '10 verschiedene Suren gelesen',
+    check: (s) => (s.surahsRead || []).length >= 10,
+  },
+  {
+    id: 'dhikr_master',
+    emoji: '💎',
+    name: 'Dhikr-Meister',
+    description: '10.000 Dhikr insgesamt',
+    check: (s) => s.totalDhikr >= 10000,
+  },
+  {
+    id: 'fajr_hero',
+    emoji: '🌅',
+    name: 'Fajr-Held',
+    description: '30 Tage Fajr nicht verpasst',
+    check: (s) => s.fajrStreak >= 30,
+  },
+  {
+    id: 'khatma',
+    emoji: '👑',
+    name: 'Khatma',
+    description: 'Alle 114 Suren gelesen',
+    check: (s) => (s.surahsRead || []).length >= 114,
+  },
+];

@@ -6,6 +6,8 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../co
 import { SURAH_LIST } from '../../features/quran/surahData';
 import Card from '../../components/ui/Card';
 import LanguagePicker from '../../components/ui/LanguagePicker';
+import HeaderBar from '../../components/ui/HeaderBar';
+import HeaderBar from '../../components/ui/HeaderBar';
 
 export default function QuranScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
@@ -41,10 +43,7 @@ export default function QuranScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]}>
       <View style={{ flex: 1, backgroundColor: t.bg }}>
-        <View style={styles.header}>
-          <Text style={{ fontSize: 28, fontWeight: '700', color: t.accent }}>القرآن الكريم</Text>
-          <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 2 }}>Der edle Quran</Text>
-        </View>
+        <HeaderBar titleAr="القرآن الكريم" title="Der edle Quran" t={t} />
         {lastRead > 0 && (
           <Pressable onPress={() => router.push(`/quran/${lastRead}`)} style={{ paddingHorizontal: Spacing.lg }}>
             <Card style={{ borderColor: t.accent + '33' }}>
