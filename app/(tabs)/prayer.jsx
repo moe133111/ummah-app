@@ -370,17 +370,17 @@ function QiblaCompass({ qibla, dist, t }) {
 }
 
 const compassStyles = StyleSheet.create({
-  compassWrapper: { alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.md, height: COMPASS_SIZE + 20, position: 'relative' },
-  compassRing: { width: COMPASS_SIZE, height: COMPASS_SIZE, borderRadius: COMPASS_R, borderWidth: 2, alignItems: 'center', justifyContent: 'center', position: 'relative' },
+  compassWrapper: { alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginVertical: Spacing.lg, width: COMPASS_SIZE + 20, height: COMPASS_SIZE + 20 },
+  compassRing: { width: COMPASS_SIZE, height: COMPASS_SIZE, borderRadius: COMPASS_R, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   tick: { position: 'absolute', left: COMPASS_R, top: COMPASS_R, transformOrigin: '0.75px 0px' },
   dirLabel: { position: 'absolute', left: COMPASS_R - 12, top: COMPASS_R - 8, width: 24, height: 16, alignItems: 'center', justifyContent: 'center', transformOrigin: '12px 8px' },
   dirText: { fontSize: 16, fontWeight: '800' },
-  arrowOverlay: { position: 'absolute', width: COMPASS_SIZE, height: COMPASS_SIZE },
+  arrowOverlay: { position: 'absolute', top: 10, left: 10, width: COMPASS_SIZE, height: COMPASS_SIZE },
   arrowLine: { position: 'absolute', width: 3, height: COMPASS_R - 30, left: COMPASS_R - 1.5, top: 30, borderRadius: 2 },
   arrowHeadWrap: { position: 'absolute', left: COMPASS_R - 10, top: 18 },
   arrowHead: { width: 0, height: 0, borderLeftWidth: 10, borderRightWidth: 10, borderBottomWidth: 16, borderLeftColor: 'transparent', borderRightColor: 'transparent' },
   kaabaWrap: { position: 'absolute', left: COMPASS_R - 14, top: 0, width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
-  centerDot: { position: 'absolute', width: 12, height: 12, borderRadius: 6 },
+  centerDot: { position: 'absolute', top: (COMPASS_SIZE + 20) / 2 - 6, left: (COMPASS_SIZE + 20) / 2 - 6, width: 12, height: 12, borderRadius: 6 },
   iosBtn: { paddingHorizontal: 24, paddingVertical: 14, borderRadius: BorderRadius.md, borderWidth: 1 },
 });
 
