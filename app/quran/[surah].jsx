@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
@@ -28,6 +28,7 @@ async function fetchSurahWithCache(num, edition) {
 
 export default function SurahDetail() {
   const { surah } = useLocalSearchParams();
+  const router = useRouter();
   const num = parseInt(surah, 10);
   const isDark = useAppStore((s) => s.theme === 'dark');
   const lang = useAppStore((s) => s.quranLanguage);
@@ -38,7 +39,11 @@ export default function SurahDetail() {
   const ed = QURAN_LANGUAGES.find(l => l.code === lang)?.edition || 'quran-uthmani';
   const ed2 = lang2 ? QURAN_LANGUAGES.find(l => l.code === lang2)?.edition : null;
   const meta = SURAH_LIST[num - 1];
+  const prevMeta = num > 1 ? SURAH_LIST[num - 2] : null;
+  const nextMeta = num < 114 ? SURAH_LIST[num] : null;
   const isAr = lang === 'ar';
+
+  const goToSurah = (n) => router.replace(`/quran/${n}`);
 
   const [cached1, setCached1] = useState(false);
   const [cached2, setCached2] = useState(false);
@@ -96,11 +101,38 @@ export default function SurahDetail() {
           <Text style={{ fontSize: FontSize.xs, color: '#4CAF50', fontWeight: '600' }}>✓ Offline verfügbar</Text>
         </View>
       )}
+      <View style={styles.headerNav}>
+        <TouchableOpacity onPress={() => goToSurah(num - 1)} disabled={!prevMeta} style={{ opacity: prevMeta ? 1 : 0.3 }}>
+          <Text style={{ fontSize: FontSize.sm, color: t.accent }}>← {prevMeta?.englishName || ''}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => goToSurah(num + 1)} disabled={!nextMeta} style={{ opacity: nextMeta ? 1 : 0.3 }}>
+          <Text style={{ fontSize: FontSize.sm, color: t.accent }}>{nextMeta?.englishName || ''} →</Text>
+        </TouchableOpacity>
+      </View>
       {num !== 1 && num !== 9 && (
-        <View style={{ marginTop: Spacing.xl, padding: Spacing.lg, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08', borderWidth: 1, borderColor: t.accent + '15' }}>
+        <View style={{ marginTop: Spacing.lg, padding: Spacing.lg, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08', borderWidth: 1, borderColor: t.accent + '15' }}>
           <Text style={{ fontSize: 24, textAlign: 'center', color: t.accent }}>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</Text>
         </View>
       )}
+    </View>
+  );
+
+  const Footer = () => (
+    <View style={styles.footerNav}>
+      <TouchableOpacity
+        onPress={() => goToSurah(num - 1)}
+        disabled={!prevMeta}
+        style={[styles.navBtn, { borderColor: t.accent + '44' }, !prevMeta && { opacity: 0.3 }]}
+      >
+        <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent }}>← Vorherige Sure</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => goToSurah(num + 1)}
+        disabled={!nextMeta}
+        style={[styles.navBtn, { borderColor: t.accent + '44' }, !nextMeta && { opacity: 0.3 }]}
+      >
+        <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent }}>Nächste Sure →</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -120,7 +152,7 @@ export default function SurahDetail() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-      <FlatList data={ayahs} keyExtractor={i => String(i.numberInSurah)} renderItem={renderAyah} ListHeaderComponent={Header} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 60 }} />
+      <FlatList data={ayahs} keyExtractor={i => String(i.numberInSurah)} renderItem={renderAyah} ListHeaderComponent={Header} ListFooterComponent={Footer} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 60 }} />
     </SafeAreaView>
   );
 }
@@ -129,4 +161,7 @@ const styles = StyleSheet.create({
   ayahRow: { paddingVertical: Spacing.lg, borderBottomWidth: 1 },
   ayahNum: { width: 34, height: 34, borderRadius: 8, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   offlineBadge: { marginTop: 8, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, borderWidth: 1 },
+  headerNav: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: Spacing.md, paddingHorizontal: Spacing.xs },
+  footerNav: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.xl },
+  navBtn: { flex: 1, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1.5, alignItems: 'center' },
 });
