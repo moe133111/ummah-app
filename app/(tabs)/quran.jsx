@@ -7,7 +7,6 @@ import { SURAH_LIST } from '../../features/quran/surahData';
 import Card from '../../components/ui/Card';
 import LanguagePicker from '../../components/ui/LanguagePicker';
 import HeaderBar from '../../components/ui/HeaderBar';
-import HeaderBar from '../../components/ui/HeaderBar';
 
 export default function QuranScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
