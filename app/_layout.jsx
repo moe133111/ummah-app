@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from '../hooks/useAppStore';
 import { requestNotificationPermission } from '../features/prayer/notifications';
 import { initDatabase } from '../lib/database';
+import Onboarding from './onboarding';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -19,11 +20,21 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30
 
 export default function RootLayout() {
   const theme = useAppStore((s) => s.theme);
+  const onboardingComplete = useAppStore((s) => s.onboardingComplete);
 
   useEffect(() => {
     requestNotificationPermission();
     initDatabase();
   }, []);
+
+  if (!onboardingComplete) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <StatusBar style="light" />
+        <Onboarding />
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
