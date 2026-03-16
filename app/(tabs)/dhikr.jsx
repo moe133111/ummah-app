@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Modal, StatusBar } from 'react-native';
 import { useState, useCallback } from 'react';
 import * as Haptics from 'expo-haptics';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -13,6 +13,41 @@ const DHIKR = [
   { id: 4, arabic: 'لَا إِلَهَ إِلَّا اللَّهُ', text: 'La ilaha illallah', target: 100 },
 ];
 
+const SLEEP_CONTENT = [
+  {
+    id: 'ayatul-kursi',
+    title: 'Ayatul Kursi',
+    ref: 'Al-Baqarah 2:255',
+    arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+  },
+  {
+    id: 'sleep-dua',
+    title: 'Dua vor dem Schlafen',
+    ref: 'Sahih al-Bukhari',
+    arabic: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
+    transliteration: 'Bismika Allahumma amutu wa ahya',
+    translation: 'In Deinem Namen, o Allah, sterbe ich und lebe ich.',
+  },
+  {
+    id: 'al-ikhlas',
+    title: 'Sure Al-Ikhlas',
+    ref: 'Sure 112',
+    arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',
+  },
+  {
+    id: 'al-falaq',
+    title: 'Sure Al-Falaq',
+    ref: 'Sure 113',
+    arabic: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',
+  },
+  {
+    id: 'an-nas',
+    title: 'Sure An-Nas',
+    ref: 'Sure 114',
+    arabic: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ',
+  },
+];
+
 export default function DhikrScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
   const t = isDark ? DarkTheme : LightTheme;
@@ -21,6 +56,7 @@ export default function DhikrScreen() {
   const [count, setCount] = useState(0);
   const [expanded, setExpanded] = useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [focusMode, setFocusMode] = useState(false);
 
   const toggleFavorite = (id) => {
     setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
@@ -39,6 +75,7 @@ export default function DhikrScreen() {
   const tabs = [
     { id: 'dhikr', label: 'Dhikr', emoji: '📿' },
     { id: 'duas', label: 'Duas', emoji: '🤲' },
+    { id: 'sleep', label: 'Schlaf', emoji: '🌙' },
     { id: 'favorites', label: 'Favoriten', emoji: '⭐' },
   ];
 
@@ -77,20 +114,50 @@ export default function DhikrScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
+      {/* Focus Mode Modal */}
+      <Modal visible={focusMode} animationType="fade" statusBarTranslucent>
+        <StatusBar barStyle="light-content" backgroundColor="#000" />
+        <Pressable onPress={handleCount} style={styles.focusContainer}>
+          <Text style={styles.focusArabic}>{sel.arabic}</Text>
+          <Text style={styles.focusCount}>{count}</Text>
+          <Text style={styles.focusTarget}>/ {sel.target}</Text>
+          {/* Progress dots */}
+          <View style={styles.focusDots}>
+            {Array.from({ length: sel.target }, (_, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.focusDot,
+                  { backgroundColor: i < count ? '#B8860B' : '#222' },
+                  // Show only every nth dot for large targets
+                  sel.target > 40 && i % Math.ceil(sel.target / 33) !== 0 && i !== sel.target - 1 && { display: 'none' },
+                ]}
+              />
+            ))}
+          </View>
+          {count >= sel.target && (
+            <Text style={styles.focusComplete}>✨ MashaAllah!</Text>
+          )}
+          <Pressable onPress={() => setFocusMode(false)} style={styles.focusExitBtn}>
+            <Text style={styles.focusExitText}>Beenden</Text>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 40 }}>
         <View style={{ alignItems: 'center', paddingVertical: Spacing.xl }}>
           <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.text }}>Dhikr & Duas</Text>
         </View>
 
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: Spacing.lg }}>
+        <View style={{ flexDirection: 'row', gap: 6, marginBottom: Spacing.lg }}>
           {tabs.map((tb) => (
             <Pressable
               key={tb.id}
               style={[styles.tab, tab === tb.id && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
               onPress={() => setTab(tb.id)}
             >
-              <Text style={{ fontSize: 20, marginBottom: 4 }}>{tb.emoji}</Text>
-              <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: tab === tb.id ? t.accent : t.textDim }}>{tb.label}</Text>
+              <Text style={{ fontSize: 18, marginBottom: 2 }}>{tb.emoji}</Text>
+              <Text style={{ fontSize: 10, fontWeight: '600', color: tab === tb.id ? t.accent : t.textDim }}>{tb.label}</Text>
             </Pressable>
           ))}
         </View>
@@ -119,9 +186,15 @@ export default function DhikrScreen() {
             <View style={[styles.bar, { backgroundColor: t.border }]}>
               <View style={[styles.barFill, { width: `${Math.min((count / sel.target) * 100, 100)}%`, backgroundColor: t.accent }]} />
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: Spacing.lg }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 12, marginBottom: Spacing.lg }}>
               <Pressable style={[styles.resetBtn, { borderColor: t.border }]} onPress={() => setCount(0)}>
                 <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>Zurücksetzen</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.resetBtn, { borderColor: t.accent, backgroundColor: t.accent + '15' }]}
+                onPress={() => setFocusMode(true)}
+              >
+                <Text style={{ fontSize: FontSize.sm, color: t.accent }}>🧘 Focus Mode</Text>
               </Pressable>
             </View>
             {count >= sel.target && (
@@ -137,6 +210,33 @@ export default function DhikrScreen() {
           <>
             <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginBottom: Spacing.md }}>Tippe auf ein Dua, um es aufzuklappen</Text>
             {DUAS.map(renderDuaCard)}
+          </>
+        )}
+
+        {tab === 'sleep' && (
+          <>
+            <Card centered>
+              <Text style={{ fontSize: 36 }}>🌙</Text>
+              <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text, marginTop: Spacing.sm }}>Schlafmodus</Text>
+              <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 4, textAlign: 'center' }}>Adhkar und Suren zum Lesen vor dem Schlafen</Text>
+            </Card>
+            {SLEEP_CONTENT.map((item) => (
+              <Card key={item.id}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
+                  <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>{item.title}</Text>
+                  <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{item.ref}</Text>
+                </View>
+                <View style={{ padding: Spacing.lg, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08', borderWidth: 1, borderColor: t.accent + '15' }}>
+                  <Text style={{ fontSize: FontSize.arabic, lineHeight: 42, textAlign: 'right', color: t.accentLight }}>{item.arabic}</Text>
+                </View>
+                {item.transliteration && (
+                  <Text style={{ fontSize: FontSize.sm, color: t.accent, marginTop: Spacing.md }}>{item.transliteration}</Text>
+                )}
+                {item.translation && (
+                  <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, marginTop: 4, lineHeight: 22 }}>{item.translation}</Text>
+                )}
+              </Card>
+            ))}
           </>
         )}
 
@@ -160,10 +260,20 @@ export default function DhikrScreen() {
 }
 
 const styles = StyleSheet.create({
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
   chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 9999, borderWidth: 1 },
   counterBtn: { alignSelf: 'center', width: 180, height: 180, borderRadius: 90, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginVertical: Spacing.xl },
   bar: { height: 6, borderRadius: 3, overflow: 'hidden', marginBottom: Spacing.lg },
   barFill: { height: '100%', borderRadius: 3 },
   resetBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: BorderRadius.md, borderWidth: 1 },
+  // Focus Mode styles
+  focusContainer: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
+  focusArabic: { fontSize: 36, color: '#D4A843', textAlign: 'center', marginBottom: 24 },
+  focusCount: { fontSize: 120, fontWeight: '700', color: '#B8860B', fontVariant: ['tabular-nums'] },
+  focusTarget: { fontSize: 24, color: '#555', marginTop: -8 },
+  focusDots: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4, marginTop: 32, paddingHorizontal: 20, maxWidth: 300 },
+  focusDot: { width: 6, height: 6, borderRadius: 3 },
+  focusComplete: { fontSize: 28, color: '#B8860B', marginTop: 24 },
+  focusExitBtn: { position: 'absolute', bottom: 60, paddingHorizontal: 32, paddingVertical: 14, borderRadius: 9999, borderWidth: 1, borderColor: '#333' },
+  focusExitText: { fontSize: 16, color: '#888' },
 });

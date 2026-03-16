@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView } from 'react-native';
-import { useMemo, useState, useCallback, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -34,10 +34,57 @@ const DHIKR_MINI = [
   { arabic: 'اللَّهُ أَكْبَرُ', text: 'Allahu Akbar' },
 ];
 
+const PRAYER_ORDER = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+const PRAYER_NAMES = { fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
+
 function getDailyIndex(arr) {
   const now = new Date();
   const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
   return dayOfYear % arr.length;
+}
+
+function timeToMinutes(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function getCurrentPrayer(times) {
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  for (let i = PRAYER_ORDER.length - 1; i >= 0; i--) {
+    const mins = timeToMinutes(times[PRAYER_ORDER[i]]);
+    if (cur >= mins) {
+      return { key: PRAYER_ORDER[i], name: PRAYER_NAMES[PRAYER_ORDER[i]], time: times[PRAYER_ORDER[i]] };
+    }
+  }
+  return { key: 'isha', name: 'Isha', time: times.isha };
+}
+
+function getPrayerProgress(times) {
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+  let currentIdx = -1;
+  for (let i = PRAYER_ORDER.length - 1; i >= 0; i--) {
+    if (cur >= timeToMinutes(times[PRAYER_ORDER[i]])) { currentIdx = i; break; }
+  }
+  if (currentIdx === -1) {
+    const prevEnd = timeToMinutes(times.isha);
+    const nextStart = timeToMinutes(times.fajr);
+    const totalSpan = (1440 - prevEnd) + nextStart;
+    const elapsed = cur < nextStart ? (1440 - prevEnd) + cur : cur - prevEnd;
+    return Math.min(1, Math.max(0, elapsed / totalSpan));
+  }
+  const currentTime = timeToMinutes(times[PRAYER_ORDER[currentIdx]]);
+  const nextIdx = currentIdx + 1;
+  if (nextIdx >= PRAYER_ORDER.length) {
+    const nextFajr = timeToMinutes(times.fajr) + 1440;
+    const totalSpan = nextFajr - currentTime;
+    return Math.min(1, Math.max(0, (cur - currentTime) / totalSpan));
+  }
+  const nextTime = timeToMinutes(times[PRAYER_ORDER[nextIdx]]);
+  const totalSpan = nextTime - currentTime;
+  if (totalSpan <= 0) return 0;
+  return Math.min(1, Math.max(0, (cur - currentTime) / totalSpan));
 }
 
 export default function HomeScreen() {
@@ -52,6 +99,7 @@ export default function HomeScreen() {
   const [miniCount, setMiniCount] = useState(0);
   const [miniSel, setMiniSel] = useState(0);
   const [countdown, setCountdown] = useState('');
+  const [progress, setProgress] = useState(0);
 
   const times = useMemo(() => {
     if (!location) return null;
@@ -59,10 +107,10 @@ export default function HomeScreen() {
   }, [location, method]);
 
   const nextPrayer = useMemo(() => (times ? getNextPrayer(times) : null), [times]);
+  const currentPrayer = useMemo(() => (times ? getCurrentPrayer(times) : null), [times]);
 
-  // Live countdown
   useEffect(() => {
-    if (!nextPrayer) return;
+    if (!nextPrayer || !times) return;
     const update = () => {
       const now = new Date();
       const [h, m] = nextPrayer.time.split(':').map(Number);
@@ -73,12 +121,13 @@ export default function HomeScreen() {
       const hrs = Math.floor(diff / 3600000);
       const mins = Math.floor((diff % 3600000) / 60000);
       const secs = Math.floor((diff % 60000) / 1000);
-      setCountdown(`${hrs}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`);
+      setCountdown(`${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`);
+      setProgress(getPrayerProgress(times));
     };
     update();
     const id = setInterval(update, 1000);
     return () => clearInterval(id);
-  }, [nextPrayer]);
+  }, [nextPrayer, times]);
 
   const hijriDate = useMemo(() => {
     try { return new Intl.DateTimeFormat('de-DE', { calendar: 'islamic-civil', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()); }
@@ -111,21 +160,61 @@ export default function HomeScreen() {
           ) : null}
         </Card>
 
-        {/* Live Countdown */}
-        {nextPrayer && (
-          <Card centered style={{ borderColor: t.accent + '44' }}>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Nächstes Gebet</Text>
-            <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent }}>{nextPrayer.name}</Text>
-            <Text style={{ fontSize: FontSize.lg, color: t.accentLight }}>{nextPrayer.time}</Text>
-            <Text style={{ fontSize: 28, fontWeight: '700', color: t.text, marginTop: Spacing.sm, fontVariant: ['tabular-nums'] }}>{countdown}</Text>
-            <View style={{ flexDirection: 'row', marginTop: Spacing.sm, gap: 4 }}>
+        {/* Enhanced Prayer Countdown */}
+        {nextPrayer && currentPrayer && (
+          <Card style={{ borderColor: t.accent + '44' }}>
+            {/* Current Prayer */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
+              <View>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Aktuelles Gebet</Text>
+                <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.text }}>{currentPrayer.name}</Text>
+                <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>{currentPrayer.time}</Text>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Nächstes Gebet</Text>
+                <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.accent }}>{nextPrayer.name}</Text>
+                <Text style={{ fontSize: FontSize.sm, color: t.accentLight }}>{nextPrayer.time}</Text>
+              </View>
+            </View>
+
+            {/* Progress bar between prayers */}
+            <View style={[styles.prayerProgressBar, { backgroundColor: t.border }]}>
+              <View style={[styles.prayerProgressFill, { width: `${progress * 100}%`, backgroundColor: t.accent }]} />
+            </View>
+
+            {/* Countdown */}
+            <View style={{ alignItems: 'center', marginTop: Spacing.md }}>
+              <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent, fontVariant: ['tabular-nums'] }}>{countdown}</Text>
+              <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>bis {nextPrayer.name}</Text>
+            </View>
+
+            {/* Prayer dots */}
+            <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.md, gap: 6 }}>
               {['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].map((p) => (
                 <View key={p} style={[styles.miniDot, { backgroundColor: todayPrayers[p] ? t.accent : t.border }]} />
               ))}
             </View>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 4 }}>{completedCount}/5 verrichtet</Text>
+            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginTop: 4 }}>{completedCount}/5 verrichtet</Text>
           </Card>
         )}
+
+        {/* Streak & Daily Goals side by side */}
+        <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+          <View style={{ flex: 1 }}>
+            <Card centered>
+              <Text style={{ fontSize: 28 }}>🔥</Text>
+              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>0</Text>
+              <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Tage Streak</Text>
+            </Card>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Card centered>
+              <Text style={{ fontSize: 28 }}>🎯</Text>
+              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>0/3</Text>
+              <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Tagesziele</Text>
+            </Card>
+          </View>
+        </View>
 
         {/* Ayah des Tages */}
         <Card>
@@ -196,6 +285,16 @@ export default function HomeScreen() {
             </View>
           </Card>
         </Pressable>
+
+        {/* Global Dhikr Placeholder */}
+        <Card centered>
+          <Text style={{ fontSize: 32 }}>🌍</Text>
+          <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginTop: Spacing.sm }}>Globaler Tasbih heute</Text>
+          <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>--</Text>
+          <View style={{ backgroundColor: t.accent + '10', paddingHorizontal: 12, paddingVertical: 6, borderRadius: BorderRadius.full, marginTop: Spacing.sm }}>
+            <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Kommt in Phase 3</Text>
+          </View>
+        </Card>
       </ScrollView>
     </SafeAreaView>
   );
@@ -208,9 +307,11 @@ const styles = StyleSheet.create({
   bismillah: { fontSize: 32, fontWeight: '700' },
   subtitle: { fontSize: FontSize.sm, letterSpacing: 3, textTransform: 'uppercase', marginTop: 4 },
   badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginTop: 8 },
-  miniDot: { width: 8, height: 8, borderRadius: 4 },
+  miniDot: { width: 10, height: 10, borderRadius: 5 },
   miniChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9999, borderWidth: 1 },
   miniCounter: { width: 100, height: 100, borderRadius: 50, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  prayerProgressBar: { width: '100%', height: 8, borderRadius: 4, overflow: 'hidden' },
+  prayerProgressFill: { height: '100%', borderRadius: 4 },
   progressBar: { width: '100%', height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, marginTop: Spacing.md, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
 });
