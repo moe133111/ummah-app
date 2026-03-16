@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Switch, Platform } from 'react-native';
 import { useState, useMemo, useEffect } from 'react';
+import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
+import { WebView } from 'react-native-webview';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';
 import { calculatePrayerTimes, getNextPrayer, calculateQiblaDirection, distanceToKaaba } from '../../features/prayer/prayerCalculation';
@@ -9,14 +11,14 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../co
 import Card from '../../components/ui/Card';
 
 const COMPASS_SIZE = 280;
-const COMPASS_R = COMPASS_SIZE / 2;
-const DIRECTIONS = [
-  { label: 'N', deg: 0 },
-  { label: 'E', deg: 90 },
-  { label: 'S', deg: 180 },
-  { label: 'W', deg: 270 },
-];
-const TICK_COUNT = 72; // every 5 degrees
+const CX = COMPASS_SIZE / 2;
+const CY = COMPASS_SIZE / 2;
+const OUTER_R = 134;
+const INNER_R = 110;
+const TICK_R = OUTER_R - 2;
+const LABEL_R = 95;
+const KAABA_LAT = 21.4225;
+const KAABA_LNG = 39.8262;
 
 const PRAYER_META = {
   fajr: { name: 'Fajr', icon: '🌙', trackable: true },
@@ -127,7 +129,7 @@ export default function PrayerScreen() {
         )}
 
         {tab === 'qibla' && (
-          <QiblaCompass qibla={qibla} dist={dist} t={t} />
+          <QiblaCompass qibla={qibla} dist={dist} t={t} location={location} />
         )}
 
         {tab === 'tracker' && (
@@ -187,34 +189,147 @@ export default function PrayerScreen() {
   );
 }
 
-function QiblaCompass({ qibla, dist, t }) {
+function polarToXY(cx, cy, r, deg) {
+  const rad = ((deg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function QiblaMap({ lat, lng, t }) {
+  const [mapError, setMapError] = useState(false);
+
+  const html = `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>body{margin:0}#map{width:100%;height:100%}</style></head>
+<body><div id="map"></div><script>
+var map=L.map('map',{zoomControl:false,attributionControl:false}).fitBounds([[${lat},${lng}],[${KAABA_LAT},${KAABA_LNG}]],{padding:[30,30]});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.polyline([[${lat},${lng}],[${KAABA_LAT},${KAABA_LNG}]],{color:'#D4A04A',weight:2,dashArray:'6,6'}).addTo(map);
+L.circleMarker([${lat},${lng}],{radius:6,fillColor:'#3B82F6',color:'#fff',weight:2,fillOpacity:1}).addTo(map);
+L.marker([${KAABA_LAT},${KAABA_LNG}]).addTo(map).bindPopup('Kaaba');
+</script></body></html>`;
+
+  if (mapError) {
+    return null;
+  }
+
+  return (
+    <Card style={{ padding: 0, overflow: 'hidden' }}>
+      <WebView
+        source={{ html }}
+        style={{ height: 200, borderRadius: BorderRadius.md }}
+        scrollEnabled={false}
+        onError={() => setMapError(true)}
+      />
+    </Card>
+  );
+}
+
+function QiblaCompass({ qibla, dist, t, location }) {
   const { heading, available } = useCompass();
   const [iosGranted, setIosGranted] = useState(Platform.OS !== 'ios');
 
-  // Rotation: compass ring rotates opposite to device heading
-  const compassRotation = -heading;
-  // Qibla arrow: always points to qibla relative to device
-  const qiblaRotation = qibla !== null ? qibla - heading : 0;
+  const hasHeading = available === true;
+  const compassRotation = hasHeading ? -heading : 0;
+  const qiblaRotation = qibla !== null ? (hasHeading ? qibla - heading : qibla) : 0;
+
+  const accentColor = t.accent;
+  const dimColor = t.textDim;
+  const borderColor = t.border;
+  const textColor = t.text;
+
+  // Generate tick marks
+  const ticks = [];
+  for (let i = 0; i < 72; i++) {
+    const deg = i * 5;
+    const isMajor = deg % 90 === 0;
+    const isMid = deg % 45 === 0;
+    const len = isMajor ? 14 : isMid ? 9 : 5;
+    const sw = isMajor ? 2.5 : 1.2;
+    const color = isMajor ? accentColor : dimColor + '55';
+    const p1 = polarToXY(CX, CY, TICK_R, deg);
+    const p2 = polarToXY(CX, CY, TICK_R - len, deg);
+    ticks.push(<Line key={`t${i}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={color} strokeWidth={sw} />);
+  }
+
+  // Direction labels
+  const dirs = [
+    { label: 'N', deg: 0, color: accentColor },
+    { label: 'E', deg: 90, color: textColor },
+    { label: 'S', deg: 180, color: textColor },
+    { label: 'W', deg: 270, color: textColor },
+  ];
+
+  // Qibla arrow geometry
+  const arrowTip = polarToXY(CX, CY, OUTER_R - 6, qiblaRotation);
+  const headBack = polarToXY(CX, CY, OUTER_R - 22, qiblaRotation);
+  const headL = polarToXY(headBack.x, headBack.y, 10, qiblaRotation - 90);
+  const headR = polarToXY(headBack.x, headBack.y, 10, qiblaRotation + 90);
+  const arrowLineTip = polarToXY(CX, CY, OUTER_R - 20, qiblaRotation);
+
+  // Kaaba emoji position (beyond arrow tip)
+  const kaabaPos = polarToXY(CX, CY, OUTER_R + 8, qiblaRotation);
 
   // Static fallback when no sensor
   if (available === false) {
     return (
       <>
-        <Card centered>
-          <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>🕋</Text>
-          <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.accent, marginBottom: 4 }}>Qibla Richtung</Text>
+        <View style={compassStyles.compassContainer}>
+          <Svg width={COMPASS_SIZE} height={COMPASS_SIZE} viewBox={`0 0 ${COMPASS_SIZE} ${COMPASS_SIZE}`}>
+            <Defs>
+              <RadialGradient id="glow" cx="50%" cy="50%" r="50%">
+                <Stop offset="0%" stopColor={accentColor} stopOpacity="0.4" />
+                <Stop offset="100%" stopColor={accentColor} stopOpacity="0" />
+              </RadialGradient>
+            </Defs>
+            {/* Outer circle */}
+            <Circle cx={CX} cy={CY} r={OUTER_R} stroke={accentColor} strokeWidth={2} fill="none" />
+            {/* Inner dashed circle */}
+            <Circle cx={CX} cy={CY} r={INNER_R} stroke={borderColor} strokeWidth={1} strokeDasharray="4,4" fill="none" />
+            {/* Ticks */}
+            {ticks}
+            {/* Direction labels */}
+            {dirs.map((d) => {
+              const pos = polarToXY(CX, CY, LABEL_R, d.deg);
+              return (
+                <SvgText key={d.label} x={pos.x} y={pos.y + 5} textAnchor="middle" fontSize={16} fontWeight="800" fill={d.color}>
+                  {d.label}
+                </SvgText>
+              );
+            })}
+            {/* Qibla arrow line */}
+            {qibla !== null && (
+              <>
+                <Line x1={CX} y1={CY} x2={arrowLineTip.x} y2={arrowLineTip.y} stroke={accentColor} strokeWidth={3} strokeLinecap="round" />
+                <Line x1={headL.x} y1={headL.y} x2={arrowTip.x} y2={arrowTip.y} stroke={accentColor} strokeWidth={2.5} strokeLinecap="round" />
+                <Line x1={headR.x} y1={headR.y} x2={arrowTip.x} y2={arrowTip.y} stroke={accentColor} strokeWidth={2.5} strokeLinecap="round" />
+              </>
+            )}
+            {/* Center glow */}
+            <Circle cx={CX} cy={CY} r={14} fill="url(#glow)" />
+            {/* Center dot */}
+            <Circle cx={CX} cy={CY} r={5} fill={accentColor} />
+          </Svg>
+          {/* Kaaba emoji overlay */}
           {qibla !== null && (
-            <Text style={{ fontSize: 32, fontWeight: '700', color: t.accentLight, marginBottom: 4 }}>{qibla.toFixed(1)}° von Norden</Text>
+            <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 14, top: kaabaPos.y - 14 }]}>
+              <Text style={{ fontSize: 22 }}>🕋</Text>
+            </View>
           )}
-          {dist && (
-            <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>Entfernung zur Kaaba: {dist.toLocaleString('de-DE')} km</Text>
-          )}
-        </Card>
+        </View>
         <Card centered>
-          <Text style={{ color: t.textDim, fontSize: FontSize.sm, textAlign: 'center' }}>
-            Magnetometer nicht verfügbar auf diesem Gerät.{'\n'}Am besten auf einem Mobilgerät nutzen.
+          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Qibla Richtung</Text>
+          {qibla !== null && (
+            <Text style={{ fontSize: 28, fontWeight: '700', color: accentColor, marginTop: 4 }}>{qibla.toFixed(1)}° von Norden</Text>
+          )}
+          {dist != null && (
+            <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 2 }}>Entfernung: {dist.toLocaleString('de-DE')} km</Text>
+          )}
+          <Text style={{ color: t.textDim, fontSize: FontSize.xs, textAlign: 'center', marginTop: 8 }}>
+            Magnetometer nicht verfügbar.{'\n'}Statische Qibla-Richtung wird angezeigt.
           </Text>
         </Card>
+        {location && <QiblaMap lat={location.lat} lng={location.lng} t={t} />}
       </>
     );
   }
@@ -239,148 +354,86 @@ function QiblaCompass({ qibla, dist, t }) {
               const ok = await requestIOSPermission();
               setIosGranted(ok);
             }}
-            style={[compassStyles.iosBtn, { backgroundColor: t.accent + '18', borderColor: t.accent }]}
+            style={[compassStyles.iosBtn, { backgroundColor: accentColor + '18', borderColor: accentColor }]}
           >
-            <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent }}>🧭 Kompass aktivieren</Text>
+            <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: accentColor }}>🧭 Kompass aktivieren</Text>
           </Pressable>
         </Card>
       )}
 
-      {/* Compass */}
-      <View style={compassStyles.compassWrapper}>
-        {/* Rotating compass ring */}
-        <View style={[compassStyles.compassRing, { borderColor: t.border }]}>
-          <View style={{ width: COMPASS_SIZE, height: COMPASS_SIZE, transform: [{ rotate: `${compassRotation}deg` }] }}>
+      {/* SVG Compass */}
+      <View style={compassStyles.compassContainer}>
+        <Svg width={COMPASS_SIZE} height={COMPASS_SIZE} viewBox={`0 0 ${COMPASS_SIZE} ${COMPASS_SIZE}`}>
+          <Defs>
+            <RadialGradient id="glow" cx="50%" cy="50%" r="50%">
+              <Stop offset="0%" stopColor={accentColor} stopOpacity="0.4" />
+              <Stop offset="100%" stopColor={accentColor} stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+
+          {/* Rotating compass group */}
+          <G rotation={compassRotation} origin={`${CX}, ${CY}`}>
+            {/* Outer circle */}
+            <Circle cx={CX} cy={CY} r={OUTER_R} stroke={accentColor} strokeWidth={2} fill="none" />
+            {/* Inner dashed circle */}
+            <Circle cx={CX} cy={CY} r={INNER_R} stroke={borderColor} strokeWidth={1} strokeDasharray="4,4" fill="none" />
             {/* Tick marks */}
-            {Array.from({ length: TICK_COUNT }, (_, i) => {
-              const deg = i * (360 / TICK_COUNT);
-              const isMajor = deg % 90 === 0;
-              const isMid = deg % 45 === 0;
+            {ticks}
+            {/* Direction labels (counter-rotate so they stay upright) */}
+            {dirs.map((d) => {
+              const pos = polarToXY(CX, CY, LABEL_R, d.deg);
               return (
-                <View
-                  key={i}
-                  style={[
-                    compassStyles.tick,
-                    {
-                      height: isMajor ? 16 : isMid ? 10 : 6,
-                      width: isMajor ? 2.5 : 1.5,
-                      backgroundColor: isMajor ? t.accent : t.textDim + '55',
-                      transform: [
-                        { translateX: -0.75 },
-                        { rotate: `${deg}deg` },
-                        { translateY: -(COMPASS_R - 2) },
-                      ],
-                    },
-                  ]}
-                />
+                <SvgText key={d.label} x={pos.x} y={pos.y + 5} textAnchor="middle" fontSize={16} fontWeight="800" fill={d.color}
+                  rotation={-compassRotation} origin={`${pos.x}, ${pos.y}`}>
+                  {d.label}
+                </SvgText>
               );
             })}
+          </G>
 
-            {/* Direction labels N E S W */}
-            {DIRECTIONS.map((d) => (
-              <View
-                key={d.label}
-                style={[
-                  compassStyles.dirLabel,
-                  {
-                    transform: [
-                      { rotate: `${d.deg}deg` },
-                      { translateY: -(COMPASS_R - 34) },
-                    ],
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    compassStyles.dirText,
-                    {
-                      color: d.label === 'N' ? '#C0392B' : t.text,
-                      transform: [{ rotate: `${-d.deg - compassRotation}deg` }],
-                    },
-                  ]}
-                >
-                  {d.label}
-                </Text>
-              </View>
-            ))}
+          {/* Qibla arrow (rotates to qibla relative to device) */}
+          {qibla !== null && (
+            <G>
+              <Line x1={CX} y1={CY} x2={arrowLineTip.x} y2={arrowLineTip.y} stroke={accentColor} strokeWidth={3} strokeLinecap="round" />
+              <Line x1={headL.x} y1={headL.y} x2={arrowTip.x} y2={arrowTip.y} stroke={accentColor} strokeWidth={2.5} strokeLinecap="round" />
+              <Line x1={headR.x} y1={headR.y} x2={arrowTip.x} y2={arrowTip.y} stroke={accentColor} strokeWidth={2.5} strokeLinecap="round" />
+            </G>
+          )}
 
-            {/* Degree markers at 30° intervals */}
-            {[30, 60, 120, 150, 210, 240, 300, 330].map((deg) => (
-              <View
-                key={`d${deg}`}
-                style={[
-                  compassStyles.dirLabel,
-                  {
-                    transform: [
-                      { rotate: `${deg}deg` },
-                      { translateY: -(COMPASS_R - 34) },
-                    ],
-                  },
-                ]}
-              >
-                <Text
-                  style={{
-                    fontSize: 10,
-                    color: t.textDim,
-                    fontWeight: '500',
-                    transform: [{ rotate: `${-deg - compassRotation}deg` }],
-                  }}
-                >
-                  {deg}°
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
+          {/* Center glow */}
+          <Circle cx={CX} cy={CY} r={14} fill="url(#glow)" />
+          {/* Center dot */}
+          <Circle cx={CX} cy={CY} r={5} fill={accentColor} />
+        </Svg>
 
-        {/* Qibla arrow overlay (not affected by compass rotation) */}
+        {/* Kaaba emoji overlay (positioned outside SVG for proper rendering) */}
         {qibla !== null && (
-          <View style={compassStyles.arrowOverlay} pointerEvents="none">
-            <View style={{ width: COMPASS_SIZE, height: COMPASS_SIZE, transform: [{ rotate: `${qiblaRotation}deg` }] }}>
-              {/* Arrow line */}
-              <View style={[compassStyles.arrowLine, { backgroundColor: t.accent }]} />
-              {/* Arrow head (triangle via borders) */}
-              <View style={compassStyles.arrowHeadWrap}>
-                <View style={[compassStyles.arrowHead, { borderBottomColor: t.accent }]} />
-              </View>
-              {/* Kaaba emoji at arrow tip */}
-              <View style={compassStyles.kaabaWrap}>
-                <Text style={{ fontSize: 24, transform: [{ rotate: `${-qiblaRotation}deg` }] }}>🕋</Text>
-              </View>
-            </View>
+          <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 14, top: kaabaPos.y - 14 }]}>
+            <Text style={{ fontSize: 22 }}>🕋</Text>
           </View>
         )}
-
-        {/* Center dot */}
-        <View style={[compassStyles.centerDot, { backgroundColor: t.accent }]} />
       </View>
 
       {/* Info below compass */}
       <Card centered>
         <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Qibla Richtung</Text>
         {qibla !== null && (
-          <Text style={{ fontSize: 28, fontWeight: '700', color: t.accent, marginTop: 4 }}>{qibla.toFixed(1)}°</Text>
+          <Text style={{ fontSize: 28, fontWeight: '700', color: accentColor, marginTop: 4 }}>{qibla.toFixed(1)}°</Text>
         )}
         <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 2 }}>
           Kompass: {Math.round(heading)}° | {dist ? `${dist.toLocaleString('de-DE')} km zur Kaaba` : ''}
         </Text>
       </Card>
+
+      {/* Map */}
+      {location && <QiblaMap lat={location.lat} lng={location.lng} t={t} />}
     </>
   );
 }
 
 const compassStyles = StyleSheet.create({
-  compassWrapper: { alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginVertical: Spacing.lg, width: COMPASS_SIZE + 20, height: COMPASS_SIZE + 20 },
-  compassRing: { width: COMPASS_SIZE, height: COMPASS_SIZE, borderRadius: COMPASS_R, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  tick: { position: 'absolute', left: COMPASS_R, top: COMPASS_R, transformOrigin: '0.75px 0px' },
-  dirLabel: { position: 'absolute', left: COMPASS_R - 12, top: COMPASS_R - 8, width: 24, height: 16, alignItems: 'center', justifyContent: 'center', transformOrigin: '12px 8px' },
-  dirText: { fontSize: 16, fontWeight: '800' },
-  arrowOverlay: { position: 'absolute', top: 10, left: 10, width: COMPASS_SIZE, height: COMPASS_SIZE },
-  arrowLine: { position: 'absolute', width: 3, height: COMPASS_R - 30, left: COMPASS_R - 1.5, top: 30, borderRadius: 2 },
-  arrowHeadWrap: { position: 'absolute', left: COMPASS_R - 10, top: 18 },
-  arrowHead: { width: 0, height: 0, borderLeftWidth: 10, borderRightWidth: 10, borderBottomWidth: 16, borderLeftColor: 'transparent', borderRightColor: 'transparent' },
-  kaabaWrap: { position: 'absolute', left: COMPASS_R - 14, top: 0, width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
-  centerDot: { position: 'absolute', top: (COMPASS_SIZE + 20) / 2 - 6, left: (COMPASS_SIZE + 20) / 2 - 6, width: 12, height: 12, borderRadius: 6 },
+  compassContainer: { alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginVertical: Spacing.lg, width: COMPASS_SIZE, height: COMPASS_SIZE },
+  kaabaEmoji: { position: 'absolute', width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
   iosBtn: { paddingHorizontal: 24, paddingVertical: 14, borderRadius: BorderRadius.md, borderWidth: 1 },
 });
 
