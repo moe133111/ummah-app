@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Switch, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform } from 'react-native';
 import { useState, useMemo, useEffect } from 'react';
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { WebView } from 'react-native-webview';
@@ -47,6 +47,16 @@ export default function PrayerScreen() {
 
   const nextPrayer = useMemo(() => (times ? getNextPrayer(times) : null), [times]);
   const completedCount = Object.values(todayPrayers).filter(Boolean).length;
+  const trackableKeys = Object.entries(PRAYER_META).filter(([, m]) => m.trackable).map(([k]) => k);
+  const activeNotifCount = trackableKeys.filter((k) => notifications[k]).length;
+  const allNotifsOn = activeNotifCount === trackableKeys.length;
+
+  const toggleAllNotifications = () => {
+    const targetState = !allNotifsOn;
+    trackableKeys.forEach((k) => {
+      if (notifications[k] !== targetState) toggleNotification(k);
+    });
+  };
 
   // Schedule notifications when times or settings change
   useEffect(() => {
@@ -93,6 +103,16 @@ export default function PrayerScreen() {
                 <Text style={{ fontSize: FontSize.lg, color: t.accentLight, marginTop: 2 }}>{nextPrayer.time}</Text>
               </Card>
             )}
+            {/* Notification summary */}
+            {times && (
+              <Pressable onPress={toggleAllNotifications} style={[styles.notifSummary, { backgroundColor: t.accent + '10', borderColor: t.accent + '30' }]}>
+                <Text style={{ fontSize: 16 }}>{allNotifsOn ? '🔔' : '🔕'}</Text>
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent, flex: 1, marginLeft: 8 }}>
+                  {activeNotifCount}/5 Benachrichtigungen aktiv
+                </Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{allNotifsOn ? 'Alle aus' : 'Alle an'}</Text>
+              </Pressable>
+            )}
             <Card>
               {loading || !times ? (
                 <View style={{ alignItems: 'center', paddingVertical: 30 }}>
@@ -112,13 +132,18 @@ export default function PrayerScreen() {
                         <Text style={{ fontSize: 20 }}>{meta.icon}</Text>
                         <Text style={[{ fontSize: FontSize.lg, color: isNext ? t.accent : t.text }, isNext && { fontWeight: '700' }]}>{meta.name}</Text>
                       </View>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        {meta.trackable && (
-                          <View style={[styles.checkbox, { borderColor: t.accent }, todayPrayers[key] && { backgroundColor: t.accent }]}>
-                            {todayPrayers[key] && <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>✓</Text>}
-                          </View>
-                        )}
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                         <Text style={{ fontSize: FontSize.lg, fontWeight: '600', color: isNext ? t.accentLight : t.textDim }}>{times[key]}</Text>
+                        {meta.trackable && (
+                          <Pressable
+                            onPress={(e) => { e.stopPropagation(); toggleNotification(key); }}
+                            hitSlop={8}
+                          >
+                            <Text style={{ fontSize: 18, color: notifications[key] ? t.accent : t.textDim }}>
+                              {notifications[key] ? '🔔' : '🔕'}
+                            </Text>
+                          </Pressable>
+                        )}
                       </View>
                     </Pressable>
                   );
@@ -155,25 +180,6 @@ export default function PrayerScreen() {
                       {todayPrayers[key] && <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>✓</Text>}
                     </View>
                   </Pressable>
-                ))}
-            </Card>
-            <Card>
-              <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginBottom: Spacing.md }}>Benachrichtigungen</Text>
-              {Object.entries(PRAYER_META)
-                .filter(([, meta]) => meta.trackable)
-                .map(([key, meta]) => (
-                  <View key={`notif-${key}`} style={styles.trackerRow}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                      <Text style={{ fontSize: 20 }}>{meta.icon}</Text>
-                      <Text style={{ fontSize: FontSize.md, color: t.text }}>{meta.name}</Text>
-                    </View>
-                    <Switch
-                      value={notifications[key]}
-                      onValueChange={() => toggleNotification(key)}
-                      trackColor={{ false: '#ccc', true: t.accent + '66' }}
-                      thumbColor={notifications[key] ? t.accent : '#f4f3f4'}
-                    />
-                  </View>
                 ))}
             </Card>
             {completedCount === 5 && (
@@ -439,6 +445,7 @@ const compassStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   tab: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
+  notifSummary: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
   prayerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, paddingHorizontal: Spacing.lg, borderRadius: BorderRadius.md, marginBottom: 4 },
   checkbox: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   trackerBar: { width: '100%', height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, marginTop: 8, overflow: 'hidden' },
