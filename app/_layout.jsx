@@ -5,6 +5,7 @@ import * as Notifications from 'expo-notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from '../hooks/useAppStore';
 import { requestNotificationPermission } from '../features/prayer/notifications';
+import { initDatabase } from '../lib/database';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -21,6 +22,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     requestNotificationPermission();
+    initDatabase();
   }, []);
 
   return (
