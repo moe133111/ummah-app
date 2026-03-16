@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView } from 'react-native';
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';
-import { calculatePrayerTimes, getNextPrayer } from '../../features/prayer/prayerCalculation';
+import { fetchPrayerTimes, getNextPrayer } from '../../features/prayer/prayerCalculation';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { DUAS } from '../../features/duas/duaData';
 import Card from '../../components/ui/Card';
@@ -101,11 +102,15 @@ export default function HomeScreen() {
   const [countdown, setCountdown] = useState('');
   const [progress, setProgress] = useState(0);
 
-  const times = useMemo(() => {
-    if (!location) return null;
-    return calculatePrayerTimes(location.lat, location.lng, new Date(), method);
-  }, [location, method]);
+  const dateString = new Date().toISOString().slice(0, 10);
+  const { data: prayerData } = useQuery({
+    queryKey: ['prayerTimes', location?.lat, location?.lng, method, dateString],
+    queryFn: () => fetchPrayerTimes(location.lat, location.lng, method),
+    enabled: !!location,
+    staleTime: 1000 * 60 * 60,
+  });
 
+  const times = prayerData?.times || null;
   const nextPrayer = useMemo(() => (times ? getNextPrayer(times) : null), [times]);
   const currentPrayer = useMemo(() => (times ? getCurrentPrayer(times) : null), [times]);
 

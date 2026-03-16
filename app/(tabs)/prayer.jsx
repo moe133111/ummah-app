@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
 import { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { WebView } from 'react-native-webview';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';
-import { calculatePrayerTimes, getNextPrayer, calculateQiblaDirection, distanceToKaaba } from '../../features/prayer/prayerCalculation';
+import { fetchPrayerTimes, getNextPrayer, calculateQiblaDirection, distanceToKaaba } from '../../features/prayer/prayerCalculation';
 import { schedulePrayerNotifications } from '../../features/prayer/notifications';
 import { useCompass, requestIOSPermission } from '../../features/qibla/useCompass';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
@@ -40,11 +41,16 @@ export default function PrayerScreen() {
   const t = isDark ? DarkTheme : LightTheme;
   const [tab, setTab] = useState('times');
 
-  const times = useMemo(() => {
-    if (!location) return null;
-    return calculatePrayerTimes(location.lat, location.lng, new Date(), method);
-  }, [location, method]);
+  const dateString = new Date().toISOString().slice(0, 10);
+  const { data: prayerData, isLoading: timesLoading } = useQuery({
+    queryKey: ['prayerTimes', location?.lat, location?.lng, method, dateString],
+    queryFn: () => fetchPrayerTimes(location.lat, location.lng, method),
+    enabled: !!location,
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
 
+  const times = prayerData?.times || null;
+  const prayerSource = prayerData?.source || null;
   const nextPrayer = useMemo(() => (times ? getNextPrayer(times) : null), [times]);
   const completedCount = Object.values(todayPrayers).filter(Boolean).length;
   const trackableKeys = Object.entries(PRAYER_META).filter(([, m]) => m.trackable).map(([k]) => k);
@@ -113,11 +119,17 @@ export default function PrayerScreen() {
                 <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{allNotifsOn ? 'Alle aus' : 'Alle an'}</Text>
               </Pressable>
             )}
+            {/* Source indicator */}
+            {prayerSource && (
+              <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginBottom: Spacing.sm }}>
+                {prayerSource === 'aladhan' ? 'via Aladhan API' : prayerSource === 'cache' ? 'via Aladhan (Cache)' : 'Offline-Berechnung'}
+              </Text>
+            )}
             <Card>
-              {loading || !times ? (
+              {loading || timesLoading || !times ? (
                 <View style={{ alignItems: 'center', paddingVertical: 30 }}>
-                  <Text style={{ fontSize: 28, marginBottom: 8 }}>📍</Text>
-                  <Text style={{ color: t.textDim }}>Standort wird ermittelt...</Text>
+                  {timesLoading ? <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: 8 }} /> : <Text style={{ fontSize: 28, marginBottom: 8 }}>📍</Text>}
+                  <Text style={{ color: t.textDim }}>{timesLoading ? 'Gebetszeiten werden geladen...' : 'Standort wird ermittelt...'}</Text>
                 </View>
               ) : (
                 Object.entries(PRAYER_META).map(([key, meta]) => {

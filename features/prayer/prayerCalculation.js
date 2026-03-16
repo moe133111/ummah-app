@@ -1,9 +1,12 @@
+import { fetchPrayerTimesFromApi } from './aladhanApi';
+
 const METHODS = {
   MWL: { name: 'Muslim World League', fajrAngle: 18, ishaAngle: 17 },
   ISNA: { name: 'Islamic Society of North America', fajrAngle: 15, ishaAngle: 15 },
   EGYPTIAN: { name: 'Egyptian General Authority', fajrAngle: 19.5, ishaAngle: 17.5 },
   UMM_AL_QURA: { name: 'Umm al-Qura, Makkah', fajrAngle: 18.5, ishaAngle: 90, ishaMinutes: 90 },
   KARACHI: { name: 'University of Islamic Sciences, Karachi', fajrAngle: 18, ishaAngle: 18 },
+  DIYANET: { name: 'Diyanet İşleri Başkanlığı, Türkei', fajrAngle: 18, ishaAngle: 17 },
 };
 
 function toJulianDate(y, m, d) {
@@ -63,4 +66,24 @@ export function getNextPrayer(times) {
 }
 
 export function getAvailableMethods() { return Object.entries(METHODS).map(([key, val]) => ({ key, name: val.name })); }
+
+/**
+ * Fetch prayer times: try Aladhan API first, fall back to local calculation.
+ * Returns { times, source } where source is 'aladhan', 'cache', or 'local'.
+ */
+export async function fetchPrayerTimes(lat, lng, method = 'MWL', date = new Date()) {
+  const apiResult = await fetchPrayerTimesFromApi(lat, lng, method, date);
+  if (apiResult) return apiResult;
+  // Fallback to local calculation
+  return { times: calculatePrayerTimes(lat, lng, date, method), source: 'local' };
+}
+
+export const METHOD_RECOMMENDATIONS = [
+  { region: 'Europa / Deutschland', methods: ['MWL', 'ISNA'] },
+  { region: 'Türkei', methods: ['DIYANET'] },
+  { region: 'Ägypten / Nordafrika', methods: ['EGYPTIAN'] },
+  { region: 'Saudi-Arabien / Golf', methods: ['UMM_AL_QURA'] },
+  { region: 'Pakistan / Südasien', methods: ['KARACHI'] },
+];
+
 export { METHODS };
