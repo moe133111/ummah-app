@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Switch, SafeAreaView } f
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useLocation } from '../../hooks/useLocation';
-import { getAvailableMethods } from '../../features/prayer/prayerCalculation';
+import { getAvailableMethods, METHOD_RECOMMENDATIONS } from '../../features/prayer/prayerCalculation';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import Card from '../../components/ui/Card';
 import FeaturePreview from '../../components/ui/FeaturePreview';
@@ -217,6 +217,14 @@ export default function MoreScreen() {
                   </View>
                 </Pressable>
               ))}
+              <View style={{ marginTop: Spacing.md, padding: Spacing.md, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08', borderWidth: 1, borderColor: t.accent + '15' }}>
+                <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent, marginBottom: Spacing.sm }}>Empfehlung nach Region</Text>
+                {METHOD_RECOMMENDATIONS.map((r) => (
+                  <Text key={r.region} style={{ fontSize: FontSize.xs, color: t.textDim, lineHeight: 18 }}>
+                    {r.region}: {r.methods.join(', ')}
+                  </Text>
+                ))}
+              </View>
             </Card>
 
             <Card>
