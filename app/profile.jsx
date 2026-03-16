@@ -6,12 +6,14 @@ import Card from '../components/ui/Card';
 
 export default function ProfileScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
-  const streak = useAppStore((s) => s.streak);
+  const currentStreak = useAppStore((s) => s.currentStreak) || 0;
   const totalPrayers = useAppStore((s) => s.totalPrayers) || 0;
   const totalDhikr = useAppStore((s) => s.totalDhikr) || 0;
   const surahsRead = useAppStore((s) => s.surahsRead) || [];
   const longestStreak = useAppStore((s) => s.longestStreak) || 0;
   const fajrStreak = useAppStore((s) => s.fajrStreak) || 0;
+  const quranStreak = useAppStore((s) => s.quranStreak) || 0;
+  const dhikrStreak = useAppStore((s) => s.dhikrStreak) || 0;
   const memberSince = useAppStore((s) => s.memberSince);
   const todayPrayers = useAppStore((s) => s.todayPrayers);
   const t = isDark ? DarkTheme : LightTheme;
@@ -25,12 +27,12 @@ export default function ProfileScreen() {
     : 'Heute';
 
   const stats = [
+    { emoji: '🔥', value: currentStreak, label: 'Aktuelle Streak' },
+    { emoji: '⭐', value: longestStreak, label: 'Längste Streak' },
     { emoji: '🕌', value: totalPrayers, label: 'Gebete verrichtet' },
-    { emoji: '📿', value: totalDhikr, label: 'Dhikr gesamt' },
-    { emoji: '📖', value: surahsRead.length, label: 'Suren gelesen' },
-    { emoji: '🔥', value: longestStreak, label: 'Längste Streak' },
-    { emoji: '📅', value: 0, label: 'Fastentage' },
-    { emoji: '⏱', value: 0, label: 'Quran-Minuten' },
+    { emoji: '🌅', value: fajrStreak, label: 'Fajr-Streak' },
+    { emoji: '📖', value: quranStreak, label: 'Quran-Streak' },
+    { emoji: '📿', value: dhikrStreak, label: 'Dhikr-Streak' },
   ];
 
   const quranProgress = surahsRead.length;
@@ -45,9 +47,9 @@ export default function ProfileScreen() {
           </View>
           <Text style={[styles.name, { color: t.text }]}>Nutzer</Text>
           <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 2 }}>Mitglied seit {memberDate}</Text>
-          {streak > 0 && (
+          {currentStreak > 0 && (
             <View style={[styles.streakBadge, { backgroundColor: t.accent + '18' }]}>
-              <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>🔥 {streak} Tage Streak</Text>
+              <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>🔥 {currentStreak} Tage Streak</Text>
             </View>
           )}
         </View>

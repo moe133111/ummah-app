@@ -9,6 +9,7 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../co
 import { DUAS } from '../../features/duas/duaData';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
+import { getStreakEmoji, getStreakMessage } from '../../features/streaks/streakManager';
 
 const DAILY_AYAHS = [
   { arabic: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا', translation: 'Wahrlich, mit der Erschwernis kommt die Erleichterung.', ref: 'Ash-Sharh 94:6' },
@@ -96,6 +97,8 @@ export default function HomeScreen() {
   const todayPrayers = useAppStore((s) => s.todayPrayers);
   const lastReadSurah = useAppStore((s) => s.lastReadSurah);
   const incrementDhikr = useAppStore((s) => s.incrementDhikr);
+  const currentStreak = useAppStore((s) => s.currentStreak) || 0;
+  const fajrStreak = useAppStore((s) => s.fajrStreak) || 0;
   const t = isDark ? DarkTheme : LightTheme;
   const router = useRouter();
 
@@ -206,17 +209,26 @@ export default function HomeScreen() {
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}>
             <Card centered>
-              <Text style={{ fontSize: 28 }}>🔥</Text>
-              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>0</Text>
+              <Text style={{ fontSize: 28 }}>{getStreakEmoji(currentStreak) || '🔥'}</Text>
+              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>{currentStreak}</Text>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Tage Streak</Text>
+              <Text style={{ fontSize: FontSize.xs, color: t.accent, marginTop: 2 }}>{getStreakMessage(currentStreak)}</Text>
             </Card>
           </View>
           <View style={{ flex: 1 }}>
-            <Card centered>
-              <Text style={{ fontSize: 28 }}>🎯</Text>
-              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>0/3</Text>
-              <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Tagesziele</Text>
-            </Card>
+            {fajrStreak > 0 ? (
+              <Card centered>
+                <Text style={{ fontSize: 28 }}>🌅</Text>
+                <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>{fajrStreak}</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Fajr-Streak</Text>
+              </Card>
+            ) : (
+              <Card centered>
+                <Text style={{ fontSize: 28 }}>🎯</Text>
+                <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>{completedCount}/5</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Gebete heute</Text>
+              </Card>
+            )}
           </View>
         </View>
 
