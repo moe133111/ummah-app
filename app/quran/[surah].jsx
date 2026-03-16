@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -33,11 +33,17 @@ export default function SurahDetail() {
   const isDark = useAppStore((s) => s.theme === 'dark');
   const lang = useAppStore((s) => s.quranLanguage);
   const lang2 = useAppStore((s) => s.quranSecondLanguage);
+  const setQuranLanguage = useAppStore((s) => s.setQuranLanguage);
+  const setQuranSecondLanguage = useAppStore((s) => s.setQuranSecondLanguage);
   const setLastRead = useAppStore((s) => s.setLastRead);
   const t = isDark ? DarkTheme : LightTheme;
 
-  const ed = QURAN_LANGUAGES.find(l => l.code === lang)?.edition || 'quran-uthmani';
-  const ed2 = lang2 ? QURAN_LANGUAGES.find(l => l.code === lang2)?.edition : null;
+  const [showLangPicker, setShowLangPicker] = useState(null); // null | '1' | '2'
+
+  const langMeta = QURAN_LANGUAGES.find(l => l.code === lang);
+  const lang2Meta = lang2 ? QURAN_LANGUAGES.find(l => l.code === lang2) : null;
+  const ed = langMeta?.edition || 'quran-uthmani';
+  const ed2 = lang2 ? lang2Meta?.edition : null;
   const meta = SURAH_LIST[num - 1];
   const prevMeta = num > 1 ? SURAH_LIST[num - 2] : null;
   const nextMeta = num < 114 ? SURAH_LIST[num] : null;
@@ -91,6 +97,45 @@ export default function SurahDetail() {
     </View>
   );
 
+  const LangChip = ({ label, langObj, slot }) => (
+    <Pressable
+      style={[styles.langChip, { borderColor: t.accent + '55', backgroundColor: t.accent + '10' }]}
+      onPress={() => setShowLangPicker(showLangPicker === slot ? null : slot)}
+    >
+      <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{label}:</Text>
+      <Text style={{ fontSize: FontSize.xs, fontWeight: '700', color: t.accent, marginLeft: 4 }}>{langObj?.label || 'Keine'}</Text>
+    </Pressable>
+  );
+
+  const LangOptions = ({ slot }) => (
+    <View style={[styles.langOptions, { backgroundColor: t.card, borderColor: t.border }]}>
+      {QURAN_LANGUAGES.map((l) => {
+        const isActive = slot === '1' ? l.code === lang : l.code === lang2;
+        return (
+          <Pressable
+            key={l.code}
+            style={[styles.langOption, isActive && { backgroundColor: t.accent + '18' }]}
+            onPress={() => {
+              if (slot === '1') setQuranLanguage(l.code);
+              else setQuranSecondLanguage(l.code);
+              setShowLangPicker(null);
+            }}
+          >
+            <Text style={{ fontSize: FontSize.sm, color: isActive ? t.accent : t.text, fontWeight: isActive ? '700' : '400' }}>{l.label}</Text>
+          </Pressable>
+        );
+      })}
+      {slot === '2' && (
+        <Pressable
+          style={[styles.langOption, !lang2 && { backgroundColor: t.accent + '18' }]}
+          onPress={() => { setQuranSecondLanguage(''); setShowLangPicker(null); }}
+        >
+          <Text style={{ fontSize: FontSize.sm, color: !lang2 ? t.accent : t.textDim, fontWeight: !lang2 ? '700' : '400' }}>Keine</Text>
+        </Pressable>
+      )}
+    </View>
+  );
+
   const Header = () => (
     <View style={{ alignItems: 'center', paddingVertical: Spacing.xl }}>
       <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent }}>{meta?.name}</Text>
@@ -101,6 +146,11 @@ export default function SurahDetail() {
           <Text style={{ fontSize: FontSize.xs, color: '#4CAF50', fontWeight: '600' }}>✓ Offline verfügbar</Text>
         </View>
       )}
+      <View style={styles.langRow}>
+        <LangChip label="Sprache 1" langObj={langMeta} slot="1" />
+        <LangChip label="Sprache 2" langObj={lang2Meta} slot="2" />
+      </View>
+      {showLangPicker && <LangOptions slot={showLangPicker} />}
       <View style={styles.headerNav}>
         <TouchableOpacity onPress={() => goToSurah(num - 1)} disabled={!prevMeta} style={{ opacity: prevMeta ? 1 : 0.3 }}>
           <Text style={{ fontSize: FontSize.sm, color: t.accent }}>← {prevMeta?.englishName || ''}</Text>
@@ -161,6 +211,10 @@ const styles = StyleSheet.create({
   ayahRow: { paddingVertical: Spacing.lg, borderBottomWidth: 1 },
   ayahNum: { width: 34, height: 34, borderRadius: 8, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   offlineBadge: { marginTop: 8, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, borderWidth: 1 },
+  langRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
+  langChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.sm, borderWidth: 1 },
+  langOptions: { width: '100%', borderRadius: BorderRadius.md, borderWidth: 1, padding: Spacing.sm, marginTop: Spacing.sm },
+  langOption: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.sm },
   headerNav: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: Spacing.md, paddingHorizontal: Spacing.xs },
   footerNav: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.xl },
   navBtn: { flex: 1, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1.5, alignItems: 'center' },

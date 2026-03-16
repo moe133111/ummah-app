@@ -5,10 +5,15 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { SURAH_LIST } from '../../features/quran/surahData';
 import Card from '../../components/ui/Card';
+import LanguagePicker from '../../components/ui/LanguagePicker';
 
 export default function QuranScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
   const lastRead = useAppStore((s) => s.lastReadSurah);
+  const quranLanguage = useAppStore((s) => s.quranLanguage);
+  const quranSecondLanguage = useAppStore((s) => s.quranSecondLanguage);
+  const setQuranLanguage = useAppStore((s) => s.setQuranLanguage);
+  const setQuranSecondLanguage = useAppStore((s) => s.setQuranSecondLanguage);
   const t = isDark ? DarkTheme : LightTheme;
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -53,6 +58,10 @@ export default function QuranScreen() {
             </Card>
           </Pressable>
         )}
+        <View style={styles.langRow}>
+          <LanguagePicker label="Sprache 1" value={quranLanguage} onChange={setQuranLanguage} t={t} />
+          <LanguagePicker label="Sprache 2" value={quranSecondLanguage} onChange={setQuranSecondLanguage} allowClear t={t} />
+        </View>
         <View style={[styles.searchWrap, { backgroundColor: t.surface, borderColor: t.border }]}>
           <Text style={{ fontSize: 16, marginRight: 8 }}>🔍</Text>
           <TextInput style={{ flex: 1, paddingVertical: 12, fontSize: FontSize.md, color: t.text }} placeholder="Sure suchen..." placeholderTextColor={t.textDim} value={search} onChangeText={setSearch} />
@@ -66,6 +75,7 @@ export default function QuranScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   header: { alignItems: 'center', paddingTop: Spacing.xl, paddingBottom: Spacing.md },
+  langRow: { flexDirection: 'row', gap: Spacing.sm, marginHorizontal: Spacing.lg, marginBottom: Spacing.md },
   searchWrap: { flexDirection: 'row', alignItems: 'center', marginHorizontal: Spacing.lg, marginBottom: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, paddingHorizontal: Spacing.md },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1 },
   num: { width: 40, height: 40, borderRadius: 10, borderWidth: 1, alignItems: 'center', justifyContent: 'center', marginRight: 14 },
