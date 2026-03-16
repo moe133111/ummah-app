@@ -1,19 +1,21 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Switch, SafeAreaView } from 'react-native';
+import { useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useAppStore } from '../../hooks/useAppStore';
+import { useLocation } from '../../hooks/useLocation';
+import { getAvailableMethods, METHOD_RECOMMENDATIONS } from '../../features/prayer/prayerCalculation';
+import { getWeekTotal, getTrend } from '../../features/stats/statsCalculator';
+import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
+import Card from '../../components/ui/Card';
+import FeaturePreview from '../../components/ui/FeaturePreview';
+import HijriCalendar from '../../components/ui/HijriCalendar';
+import HeaderBar from '../../components/ui/HeaderBar';
 
 const GOAL_LIMITS = {
   dhikr: { min: 50, max: 500, step: 50, emoji: '📿', label: 'Dhikr' },
   quran: { min: 5, max: 50, step: 5, emoji: '📖', label: 'Quran Verse' },
   dua: { min: 3, max: 20, step: 1, emoji: '🤲', label: 'Duas' },
 };
-import { useState } from 'react';
-import { useAppStore } from '../../hooks/useAppStore';
-import { useLocation } from '../../hooks/useLocation';
-import { getAvailableMethods, METHOD_RECOMMENDATIONS } from '../../features/prayer/prayerCalculation';
-import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
-import Card from '../../components/ui/Card';
-import FeaturePreview from '../../components/ui/FeaturePreview';
-import HijriCalendar from '../../components/ui/HijriCalendar';
-import HeaderBar from '../../components/ui/HeaderBar';
 
 export default function MoreScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
@@ -23,9 +25,19 @@ export default function MoreScreen() {
   const dailyGoals = useAppStore((s) => s.dailyGoals);
   const setDailyGoalTarget = useAppStore((s) => s.setDailyGoalTarget);
   const toggleDailyGoal = useAppStore((s) => s.toggleDailyGoal);
+  const weeklyPrayers = useAppStore((s) => s.weeklyPrayers) || {};
+  const weeklyDhikr = useAppStore((s) => s.weeklyDhikr) || {};
+  const weeklyQuranMinutes = useAppStore((s) => s.weeklyQuranMinutes) || {};
   const t = isDark ? DarkTheme : LightTheme;
   const { location } = useLocation();
+  const router = useRouter();
   const [sec, setSec] = useState('tools');
+
+  const prayerWeekTotal = getWeekTotal(weeklyPrayers);
+  const dhikrWeekTotal = getWeekTotal(weeklyDhikr);
+  const quranWeekTotal = getWeekTotal(weeklyQuranMinutes);
+  const prayerTrend = getTrend(weeklyPrayers);
+  const dhikrTrend = getTrend(weeklyDhikr);
 
   const methods = getAvailableMethods();
 
@@ -60,29 +72,37 @@ export default function MoreScreen() {
 
             {/* Ibadah Statistics Preview */}
             <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text, marginBottom: Spacing.sm, marginTop: Spacing.sm }}>Ibadah-Statistik</Text>
-            <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md }}>
+            <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm }}>
               <View style={{ flex: 1 }}>
                 <Card centered>
                   <Text style={{ fontSize: 22 }}>🕌</Text>
-                  <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: 4 }}>0/35</Text>
-                  <Text style={{ fontSize: 10, color: t.textDim }}>Gebete</Text>
+                  <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: 4 }}>{prayerWeekTotal}/35</Text>
+                  <Text style={{ fontSize: 10, color: t.textDim }}>Gebete/Woche</Text>
+                  {prayerTrend !== 'same' && <Text style={{ fontSize: 10, color: prayerTrend === 'up' ? '#4CAF50' : '#F44336', marginTop: 2 }}>{prayerTrend === 'up' ? '↑' : '↓'}</Text>}
                 </Card>
               </View>
               <View style={{ flex: 1 }}>
                 <Card centered>
                   <Text style={{ fontSize: 22 }}>📿</Text>
-                  <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: 4 }}>0</Text>
-                  <Text style={{ fontSize: 10, color: t.textDim }}>Dhikr</Text>
+                  <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: 4 }}>{dhikrWeekTotal}</Text>
+                  <Text style={{ fontSize: 10, color: t.textDim }}>Dhikr/Woche</Text>
+                  {dhikrTrend !== 'same' && <Text style={{ fontSize: 10, color: dhikrTrend === 'up' ? '#4CAF50' : '#F44336', marginTop: 2 }}>{dhikrTrend === 'up' ? '↑' : '↓'}</Text>}
                 </Card>
               </View>
               <View style={{ flex: 1 }}>
                 <Card centered>
                   <Text style={{ fontSize: 22 }}>📖</Text>
-                  <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: 4 }}>0 Min</Text>
-                  <Text style={{ fontSize: 10, color: t.textDim }}>Quran</Text>
+                  <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: 4 }}>{quranWeekTotal} Min</Text>
+                  <Text style={{ fontSize: 10, color: t.textDim }}>Quran/Woche</Text>
                 </Card>
               </View>
             </View>
+            <Pressable
+              style={{ alignSelf: 'center', paddingHorizontal: 20, paddingVertical: 10, borderRadius: BorderRadius.full, borderWidth: 1, borderColor: t.accent + '44', marginBottom: Spacing.md }}
+              onPress={() => router.push('/stats')}
+            >
+              <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>Details ansehen</Text>
+            </Pressable>
 
             {/* Placeholders */}
             <FeaturePreview

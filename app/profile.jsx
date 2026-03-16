@@ -1,7 +1,9 @@
-import { View, Text, ScrollView, SafeAreaView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, SafeAreaView, StyleSheet, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAppStore } from '../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../constants/theme';
 import { ACHIEVEMENTS } from '../features/profile/achievements';
+import { getWeekTotal } from '../features/stats/statsCalculator';
 import Card from '../components/ui/Card';
 
 export default function ProfileScreen() {
@@ -16,11 +18,13 @@ export default function ProfileScreen() {
   const dhikrStreak = useAppStore((s) => s.dhikrStreak) || 0;
   const memberSince = useAppStore((s) => s.memberSince);
   const todayPrayers = useAppStore((s) => s.todayPrayers);
+  const weeklyPrayers = useAppStore((s) => s.weeklyPrayers) || {};
   const t = isDark ? DarkTheme : LightTheme;
+  const router = useRouter();
 
   const storeState = { totalPrayers, totalDhikr, surahsRead, longestStreak, fajrStreak };
 
-  const weekPrayers = Object.values(todayPrayers).filter(Boolean).length;
+  const weekPrayers = getWeekTotal(weeklyPrayers);
 
   const memberDate = memberSince
     ? new Date(memberSince).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -67,6 +71,13 @@ export default function ProfileScreen() {
             </View>
           ))}
         </View>
+
+        <Pressable
+          style={{ alignSelf: 'center', paddingHorizontal: 20, paddingVertical: 10, borderRadius: BorderRadius.full, borderWidth: 1, borderColor: t.accent + '44', marginTop: Spacing.sm, marginBottom: Spacing.sm }}
+          onPress={() => router.push('/stats')}
+        >
+          <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>Statistiken ansehen</Text>
+        </Pressable>
 
         {/* Progress Bars */}
         <Text style={[styles.sectionTitle, { color: t.text }]}>Fortschritt</Text>
