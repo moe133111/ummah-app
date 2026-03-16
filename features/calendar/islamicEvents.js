@@ -3,76 +3,144 @@
 
 export const ISLAMIC_EVENTS = [
   {
-    hijriMonth: 1,
-    hijriDay: 1,
-    emoji: '🌙',
     name: 'Islamisches Neujahr',
     nameAr: 'رأس السنة الهجرية',
+    emoji: '🌙',
+    hijriMonth: 1,
+    startDay: 1,
+    endDay: null,
     description: 'Beginn des neuen islamischen Jahres (1. Muharram).',
+    type: 'major',
   },
   {
-    hijriMonth: 1,
-    hijriDay: 10,
-    emoji: '🕌',
     name: 'Aschura',
     nameAr: 'عاشوراء',
+    emoji: '🕌',
+    hijriMonth: 1,
+    startDay: 10,
+    endDay: null,
     description: 'Tag des Fastens. Gedenken an die Errettung von Musa (Moses) durch Allah.',
+    type: 'major',
   },
   {
-    hijriMonth: 3,
-    hijriDay: 12,
-    emoji: '🕋',
     name: 'Mawlid an-Nabi',
     nameAr: 'المولد النبوي',
+    emoji: '🕋',
+    hijriMonth: 3,
+    startDay: 12,
+    endDay: null,
     description: 'Geburtstag des Propheten Muhammad ﷺ.',
+    type: 'major',
   },
   {
-    hijriMonth: 7,
-    hijriDay: 27,
-    emoji: '✨',
     name: 'Isra und Miraj',
     nameAr: 'الإسراء والمعراج',
+    emoji: '✨',
+    hijriMonth: 7,
+    startDay: 27,
+    endDay: null,
     description: 'Die Nachtreise und Himmelfahrt des Propheten Muhammad ﷺ.',
+    type: 'major',
   },
   {
-    hijriMonth: 9,
-    hijriDay: 1,
+    name: 'Laylat al-Bara\'a',
+    nameAr: 'ليلة البراءة',
+    emoji: '🌕',
+    hijriMonth: 8,
+    startDay: 15,
+    endDay: null,
+    description: 'Die Nacht der Vergebung (Sha\'ban Nacht).',
+    type: 'minor',
+  },
+  {
+    name: 'Ramadan',
+    nameAr: 'رمضان',
     emoji: '🌙',
-    name: 'Ramadan Beginn',
-    nameAr: 'بداية رمضان',
-    description: 'Beginn des heiligen Fastenmonats Ramadan.',
+    hijriMonth: 9,
+    startDay: 1,
+    endDay: 30,
+    description: 'Der heilige Fastenmonat.',
+    type: 'period',
   },
   {
-    hijriMonth: 9,
-    hijriDay: 27,
-    emoji: '🌟',
     name: 'Laylat al-Qadr',
     nameAr: 'ليلة القدر',
+    emoji: '🌟',
+    hijriMonth: 9,
+    startDay: 27,
+    endDay: null,
     description: 'Die Nacht der Bestimmung — besser als tausend Monate.',
+    type: 'major',
   },
   {
-    hijriMonth: 10,
-    hijriDay: 1,
-    emoji: '🎉',
     name: 'Eid al-Fitr',
     nameAr: 'عيد الفطر',
+    emoji: '🎉',
+    hijriMonth: 10,
+    startDay: 1,
+    endDay: 3,
     description: 'Fest des Fastenbrechens zum Ende des Ramadan.',
+    type: 'period',
   },
   {
+    name: 'Erste 10 Tage Dhul Hijja',
+    nameAr: 'عشر ذي الحجة',
+    emoji: '🕋',
     hijriMonth: 12,
-    hijriDay: 10,
-    emoji: '🐑',
+    startDay: 1,
+    endDay: 10,
+    description: 'Die gesegneten ersten zehn Tage von Dhul Hijja.',
+    type: 'period',
+  },
+  {
+    name: 'Arafat-Tag',
+    nameAr: 'يوم عرفة',
+    emoji: '🤲',
+    hijriMonth: 12,
+    startDay: 9,
+    endDay: null,
+    description: 'Der Tag der Bittgebete auf dem Berg Arafat.',
+    type: 'major',
+  },
+  {
     name: 'Eid al-Adha',
     nameAr: 'عيد الأضحى',
+    emoji: '🐑',
+    hijriMonth: 12,
+    startDay: 10,
+    endDay: 13,
     description: 'Opferfest — Gedenken an die Bereitschaft Ibrahims.',
+    type: 'period',
   },
 ];
 
 /**
- * Find event for a given Hijri month and day.
+ * Find all events for a given Hijri month and day.
+ * Returns an array of matching events (a day can belong to multiple events/periods).
  */
+export function getEventsForHijriDate(hijriMonth, hijriDay) {
+  return ISLAMIC_EVENTS.filter((e) => {
+    if (e.hijriMonth !== hijriMonth) return false;
+    if (e.endDay) {
+      return hijriDay >= e.startDay && hijriDay <= e.endDay;
+    }
+    return hijriDay === e.startDay;
+  });
+}
+
+/**
+ * Get range info for a day within an event period.
+ * Returns { isStart, isEnd, isMid } or null.
+ */
+export function getRangePosition(event, hijriDay) {
+  if (!event.endDay) return null;
+  const isStart = hijriDay === event.startDay;
+  const isEnd = hijriDay === event.endDay;
+  return { isStart, isEnd, isMid: !isStart && !isEnd };
+}
+
+// Keep backward compat
 export function getEventForHijriDate(hijriMonth, hijriDay) {
-  return ISLAMIC_EVENTS.find(
-    (e) => e.hijriMonth === hijriMonth && e.hijriDay === hijriDay
-  ) || null;
+  const events = getEventsForHijriDate(hijriMonth, hijriDay);
+  return events.length > 0 ? events[0] : null;
 }
