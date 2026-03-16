@@ -33,6 +33,7 @@ export const useAppStore = create(
       setQuranSecondLanguage: (lang) => set({ quranSecondLanguage: lang }),
       setLastRead: (surah, ayah) => {
         const state = get();
+        const today = todayString();
         const result = checkAndUpdateStreak(state.lastQuranDate, state.quranStreak);
         set({
           lastReadSurah: surah,
@@ -40,6 +41,7 @@ export const useAppStore = create(
           surahsRead: (state.surahsRead || []).includes(surah) ? state.surahsRead : [...(state.surahsRead || []), surah],
           quranStreak: result.streak,
           lastQuranDate: result.date,
+          weeklyQuranMinutes: { ...(state.weeklyQuranMinutes || {}), [today]: ((state.weeklyQuranMinutes || {})[today] || 0) + 1 },
         });
         // Track daily quran progress
         get().incrementDailyProgress('quran', 1);
@@ -70,6 +72,11 @@ export const useAppStore = create(
           updates.fajrStreak = fajrResult.streak;
           updates.lastFajrDate = fajrResult.date;
         }
+
+        // Track weekly prayers
+        const today = todayString();
+        const prayerCount = Object.values(newPrayers).filter(Boolean).length;
+        updates.weeklyPrayers = { ...(state.weeklyPrayers || {}), [today]: prayerCount };
 
         set(updates);
       },
@@ -105,6 +112,11 @@ export const useAppStore = create(
       surahsRead: [],
       memberSince: null,
 
+      // Weekly tracking
+      weeklyPrayers: {},
+      weeklyDhikr: {},
+      weeklyQuranMinutes: {},
+
       incrementDhikr: () => {
         const state = get();
         const newTotal = (state.totalDhikr || 0) + 1;
@@ -118,6 +130,10 @@ export const useAppStore = create(
           updates.dhikrStreak = result.streak;
           updates.lastDhikrDate = result.date;
         }
+
+        // Track weekly dhikr
+        const today = todayString();
+        updates.weeklyDhikr = { ...(state.weeklyDhikr || {}), [today]: ((state.weeklyDhikr || {})[today] || 0) + 1 };
 
         set(updates);
 
@@ -203,6 +219,23 @@ export const useAppStore = create(
         if (!get().memberSince) {
           set({ memberSince: today });
         }
+
+        // Cleanup entries older than 60 days
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 60);
+        const cutoffStr = `${cutoff.getFullYear()}-${String(cutoff.getMonth() + 1).padStart(2, '0')}-${String(cutoff.getDate()).padStart(2, '0')}`;
+        const cleanup = (obj) => {
+          if (!obj) return {};
+          const result = {};
+          for (const key in obj) { if (key >= cutoffStr) result[key] = obj[key]; }
+          return result;
+        };
+        const s = get();
+        set({
+          weeklyPrayers: cleanup(s.weeklyPrayers),
+          weeklyDhikr: cleanup(s.weeklyDhikr),
+          weeklyQuranMinutes: cleanup(s.weeklyQuranMinutes),
+        });
       },
     }),
     {
@@ -240,6 +273,9 @@ export const useAppStore = create(
         todayDhikrCount: state.todayDhikrCount,
         dailyGoals: state.dailyGoals,
         dailyProgress: state.dailyProgress,
+        weeklyPrayers: state.weeklyPrayers,
+        weeklyDhikr: state.weeklyDhikr,
+        weeklyQuranMinutes: state.weeklyQuranMinutes,
       }),
     }
   )
