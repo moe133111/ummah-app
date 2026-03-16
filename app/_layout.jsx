@@ -1,12 +1,28 @@
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as Notifications from 'expo-notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from '../hooks/useAppStore';
+import { requestNotificationPermission } from '../features/prayer/notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 300000, retry: 2 } } });
 
 export default function RootLayout() {
   const theme = useAppStore((s) => s.theme);
+
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />

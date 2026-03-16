@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView } from 'react-native';
-import { useState, useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Switch } from 'react-native';
+import { useState, useMemo, useEffect } from 'react';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';
 import { calculatePrayerTimes, getNextPrayer, calculateQiblaDirection, distanceToKaaba } from '../../features/prayer/prayerCalculation';
+import { schedulePrayerNotifications } from '../../features/prayer/notifications';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import Card from '../../components/ui/Card';
 
@@ -21,6 +22,8 @@ export default function PrayerScreen() {
   const method = useAppStore((s) => s.calculationMethod);
   const todayPrayers = useAppStore((s) => s.todayPrayers);
   const togglePrayerDone = useAppStore((s) => s.togglePrayerDone);
+  const notifications = useAppStore((s) => s.notifications);
+  const toggleNotification = useAppStore((s) => s.toggleNotification);
   const t = isDark ? DarkTheme : LightTheme;
   const [tab, setTab] = useState('times');
 
@@ -31,6 +34,13 @@ export default function PrayerScreen() {
 
   const nextPrayer = useMemo(() => (times ? getNextPrayer(times) : null), [times]);
   const completedCount = Object.values(todayPrayers).filter(Boolean).length;
+
+  // Schedule notifications when times or settings change
+  useEffect(() => {
+    if (times) {
+      schedulePrayerNotifications(times, notifications);
+    }
+  }, [times, notifications]);
 
   const qibla = location ? calculateQiblaDirection(location.lat, location.lng) : null;
   const dist = location ? distanceToKaaba(location.lat, location.lng) : null;
@@ -148,6 +158,25 @@ export default function PrayerScreen() {
                       {todayPrayers[key] && <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>✓</Text>}
                     </View>
                   </Pressable>
+                ))}
+            </Card>
+            <Card>
+              <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginBottom: Spacing.md }}>Benachrichtigungen</Text>
+              {Object.entries(PRAYER_META)
+                .filter(([, meta]) => meta.trackable)
+                .map(([key, meta]) => (
+                  <View key={`notif-${key}`} style={styles.trackerRow}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <Text style={{ fontSize: 20 }}>{meta.icon}</Text>
+                      <Text style={{ fontSize: FontSize.md, color: t.text }}>{meta.name}</Text>
+                    </View>
+                    <Switch
+                      value={notifications[key]}
+                      onValueChange={() => toggleNotification(key)}
+                      trackColor={{ false: '#ccc', true: t.accent + '66' }}
+                      thumbColor={notifications[key] ? t.accent : '#f4f3f4'}
+                    />
+                  </View>
                 ))}
             </Card>
             {completedCount === 5 && (
