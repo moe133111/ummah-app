@@ -8,6 +8,7 @@ import { fetchPrayerTimes, getNextPrayer } from '../../features/prayer/prayerCal
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { DUAS } from '../../features/duas/duaData';
 import Card from '../../components/ui/Card';
+import HeaderBar from '../../components/ui/HeaderBar';
 
 const DAILY_AYAHS = [
   { arabic: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا', translation: 'Wahrlich, mit der Erschwernis kommt die Erleichterung.', ref: 'Ash-Sharh 94:6' },
@@ -94,6 +95,7 @@ export default function HomeScreen() {
   const method = useAppStore((s) => s.calculationMethod);
   const todayPrayers = useAppStore((s) => s.todayPrayers);
   const lastReadSurah = useAppStore((s) => s.lastReadSurah);
+  const incrementDhikr = useAppStore((s) => s.incrementDhikr);
   const t = isDark ? DarkTheme : LightTheme;
   const router = useRouter();
 
@@ -149,10 +151,7 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]}>
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.content}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={[styles.bismillah, { color: t.accent }]}>بِسْمِ ٱللَّهِ</Text>
-          <Text style={[styles.subtitle, { color: t.textDim }]}>Dein täglicher Begleiter</Text>
-        </View>
+        <HeaderBar titleAr="بِسْمِ ٱللَّهِ" title="Dein täglicher Begleiter" t={t} />
 
         {/* Date & Location */}
         <Card centered>
@@ -264,7 +263,7 @@ export default function HomeScreen() {
               </Pressable>
             ))}
           </View>
-          <Pressable onPress={() => setMiniCount((c) => c + 1)} style={[styles.miniCounter, { borderColor: t.accent + '44' }]}>
+          <Pressable onPress={() => { setMiniCount((c) => c + 1); incrementDhikr(); }} style={[styles.miniCounter, { borderColor: t.accent + '44' }]}>
             <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent }}>{miniCount}</Text>
           </Pressable>
           <Pressable onPress={() => setMiniCount(0)}>

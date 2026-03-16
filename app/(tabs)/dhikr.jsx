@@ -5,6 +5,7 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { DUAS } from '../../features/duas/duaData';
 import Card from '../../components/ui/Card';
+import HeaderBar from '../../components/ui/HeaderBar';
 
 const DHIKR = [
   { id: 1, arabic: 'سُبْحَانَ اللَّهِ', text: 'SubhanAllah', target: 33 },
@@ -52,6 +53,7 @@ export default function DhikrScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
   const favorites = useAppStore((s) => s.favorites);
   const toggleFavorite = useAppStore((s) => s.toggleFavorite);
+  const incrementDhikr = useAppStore((s) => s.incrementDhikr);
   const t = isDark ? DarkTheme : LightTheme;
   const [tab, setTab] = useState('dhikr');
   const [sel, setSel] = useState(DHIKR[0]);
@@ -62,6 +64,7 @@ export default function DhikrScreen() {
   const handleCount = useCallback(async () => {
     if (count < sel.target) {
       setCount((c) => c + 1);
+      incrementDhikr();
       try { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); } catch {}
     }
     if (count + 1 >= sel.target) {
@@ -142,9 +145,7 @@ export default function DhikrScreen() {
       </Modal>
 
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 40 }}>
-        <View style={{ alignItems: 'center', paddingVertical: Spacing.xl }}>
-          <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.text }}>Dhikr & Duas</Text>
-        </View>
+        <HeaderBar title="Dhikr & Duas" t={t} />
 
         <View style={{ flexDirection: 'row', gap: 6, marginBottom: Spacing.lg }}>
           {tabs.map((tb) => (

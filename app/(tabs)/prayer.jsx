@@ -10,6 +10,7 @@ import { schedulePrayerNotifications } from '../../features/prayer/notifications
 import { useCompass, requestIOSPermission } from '../../features/qibla/useCompass';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import Card from '../../components/ui/Card';
+import HeaderBar from '../../components/ui/HeaderBar';
 
 const COMPASS_SIZE = 280;
 const CX = COMPASS_SIZE / 2;
@@ -83,9 +84,7 @@ export default function PrayerScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 40 }}>
-        <View style={{ alignItems: 'center', paddingVertical: Spacing.xl }}>
-          <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.text }}>Gebet</Text>
-        </View>
+        <HeaderBar title="Gebet" t={t} />
 
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: Spacing.lg }}>
           {tabs.map((tb) => (
