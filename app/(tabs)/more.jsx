@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Switch, SafeAreaView } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useLocation } from '../../hooks/useLocation';
 import { getAvailableMethods, METHOD_RECOMMENDATIONS } from '../../features/prayer/prayerCalculation';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import Card from '../../components/ui/Card';
 import FeaturePreview from '../../components/ui/FeaturePreview';
+import HijriCalendar from '../../components/ui/HijriCalendar';
 
 export default function MoreScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
@@ -17,11 +18,6 @@ export default function MoreScreen() {
   const [sec, setSec] = useState('tools');
 
   const methods = getAvailableMethods();
-
-  const hijri = useMemo(() => {
-    try { return new Intl.DateTimeFormat('de-DE', { calendar: 'islamic-civil', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()); }
-    catch { return ''; }
-  }, []);
 
   const sections = [
     { id: 'tools', label: 'Tools', emoji: '🛠️' },
@@ -52,14 +48,7 @@ export default function MoreScreen() {
         {sec === 'tools' && (
           <>
             {/* Hijri Calendar */}
-            <Card centered>
-              <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📅</Text>
-              <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.accent }}>Hijri-Kalender</Text>
-              <Text style={{ fontSize: FontSize.lg, color: t.accentLight, marginTop: Spacing.sm }}>{hijri}</Text>
-              <Text style={{ fontSize: FontSize.md, color: t.textDim, marginTop: 4 }}>
-                {new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-              </Text>
-            </Card>
+            <HijriCalendar t={t} />
 
             {/* Ibadah Statistics Preview */}
             <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text, marginBottom: Spacing.sm, marginTop: Spacing.sm }}>Ibadah-Statistik</Text>
