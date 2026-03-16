@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -90,6 +91,81 @@ function getPrayerProgress(times) {
   return Math.min(1, Math.max(0, (cur - currentTime) / totalSpan));
 }
 
+const GOAL_META = {
+  dhikr: { emoji: '📿', label: 'Dhikr' },
+  quran: { emoji: '📖', label: 'Quran Verse' },
+  dua: { emoji: '🤲', label: 'Duas gelesen' },
+};
+
+function DailyGoalsRing({ goals, progress, t }) {
+  const enabled = Object.entries(goals).filter(([, v]) => v.enabled);
+  const completed = enabled.filter(([key]) => (progress[key] || 0) >= goals[key].target).length;
+  const total = enabled.length;
+  const ratio = total > 0 ? completed / total : 0;
+  const allDone = total > 0 && completed === total;
+
+  const size = 80;
+  const strokeWidth = 6;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference * (1 - ratio);
+
+  return (
+    <Card centered>
+      <Svg width={size} height={size}>
+        <Circle cx={size / 2} cy={size / 2} r={radius} stroke={t.border} strokeWidth={strokeWidth} fill="none" />
+        <Circle
+          cx={size / 2} cy={size / 2} r={radius}
+          stroke={allDone ? '#D4A843' : t.accent}
+          strokeWidth={strokeWidth} fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </Svg>
+      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: allDone ? '#D4A843' : t.accent }}>{completed}/{total}</Text>
+      </View>
+      <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 4 }}>Tagesziele</Text>
+    </Card>
+  );
+}
+
+function DailyGoalsDetail({ goals, progress, t }) {
+  const entries = Object.entries(goals).filter(([, v]) => v.enabled);
+  if (entries.length === 0) return null;
+
+  return (
+    <Card>
+      <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Tagesziele</Text>
+      {entries.map(([key, goal]) => {
+        const current = Math.min(progress[key] || 0, goal.target);
+        const done = current >= goal.target;
+        const pct = goal.target > 0 ? (current / goal.target) * 100 : 0;
+        const meta = GOAL_META[key] || { emoji: '🎯', label: key };
+        return (
+          <View key={key} style={{ marginBottom: key !== entries[entries.length - 1]?.[0] ? Spacing.md : 0 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={{ fontSize: 18 }}>{meta.emoji}</Text>
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>{meta.label}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={{ fontSize: FontSize.sm, color: done ? '#D4A843' : t.textDim }}>{current}/{goal.target}</Text>
+                {done && <Text style={{ fontSize: 14 }}>✅</Text>}
+              </View>
+            </View>
+            <View style={{ height: 6, borderRadius: 3, backgroundColor: t.border, overflow: 'hidden' }}>
+              <View style={{ height: '100%', borderRadius: 3, width: `${Math.min(pct, 100)}%`, backgroundColor: done ? '#D4A843' : t.accent }} />
+            </View>
+          </View>
+        );
+      })}
+    </Card>
+  );
+}
+
 export default function HomeScreen() {
   const { location, loading } = useLocation();
   const isDark = useAppStore((s) => s.theme === 'dark');
@@ -99,6 +175,8 @@ export default function HomeScreen() {
   const incrementDhikr = useAppStore((s) => s.incrementDhikr);
   const currentStreak = useAppStore((s) => s.currentStreak) || 0;
   const fajrStreak = useAppStore((s) => s.fajrStreak) || 0;
+  const dailyGoals = useAppStore((s) => s.dailyGoals);
+  const dailyProgress = useAppStore((s) => s.dailyProgress);
   const t = isDark ? DarkTheme : LightTheme;
   const router = useRouter();
 
@@ -216,21 +294,12 @@ export default function HomeScreen() {
             </Card>
           </View>
           <View style={{ flex: 1 }}>
-            {fajrStreak > 0 ? (
-              <Card centered>
-                <Text style={{ fontSize: 28 }}>🌅</Text>
-                <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>{fajrStreak}</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Fajr-Streak</Text>
-              </Card>
-            ) : (
-              <Card centered>
-                <Text style={{ fontSize: 28 }}>🎯</Text>
-                <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>{completedCount}/5</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Gebete heute</Text>
-              </Card>
-            )}
+            <DailyGoalsRing goals={dailyGoals} progress={dailyProgress} t={t} />
           </View>
         </View>
+
+        {/* Daily Goals Detail */}
+        <DailyGoalsDetail goals={dailyGoals} progress={dailyProgress} t={t} />
 
         {/* Ayah des Tages */}
         <Card>

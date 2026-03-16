@@ -1,4 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Switch, SafeAreaView } from 'react-native';
+
+const GOAL_LIMITS = {
+  dhikr: { min: 50, max: 500, step: 50, emoji: '📿', label: 'Dhikr' },
+  quran: { min: 5, max: 50, step: 5, emoji: '📖', label: 'Quran Verse' },
+  dua: { min: 3, max: 20, step: 1, emoji: '🤲', label: 'Duas' },
+};
 import { useState } from 'react';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useLocation } from '../../hooks/useLocation';
@@ -14,6 +20,9 @@ export default function MoreScreen() {
   const toggleTheme = useAppStore((s) => s.toggleTheme);
   const method = useAppStore((s) => s.calculationMethod);
   const setMethod = useAppStore((s) => s.setCalculationMethod);
+  const dailyGoals = useAppStore((s) => s.dailyGoals);
+  const setDailyGoalTarget = useAppStore((s) => s.setDailyGoalTarget);
+  const toggleDailyGoal = useAppStore((s) => s.toggleDailyGoal);
   const t = isDark ? DarkTheme : LightTheme;
   const { location } = useLocation();
   const [sec, setSec] = useState('tools');
@@ -241,6 +250,47 @@ export default function MoreScreen() {
               </View>
             </Card>
 
+            {/* Daily Goals Settings */}
+            <Card>
+              <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginBottom: Spacing.md }}>Tagesziele anpassen</Text>
+              {Object.entries(GOAL_LIMITS).map(([key, limits]) => {
+                const goal = dailyGoals[key];
+                return (
+                  <View key={key} style={{ marginBottom: Spacing.md }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Text style={{ fontSize: 18 }}>{limits.emoji}</Text>
+                        <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>{limits.label}</Text>
+                      </View>
+                      <Switch
+                        value={goal.enabled}
+                        onValueChange={() => toggleDailyGoal(key)}
+                        trackColor={{ false: '#ccc', true: t.accent + '66' }}
+                        thumbColor={goal.enabled ? t.accent : '#f4f3f4'}
+                      />
+                    </View>
+                    {goal.enabled && (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+                        <Pressable
+                          style={[styles.goalBtn, { borderColor: t.border }]}
+                          onPress={() => setDailyGoalTarget(key, Math.max(limits.min, goal.target - limits.step))}
+                        >
+                          <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.textDim }}>−</Text>
+                        </Pressable>
+                        <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, minWidth: 50, textAlign: 'center' }}>{goal.target}</Text>
+                        <Pressable
+                          style={[styles.goalBtn, { borderColor: t.border }]}
+                          onPress={() => setDailyGoalTarget(key, Math.min(limits.max, goal.target + limits.step))}
+                        >
+                          <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.textDim }}>+</Text>
+                        </Pressable>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+            </Card>
+
             {/* About */}
             <Card centered>
               <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginBottom: 4 }}>Ummah App</Text>
@@ -266,4 +316,5 @@ const styles = StyleSheet.create({
   dot: { width: 12, height: 12, borderRadius: 6 },
   quizChip: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1 },
   duaWallPreview: { padding: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1 },
+  goalBtn: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
 });
