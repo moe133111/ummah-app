@@ -41,6 +41,8 @@ export const useAppStore = create(
           quranStreak: result.streak,
           lastQuranDate: result.date,
         });
+        // Track daily quran progress
+        get().incrementDailyProgress('quran', 1);
       },
       todayPrayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
       lastTrackerDate: todayString(),
@@ -109,7 +111,6 @@ export const useAppStore = create(
         const updates = { totalDhikr: newTotal };
 
         // Check if daily dhikr goal reached
-        // We track today's dhikr count separately
         const todayCount = (state.todayDhikrCount || 0) + 1;
         updates.todayDhikrCount = todayCount;
         if (todayCount >= (state.dailyDhikrGoal || 100)) {
@@ -119,9 +120,43 @@ export const useAppStore = create(
         }
 
         set(updates);
+
+        // Also increment daily progress for dhikr
+        get().incrementDailyProgress('dhikr', 1);
       },
 
       todayDhikrCount: 0,
+
+      // Daily Goals
+      dailyGoals: {
+        dhikr: { target: 100, enabled: true },
+        quran: { target: 10, enabled: true },
+        dua: { target: 5, enabled: true },
+      },
+      dailyProgress: { dhikr: 0, quran: 0, dua: 0, date: null },
+
+      setDailyGoalTarget: (type, target) => set((s) => ({
+        dailyGoals: { ...s.dailyGoals, [type]: { ...s.dailyGoals[type], target } },
+      })),
+      toggleDailyGoal: (type) => set((s) => ({
+        dailyGoals: { ...s.dailyGoals, [type]: { ...s.dailyGoals[type], enabled: !s.dailyGoals[type].enabled } },
+      })),
+      incrementDailyProgress: (type, amount) => {
+        const today = todayString();
+        set((s) => {
+          const dp = s.dailyProgress.date === today ? s.dailyProgress : { dhikr: 0, quran: 0, dua: 0, date: today };
+          return { dailyProgress: { ...dp, [type]: dp[type] + (amount || 1), date: today } };
+        });
+      },
+      resetDailyProgressIfNewDay: () => {
+        const today = todayString();
+        const { dailyProgress } = get();
+        if (dailyProgress.date && dailyProgress.date !== today) {
+          set({ dailyProgress: { dhikr: 0, quran: 0, dua: 0, date: today } });
+        } else if (!dailyProgress.date) {
+          set({ dailyProgress: { ...dailyProgress, date: today } });
+        }
+      },
 
       // Called on app start to reset daily tracker if needed
       checkDailyReset: () => {
@@ -203,6 +238,8 @@ export const useAppStore = create(
         lastDhikrDate: state.lastDhikrDate,
         dailyDhikrGoal: state.dailyDhikrGoal,
         todayDhikrCount: state.todayDhikrCount,
+        dailyGoals: state.dailyGoals,
+        dailyProgress: state.dailyProgress,
       }),
     }
   )

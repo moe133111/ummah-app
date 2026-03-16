@@ -22,11 +22,13 @@ export default function RootLayout() {
   const theme = useAppStore((s) => s.theme);
   const onboardingComplete = useAppStore((s) => s.onboardingComplete);
   const checkDailyReset = useAppStore((s) => s.checkDailyReset);
+  const resetDailyProgressIfNewDay = useAppStore((s) => s.resetDailyProgressIfNewDay);
 
   useEffect(() => {
     requestNotificationPermission();
     initDatabase();
     checkDailyReset();
+    resetDailyProgressIfNewDay();
   }, []);
 
   if (!onboardingComplete) {

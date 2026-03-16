@@ -54,6 +54,7 @@ export default function DhikrScreen() {
   const favorites = useAppStore((s) => s.favorites);
   const toggleFavorite = useAppStore((s) => s.toggleFavorite);
   const incrementDhikr = useAppStore((s) => s.incrementDhikr);
+  const incrementDailyProgress = useAppStore((s) => s.incrementDailyProgress);
   const t = isDark ? DarkTheme : LightTheme;
   const [tab, setTab] = useState('dhikr');
   const [sel, setSel] = useState(DHIKR[0]);
@@ -82,7 +83,11 @@ export default function DhikrScreen() {
   const favDuas = DUAS.filter((d) => favorites.includes(d.id));
 
   const renderDuaCard = (dua) => (
-    <Pressable key={dua.id} onPress={() => setExpanded(expanded === dua.id ? null : dua.id)}>
+    <Pressable key={dua.id} onPress={() => {
+      const opening = expanded !== dua.id;
+      setExpanded(opening ? dua.id : null);
+      if (opening) incrementDailyProgress('dua', 1);
+    }}>
       <Card>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
