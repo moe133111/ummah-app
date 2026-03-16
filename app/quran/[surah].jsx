@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Audio } from 'expo-av';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
-import { SURAH_LIST, QURAN_LANGUAGES } from '../../features/quran/surahData';
+import { SURAH_LIST, QURAN_LANGUAGES, toArabicNumerals } from '../../features/quran/surahData';
 import { getSurah, saveSurah, isSurahCached } from '../../lib/database';
 
 async function fetchSurahWithCache(num, edition) {
@@ -26,6 +27,13 @@ async function fetchSurahWithCache(num, edition) {
   return { ayahs, fromCache: false };
 }
 
+async function fetchAudioUrl(num) {
+  const res = await fetch(`https://api.alquran.cloud/v1/surah/${num}/ar.alafasy`);
+  const data = await res.json();
+  if (data.code !== 200) throw new Error('Audio nicht verfügbar');
+  return data.data.ayahs.map((a) => a.audio);
+}
+
 export default function SurahDetail() {
   const { surah } = useLocalSearchParams();
   const router = useRouter();
@@ -38,7 +46,12 @@ export default function SurahDetail() {
   const setLastRead = useAppStore((s) => s.setLastRead);
   const t = isDark ? DarkTheme : LightTheme;
 
-  const [showLangPicker, setShowLangPicker] = useState(null); // null | '1' | '2'
+  const [showLangPicker, setShowLangPicker] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const soundRef = useRef(null);
+  const audioUrlsRef = useRef(null);
+  const currentAyahRef = useRef(0);
 
   const langMeta = QURAN_LANGUAGES.find(l => l.code === lang);
   const lang2Meta = lang2 ? QURAN_LANGUAGES.find(l => l.code === lang2) : null;
@@ -59,6 +72,18 @@ export default function SurahDetail() {
     if (ed2) isSurahCached(num, ed2).then(setCached2);
   }, [num, ed, ed2]);
 
+  // Audio cleanup on unmount or surah change
+  useEffect(() => {
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+      audioUrlsRef.current = null;
+      currentAyahRef.current = 0;
+    };
+  }, [num]);
+
   const { data: result1, isLoading, error } = useQuery({
     queryKey: ['surah', num, ed],
     queryFn: () => fetchSurahWithCache(num, ed),
@@ -70,9 +95,15 @@ export default function SurahDetail() {
     enabled: !!ed2,
   });
 
+  // Transliteration query
+  const { data: translitResult } = useQuery({
+    queryKey: ['surah', num, 'en.transliteration'],
+    queryFn: () => fetchSurahWithCache(num, 'en.transliteration'),
+  });
+
   const ayahs = result1?.ayahs;
   const ayahs2 = result2?.ayahs;
-  const fromCache = result1?.fromCache;
+  const translitAyahs = translitResult?.ayahs;
 
   useEffect(() => {
     if (ayahs) {
@@ -85,14 +116,79 @@ export default function SurahDetail() {
     if (ayahs2) setCached2(true);
   }, [ayahs2]);
 
+  // --- Audio playback ---
+  const playAyah = useCallback(async (urls, index) => {
+    if (index >= urls.length) {
+      setIsPlaying(false);
+      currentAyahRef.current = 0;
+      return;
+    }
+    currentAyahRef.current = index;
+
+    if (soundRef.current) {
+      await soundRef.current.unloadAsync();
+    }
+
+    const { sound } = await Audio.Sound.createAsync(
+      { uri: urls[index] },
+      { shouldPlay: true },
+      (status) => {
+        if (status.didJustFinish) {
+          playAyah(urls, index + 1);
+        }
+      }
+    );
+    soundRef.current = sound;
+  }, []);
+
+  const toggleAudio = useCallback(async () => {
+    if (isPlaying) {
+      if (soundRef.current) {
+        await soundRef.current.pauseAsync();
+      }
+      setIsPlaying(false);
+      return;
+    }
+
+    try {
+      // Check if we have a paused sound to resume
+      if (soundRef.current) {
+        const status = await soundRef.current.getStatusAsync();
+        if (status.isLoaded && !status.isPlaying) {
+          await soundRef.current.playAsync();
+          setIsPlaying(true);
+          return;
+        }
+      }
+
+      setAudioLoading(true);
+      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true });
+
+      if (!audioUrlsRef.current) {
+        audioUrlsRef.current = await fetchAudioUrl(num);
+      }
+
+      setIsPlaying(true);
+      setAudioLoading(false);
+      await playAyah(audioUrlsRef.current, currentAyahRef.current);
+    } catch {
+      setAudioLoading(false);
+      setIsPlaying(false);
+    }
+  }, [isPlaying, num, playAyah]);
+
+  // --- Render ---
   const renderAyah = ({ item, index }) => (
     <View style={[styles.ayahRow, { borderBottomColor: t.border }]}>
       <View style={{ flexDirection: 'row', marginBottom: 8 }}>
         <View style={[styles.ayahNum, { backgroundColor: t.accent + '15', borderColor: t.accent + '30' }]}>
-          <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent }}>{item.numberInSurah}</Text>
+          <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>{toArabicNumerals(item.numberInSurah)}</Text>
         </View>
       </View>
       <Text style={[{ fontSize: isAr ? FontSize.arabic : FontSize.md, lineHeight: isAr ? 44 : 26, textAlign: isAr ? 'right' : 'left', color: isAr ? t.accentLight : t.text }]}>{item.text}</Text>
+      {translitAyahs?.[index] && (
+        <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', lineHeight: 24, marginTop: 6, color: t.accent }}>{translitAyahs[index].text}</Text>
+      )}
       {ayahs2?.[index] && <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', lineHeight: 22, marginTop: 8, color: t.textDim }}>{ayahs2[index].text}</Text>}
     </View>
   );
@@ -146,6 +242,21 @@ export default function SurahDetail() {
           <Text style={{ fontSize: FontSize.xs, color: '#4CAF50', fontWeight: '600' }}>✓ Offline verfügbar</Text>
         </View>
       )}
+      {/* Audio play/pause */}
+      <Pressable
+        style={[styles.audioBtn, { borderColor: t.accent + '55', backgroundColor: t.accent + '10' }]}
+        onPress={toggleAudio}
+        disabled={audioLoading}
+      >
+        {audioLoading ? (
+          <ActivityIndicator size="small" color={t.accent} />
+        ) : (
+          <Text style={{ fontSize: 18 }}>{isPlaying ? '⏸' : '▶️'}</Text>
+        )}
+        <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent, marginLeft: 8 }}>
+          {audioLoading ? 'Lädt...' : isPlaying ? 'Pause' : 'Abspielen'}
+        </Text>
+      </Pressable>
       <View style={styles.langRow}>
         <LangChip label="Sprache 1" langObj={langMeta} slot="1" />
         <LangChip label="Sprache 2" langObj={lang2Meta} slot="2" />
@@ -209,8 +320,9 @@ export default function SurahDetail() {
 
 const styles = StyleSheet.create({
   ayahRow: { paddingVertical: Spacing.lg, borderBottomWidth: 1 },
-  ayahNum: { width: 34, height: 34, borderRadius: 8, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  ayahNum: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   offlineBadge: { marginTop: 8, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, borderWidth: 1 },
+  audioBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, borderWidth: 1, marginTop: Spacing.md },
   langRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
   langChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.sm, borderWidth: 1 },
   langOptions: { width: '100%', borderRadius: BorderRadius.md, borderWidth: 1, padding: Spacing.sm, marginTop: Spacing.sm },
