@@ -123,3 +123,9 @@ export const QURAN_LANGUAGES = [
   { code: "tr", label: "Türkçe", edition: "tr.diyanet" },
   { code: "id", label: "Bahasa Indonesia", edition: "id.indonesian" }
 ];
+
+const ARABIC_DIGITS = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+
+export function toArabicNumerals(n) {
+  return String(n).replace(/\d/g, (d) => ARABIC_DIGITS[d]);
+}
