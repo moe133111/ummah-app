@@ -14,8 +14,8 @@ export default function TabLayout() {
     <Tabs screenOptions={{ headerShown: false, tabBarStyle: { backgroundColor: t.card, borderTopColor: t.border, borderTopWidth: 1, height: 85, paddingBottom: 28, paddingTop: 8 }, tabBarActiveTintColor: t.accent, tabBarInactiveTintColor: t.textDim, tabBarLabelStyle: { fontSize: 11, fontWeight: '600' } }}>
       <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ focused }) => <TabIcon emoji="🕌" focused={focused} /> }} />
       <Tabs.Screen name="quran" options={{ title: 'Quran', tabBarIcon: ({ focused }) => <TabIcon emoji="📖" focused={focused} /> }} />
-      <Tabs.Screen name="duas" options={{ title: 'Duas', tabBarIcon: ({ focused }) => <TabIcon emoji="🤲" focused={focused} /> }} />
-      <Tabs.Screen name="discover" options={{ title: 'Entdecken', tabBarIcon: ({ focused }) => <TabIcon emoji="🌙" focused={focused} /> }} />
+      <Tabs.Screen name="prayer" options={{ title: 'Gebet', tabBarIcon: ({ focused }) => <TabIcon emoji="🕐" focused={focused} /> }} />
+      <Tabs.Screen name="dhikr" options={{ title: 'Dhikr', tabBarIcon: ({ focused }) => <TabIcon emoji="📿" focused={focused} /> }} />
       <Tabs.Screen name="more" options={{ title: 'Mehr', tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" focused={focused} /> }} />
     </Tabs>
   );
