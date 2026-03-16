@@ -50,17 +50,14 @@ const SLEEP_CONTENT = [
 
 export default function DhikrScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
+  const favorites = useAppStore((s) => s.favorites);
+  const toggleFavorite = useAppStore((s) => s.toggleFavorite);
   const t = isDark ? DarkTheme : LightTheme;
   const [tab, setTab] = useState('dhikr');
   const [sel, setSel] = useState(DHIKR[0]);
   const [count, setCount] = useState(0);
   const [expanded, setExpanded] = useState(null);
-  const [favorites, setFavorites] = useState([]);
   const [focusMode, setFocusMode] = useState(false);
-
-  const toggleFavorite = (id) => {
-    setFavorites((prev) => (prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]));
-  };
 
   const handleCount = useCallback(async () => {
     if (count < sel.target) {

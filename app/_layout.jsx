@@ -21,10 +21,12 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30
 export default function RootLayout() {
   const theme = useAppStore((s) => s.theme);
   const onboardingComplete = useAppStore((s) => s.onboardingComplete);
+  const checkDailyReset = useAppStore((s) => s.checkDailyReset);
 
   useEffect(() => {
     requestNotificationPermission();
     initDatabase();
+    checkDailyReset();
   }, []);
 
   if (!onboardingComplete) {
