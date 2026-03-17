@@ -1,13 +1,10 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, Image, StyleSheet, Modal, Pressable, TextInput, FlatList, Platform, Animated, Dimensions } from 'react-native';
+import { useState, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Modal, Pressable, TextInput, FlatList, Platform, Animated, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SURAH_LIST } from '../../features/quran/surahData';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '../../constants/theme';
-
-const ARABIC_FONT = 'ScheherazadeNew';
-const ARABIC_FALLBACK = Platform.OS === 'ios' ? 'Geeza Pro' : 'serif';
-const SURAH_IMAGE_URL = (num) => `https://cdn.islamic.network/quran/images/surah/${num}.png`;
+import SurahCalligraphy from './SurahCalligraphy';
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const ITEM_HEIGHT = 72;
 
@@ -67,16 +64,10 @@ export default function SurahPicker({ visible, onClose, currentSurah }) {
   };
 
   const initialIndex = search.trim() ? 0 : Math.max(0, currentSurah - 1);
-  const [imageErrors, setImageErrors] = useState({});
-
-  const handleImageError = useCallback((num) => {
-    setImageErrors((prev) => ({ ...prev, [num]: true }));
-  }, []);
+  const calliColor = isDark ? '#E8E0D4' : '#1A1A2E';
 
   const renderItem = ({ item }) => {
     const isActive = item.number === currentSurah;
-    const imgTint = isDark ? '#E8E0D4' : '#1A1A2E';
-    const hasError = imageErrors[item.number];
 
     return (
       <Pressable
@@ -86,22 +77,15 @@ export default function SurahPicker({ visible, onClose, currentSurah }) {
         {/* Number */}
         <Text style={[styles.numText, { color: isActive ? t.accent : t.textDim }]}>{item.number}</Text>
 
-        {/* Arabic name — calligraphy image or fallback */}
+        {/* Arabic name — calligraphy WebView */}
         <View style={styles.itemCenter}>
-          {hasError ? (
-            <Text
-              style={[styles.itemArabicFallback, { color: isActive ? t.accent : t.text, fontFamily: ARABIC_FONT }]}
-              numberOfLines={1}
-            >
-              {item.name}
-            </Text>
-          ) : (
-            <Image
-              source={{ uri: SURAH_IMAGE_URL(item.number) }}
-              style={[styles.itemImage, { tintColor: isActive ? Colors.gold : imgTint }]}
-              onError={() => handleImageError(item.number)}
-            />
-          )}
+          <SurahCalligraphy
+            name={item.name}
+            width={80}
+            height={30}
+            color={isActive ? Colors.gold : calliColor}
+            fontSize={22}
+          />
         </View>
 
         {/* English name + translation */}
@@ -246,16 +230,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  itemImage: {
-    width: 80,
-    height: 30,
-    resizeMode: 'contain',
-  },
-  itemArabicFallback: {
-    fontSize: 20,
-    lineHeight: 36,
-    textAlign: 'center',
   },
   itemRight: {
     width: 130,
