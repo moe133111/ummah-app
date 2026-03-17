@@ -57,7 +57,7 @@ export default function RootLayout() {
       <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="quran/[surah]" options={{ headerShown: true, headerTitle: 'Quran', headerBackTitle: 'Quran', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
+        <Stack.Screen name="quran/[surah]" options={{ headerShown: true, headerTitle: 'Quran', headerBackTitle: 'Quran', animation: 'none', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
         <Stack.Screen name="profile" options={{ headerShown: true, title: 'Profil', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
         <Stack.Screen name="stats" options={{ headerShown: true, title: 'Statistiken', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
       </Stack>
