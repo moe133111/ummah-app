@@ -254,14 +254,23 @@ export default function SurahDetail() {
           { backgroundColor: isActive ? highlightBg : cardBg, borderColor: isActive ? t.accent + '44' : t.border + '66' },
           isActive && styles.ayahCardActive,
         ]}>
-          {/* Ornamental number top-right */}
-          <View style={styles.ornamentPos}>
+          {/* Ornament + Play button stacked top-right */}
+          <View style={styles.ornamentPlayColumn}>
             <AyahOrnament number={toArabicNumerals(item.numberInSurah)} color={t.accent} />
+            <View style={[styles.ayahPlayBtn, { borderColor: isActive ? t.accent + '4D' : t.accent + '4D' }]}>
+              {isLoadingThis ? (
+                <ActivityIndicator size={12} color={t.accent} />
+              ) : (
+                <Text style={{ fontSize: 13, color: isActive ? t.accent : t.textDim }}>
+                  {isActive && isPlaying ? '⏸' : '▶'}
+                </Text>
+              )}
+            </View>
           </View>
 
           {/* Arabic text (always shown) */}
           {arabicAyahs?.[index] && (
-            <Text style={[styles.arabicText, { color: t.accentLight, paddingRight: 52 }]}>
+            <Text style={[styles.arabicText, { color: t.accentLight, paddingRight: 56 }]}>
               {arabicAyahs[index].text}
             </Text>
           )}
@@ -286,17 +295,6 @@ export default function SurahDetail() {
               {ayahs2[index].text}
             </Text>
           )}
-
-          {/* Small play indicator bottom-left */}
-          <View style={styles.ayahPlayIcon}>
-            {isLoadingThis ? (
-              <ActivityIndicator size={12} color={t.accent} />
-            ) : (
-              <Text style={{ fontSize: 12, color: isActive ? t.accent : t.textDim + '66' }}>
-                {isActive && isPlaying ? '⏸' : '▶'}
-              </Text>
-            )}
-          </View>
         </View>
       </Pressable>
     );
@@ -510,20 +508,22 @@ const styles = StyleSheet.create({
       android: { elevation: 4 },
     }),
   },
-  ornamentPos: {
+  ornamentPlayColumn: {
     position: 'absolute',
     top: 12,
     right: 12,
     zIndex: 1,
+    alignItems: 'center',
+    gap: 8,
   },
-  ayahPlayIcon: {
-    position: 'absolute',
-    bottom: 10,
-    left: 14,
-    width: 20,
-    height: 20,
+  ayahPlayBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   arabicText: {
     fontSize: FontSize.arabic,
