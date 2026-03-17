@@ -12,7 +12,8 @@ import { SurahHeaderFrame, OrnamentalBorder } from '../../components/ui/QuranDec
 
 async function fetchSurahWithCache(num, edition) {
   const cached = await getSurah(num, edition);
-  if (cached) {
+  // Use cache only if ayahs have the global number field (old cache may lack it)
+  if (cached && cached[0]?.number) {
     return { ayahs: cached, fromCache: true };
   }
 
@@ -128,7 +129,10 @@ export default function SurahDetail() {
         setCurrentPlayingAyah(nextIdx);
         scrollToAyah(nextIdx);
 
-        AudioPlayer.playAyah(ayahs[nextIdx].number).catch(() => {
+        const nextGlobalNum = ayahs[nextIdx].number;
+        console.log('[SurahDetail] Auto-advance: index=', nextIdx, 'globalNumber=', nextGlobalNum);
+        AudioPlayer.playAyah(nextGlobalNum).catch((err) => {
+          console.error('[SurahDetail] Auto-advance error:', err);
           setIsPlaying(false);
           setCurrentPlayingAyah(-1);
           currentIndexRef.current = -1;
@@ -148,16 +152,24 @@ export default function SurahDetail() {
       setIsPlaying(true);
       scrollToAyah(index);
 
+      const globalNum = ayahs[index].number;
+      console.log('[SurahDetail] Starting playback: index=', index, 'globalNumber=', globalNum, 'numberInSurah=', ayahs[index].numberInSurah);
+
+      if (!globalNum) {
+        throw new Error(`Ayah ${index + 1} hat keine globale Nummer. Bitte Surah neu laden (Cache löschen).`);
+      }
+
       await AudioPlayer.initAudioMode();
-      await AudioPlayer.playAyah(ayahs[index].number);
+      await AudioPlayer.playAyah(globalNum);
       setAudioLoading(false);
-    } catch {
+    } catch (err) {
+      console.error('[SurahDetail] Audio error:', err);
       setAudioLoading(false);
       setIsPlaying(false);
       setCurrentPlayingAyah(-1);
       currentIndexRef.current = -1;
       setAudioError(true);
-      Alert.alert('Audio nicht verfügbar', 'Prüfe deine Internetverbindung und versuche es erneut.');
+      Alert.alert('Audio-Fehler', err?.message || 'Unbekannter Fehler beim Laden des Audios.');
     }
   }, [ayahs, scrollToAyah]);
 
