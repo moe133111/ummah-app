@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert, Dimensions, Animated } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -125,10 +125,11 @@ export default function SurahDetail() {
   const ayahs2Ref = useRef(null);
   const playingRef = useRef(false);
 
-  // Swipe navigation state (touch-based)
+  // Swipe navigation state (touch-based with Animated feedback)
   const [swipeHint, setSwipeHint] = useState(null);
   const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
   const swipeLockedRef = useRef(null); // null | 'horizontal' | 'vertical'
+  const swipeAnim = useRef(new Animated.Value(0)).current;
 
   const langMeta = QURAN_LANGUAGES.find(l => l.code === lang);
   const lang2Meta = lang2 ? QURAN_LANGUAGES.find(l => l.code === lang2) : null;
@@ -210,7 +211,7 @@ export default function SurahDetail() {
   }, [ayahs]);
   useEffect(() => { if (ayahs2) setCached2(true); }, [ayahs2]);
 
-  // --- Touch-based Swipe Navigation ---
+  // --- Touch-based Swipe Navigation with Animated feedback ---
   const handleTouchStart = useCallback((e) => {
     touchStartRef.current = {
       x: e.nativeEvent.pageX,
@@ -227,17 +228,26 @@ export default function SurahDetail() {
     // Decide direction lock after minimum movement
     if (swipeLockedRef.current === null) {
       if (Math.abs(dx) > SWIPE_ANGLE_LOCK || Math.abs(dy) > SWIPE_ANGLE_LOCK) {
-        swipeLockedRef.current = Math.abs(dx) > Math.abs(dy) * 2 ? 'horizontal' : 'vertical';
+        // Only lock horizontal if clearly horizontal
+        if (Math.abs(dx) > Math.abs(dy)) {
+          swipeLockedRef.current = 'horizontal';
+        } else {
+          swipeLockedRef.current = 'vertical';
+        }
       }
       return;
     }
 
     if (swipeLockedRef.current !== 'horizontal') return;
 
-    if (dx > 40 && prevMeta) setSwipeHint('prev');
-    else if (dx < -40 && nextMeta) setSwipeHint('next');
+    // Update animated value for visual feedback
+    swipeAnim.setValue(dx);
+
+    // Swipe left (dx < 0) → next surah; Swipe right (dx > 0) → prev surah
+    if (dx < -40 && nextMeta) setSwipeHint('next');
+    else if (dx > 40 && prevMeta) setSwipeHint('prev');
     else setSwipeHint(null);
-  }, [prevMeta, nextMeta]);
+  }, [prevMeta, nextMeta, swipeAnim]);
 
   const handleTouchEnd = useCallback((e) => {
     if (swipeLockedRef.current !== 'horizontal') {
@@ -247,15 +257,26 @@ export default function SurahDetail() {
 
     const dx = e.nativeEvent.pageX - touchStartRef.current.x;
 
+    // Swipe left → next surah (like turning a page forward)
     if (dx < -SWIPE_THRESHOLD && num < 114) {
-      goToSurah(num + 1);
+      Animated.timing(swipeAnim, { toValue: -400, duration: 200, useNativeDriver: true }).start(() => {
+        goToSurah(num + 1);
+        swipeAnim.setValue(0);
+      });
+    // Swipe right → previous surah
     } else if (dx > SWIPE_THRESHOLD && num > 1) {
-      goToSurah(num - 1);
+      Animated.timing(swipeAnim, { toValue: 400, duration: 200, useNativeDriver: true }).start(() => {
+        goToSurah(num - 1);
+        swipeAnim.setValue(0);
+      });
+    } else {
+      // Snap back
+      Animated.spring(swipeAnim, { toValue: 0, useNativeDriver: true }).start();
     }
 
     setSwipeHint(null);
     swipeLockedRef.current = null;
-  }, [num]);
+  }, [num, swipeAnim]);
 
   // --- Audio ---
   const scrollToAyah = useCallback((index) => {
@@ -611,6 +632,12 @@ export default function SurahDetail() {
 
   const showPlayerBar = isPlaying || currentPlayingAyah >= 0;
 
+  const swipeOpacity = swipeAnim.interpolate({
+    inputRange: [-500, 0, 500],
+    outputRange: [0.4, 1, 0.4],
+    extrapolate: 'clamp',
+  });
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
       <View
@@ -619,6 +646,7 @@ export default function SurahDetail() {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        <Animated.View style={{ flex: 1, transform: [{ translateX: swipeAnim }], opacity: swipeOpacity }}>
         <FlatList
           ref={flatListRef}
           data={ayahs}
@@ -634,6 +662,7 @@ export default function SurahDetail() {
           contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayerBar ? 110 : 100 }}
           onScrollToIndexFailed={handleScrollFail}
         />
+        </Animated.View>
 
         {/* Swipe hints */}
         {swipeHint === 'prev' && prevMeta && (

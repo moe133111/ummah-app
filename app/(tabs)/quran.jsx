@@ -34,7 +34,7 @@ export default function QuranScreen() {
     return SURAH_LIST.filter(s => s.name.includes(q) || s.englishName.toLowerCase().includes(q) || String(s.number).includes(q));
   }, [search]);
 
-  const cardBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
 
   const renderSurah = ({ item }) => {
     const isLastRead = item.number === lastRead;
@@ -44,10 +44,19 @@ export default function QuranScreen() {
         onPress={() => router.push(`/quran/${item.number}`)}
       >
         <Text style={[styles.surahNum, { color: t.textDim }]}>{item.number}</Text>
-        <Text style={[styles.surahArabic, { color: t.text, fontFamily: SCHEHERAZADE || ARABIC_CALLIGRAPHY }]}>{item.name}</Text>
+        <Text
+          style={[styles.surahArabic, {
+            color: isDark ? '#E8E0D4' : t.text,
+            fontFamily: SCHEHERAZADE,
+            fontWeight: Platform.OS === 'ios' ? '400' : undefined,
+          }]}
+          numberOfLines={1}
+        >
+          {item.name}
+        </Text>
         <View style={styles.surahInfo}>
-          <Text style={{ fontSize: 16, fontWeight: '600', color: t.text }}>{item.englishName}</Text>
-          <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>{item.englishTranslation}</Text>
+          <Text style={[styles.surahEnglish, { color: t.text }]}>{item.englishName}</Text>
+          <Text style={[styles.surahTranslation, { color: t.textDim }]}>{item.englishTranslation}</Text>
         </View>
       </Pressable>
     );
@@ -236,26 +245,34 @@ const styles = StyleSheet.create({
   surahCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: BorderRadius.lg,
+    borderRadius: 14,
     padding: Spacing.lg,
-    marginBottom: 10,
+    marginBottom: 8,
     minHeight: 80,
   },
   surahNum: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '300',
     width: 50,
     textAlign: 'center',
   },
   surahArabic: {
-    fontSize: 32,
+    fontSize: 30,
     flex: 1,
     textAlign: 'center',
-    lineHeight: 56,
+    lineHeight: 52,
   },
   surahInfo: {
     alignItems: 'flex-end',
-    maxWidth: 140,
+    width: 140,
+  },
+  surahEnglish: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  surahTranslation: {
+    fontSize: 12,
+    marginTop: 2,
   },
   placeholderWrap: {
     flex: 1,
