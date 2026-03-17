@@ -10,6 +10,8 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo-google-fonts/scheherazade-new": "^0.4.2",
+    "@fontsource/scheherazade-new": "^5.2.8",
     "@react-native-async-storage/async-storage": "~2.1.0",
     "@supabase/supabase-js": "^2.49.0",
     "@tanstack/react-query": "^5.60.0",

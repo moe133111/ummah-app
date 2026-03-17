@@ -1,5 +1,8 @@
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput, SafeAreaView, Platform } from 'react-native';
 import { useState, useMemo } from 'react';
+
+const ARABIC_CALLIGRAPHY = Platform.OS === 'ios' ? 'Geeza Pro' : 'serif';
+const SCHEHERAZADE = 'ScheherazadeNew';
 import { useRouter } from 'expo-router';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '../../constants/theme';
@@ -41,7 +44,7 @@ export default function QuranScreen() {
         onPress={() => router.push(`/quran/${item.number}`)}
       >
         <Text style={[styles.surahNum, { color: t.textDim }]}>{item.number}</Text>
-        <Text style={[styles.surahArabic, { color: t.text }]}>{item.name}</Text>
+        <Text style={[styles.surahArabic, { color: t.text, fontFamily: SCHEHERAZADE || ARABIC_CALLIGRAPHY }]}>{item.name}</Text>
         <View style={styles.surahInfo}>
           <Text style={{ fontSize: 16, fontWeight: '600', color: t.text }}>{item.englishName}</Text>
           <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>{item.englishTranslation}</Text>
@@ -245,9 +248,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   surahArabic: {
-    fontSize: 28,
+    fontSize: 32,
     flex: 1,
     textAlign: 'center',
+    lineHeight: 56,
   },
   surahInfo: {
     alignItems: 'flex-end',

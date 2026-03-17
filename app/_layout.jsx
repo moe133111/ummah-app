@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Audio } from 'expo-av';
+import { useFonts } from 'expo-font';
 import * as Notifications from 'expo-notifications';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from '../hooks/useAppStore';
@@ -24,6 +25,11 @@ export default function RootLayout() {
   const onboardingComplete = useAppStore((s) => s.onboardingComplete);
   const checkDailyReset = useAppStore((s) => s.checkDailyReset);
   const resetDailyProgressIfNewDay = useAppStore((s) => s.resetDailyProgressIfNewDay);
+
+  const [fontsLoaded] = useFonts({
+    'ScheherazadeNew': require('../assets/fonts/ScheherazadeNew-Regular.ttf'),
+    'ScheherazadeNew-Bold': require('../assets/fonts/ScheherazadeNew-Bold.ttf'),
+  });
 
   useEffect(() => {
     requestNotificationPermission();
