@@ -21,32 +21,40 @@ const SLEEP_CONTENT = [
     title: 'Ayatul Kursi',
     ref: 'Al-Baqarah 2:255',
     arabic: 'اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ ۚ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ ۚ لَّهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ ۗ مَن ذَا الَّذِي يَشْفَعُ عِندَهُ إِلَّا بِإِذْنِهِ ۚ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ ۖ وَلَا يُحِيطُونَ بِشَيْءٍ مِّنْ عِلْمِهِ إِلَّا بِمَا شَاءَ ۚ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ ۖ وَلَا يَئُودُهُ حِفْظُهُمَا ۚ وَهُوَ الْعَلِيُّ الْعَظِيمُ',
+    transliteration: 'Allahu la ilaha illa Huwal-Hayyul-Qayyum. La ta\'khudhuhu sinatun wa la nawm. Lahu ma fis-samawati wa ma fil-ard. Man dhal-ladhi yashfa\'u \'indahu illa bi-idhnih. Ya\'lamu ma bayna aydihim wa ma khalfahum. Wa la yuhituna bi-shay\'in min \'ilmihi illa bima sha\'. Wasi\'a kursiyyuhus-samawati wal-ard. Wa la ya\'uduhu hifdhuhuma. Wa Huwal-\'Aliyyul-\'Adhim.',
+    translation: 'Allah - es gibt keinen Gott außer Ihm, dem Lebendigen, dem Beständigen. Ihn überkommt weder Schlummer noch Schlaf. Ihm gehört, was in den Himmeln und was auf der Erde ist. Wer ist es, der bei Ihm Fürsprache einlegen könnte außer mit Seiner Erlaubnis? Er weiß, was vor ihnen und was hinter ihnen liegt, und sie umfassen nichts von Seinem Wissen, außer was Er will. Sein Thron umfasst die Himmel und die Erde, und ihre Bewahrung fällt Ihm nicht schwer. Er ist der Erhabene, der Gewaltige.',
   },
   {
     id: 'sleep-dua',
     title: 'Dua vor dem Schlafen',
-    ref: 'Sahih al-Bukhari',
+    ref: 'Sahih al-Bukhari 6324',
     arabic: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
-    transliteration: 'Bismika Allahumma amutu wa ahya',
+    transliteration: 'Bismika Allahumma amutu wa ahya.',
     translation: 'In Deinem Namen, o Allah, sterbe ich und lebe ich.',
   },
   {
     id: 'al-ikhlas',
     title: 'Sure Al-Ikhlas',
-    ref: 'Sure 112',
+    ref: 'Sure 112 (1-4)',
     arabic: 'قُلْ هُوَ اللَّهُ أَحَدٌ ۝ اللَّهُ الصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',
+    transliteration: 'Qul Huwallahu Ahad. Allahus-Samad. Lam yalid wa lam yulad. Wa lam yakun lahu kufuwan ahad.',
+    translation: 'Sprich: Er ist Allah, der Eine. Allah, der Absolute. Er zeugt nicht und ist nicht gezeugt worden. Und Ihm ebenbürtig ist keiner.',
   },
   {
     id: 'al-falaq',
     title: 'Sure Al-Falaq',
-    ref: 'Sure 113',
+    ref: 'Sure 113 (1-5)',
     arabic: 'قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝ مِن شَرِّ مَا خَلَقَ ۝ وَمِن شَرِّ غَاسِقٍ إِذَا وَقَبَ ۝ وَمِن شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۝ وَمِن شَرِّ حَاسِدٍ إِذَا حَسَدَ',
+    transliteration: 'Qul a\'udhu bi-Rabbil-falaq. Min sharri ma khalaq. Wa min sharri ghasiqin idha waqab. Wa min sharrin-naffathati fil-\'uqad. Wa min sharri hasidin idha hasad.',
+    translation: 'Sprich: Ich suche Zuflucht beim Herrn des Tagesanbruchs. Vor dem Übel dessen, was Er erschaffen hat. Vor dem Übel der Dunkelheit, wenn sie hereinbricht. Vor dem Übel der Knotenanbläserinnen. Vor dem Übel des Neiders, wenn er neidet.',
   },
   {
     id: 'an-nas',
     title: 'Sure An-Nas',
-    ref: 'Sure 114',
+    ref: 'Sure 114 (1-6)',
     arabic: 'قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝ مَلِكِ النَّاسِ ۝ إِلَٰهِ النَّاسِ ۝ مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۝ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۝ مِنَ الْجِنَّةِ وَالنَّاسِ',
+    transliteration: 'Qul a\'udhu bi-Rabbin-nas. Malikin-nas. Ilahin-nas. Min sharril-waswasil-khannas. Alladhi yuwaswisu fi sudurin-nas. Minal-jinnati wan-nas.',
+    translation: 'Sprich: Ich suche Zuflucht beim Herrn der Menschen. Dem König der Menschen. Dem Gott der Menschen. Vor dem Übel des sich zurückziehenden Einflüsterers. Der in die Herzen der Menschen einflüstert. Von den Dschinn und den Menschen.',
   },
 ];
 
@@ -157,7 +165,7 @@ export default function DhikrScreen() {
         </Pressable>
       </Modal>
 
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 100 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 120 }}>
         <HeaderBar title="Dhikr & Duas" t={t} />
 
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
@@ -235,34 +243,43 @@ export default function DhikrScreen() {
               {/* Period Toggle */}
               <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
                 <Pressable
-                  style={[styles.periodBtn, adhkarPeriod === 'morning' && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
+                  style={[
+                    styles.periodBtn,
+                    { borderColor: t.border },
+                    adhkarPeriod === 'morning' && { backgroundColor: t.accent + '18', borderColor: t.accent },
+                  ]}
                   onPress={() => setAdhkarPeriod('morning')}
                 >
-                  <Text style={{ fontSize: 20 }}>🌅</Text>
-                  <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: adhkarPeriod === 'morning' ? t.accent : t.textDim }}>Morgen</Text>
+                  <Text style={{ fontSize: 22 }}>☀️</Text>
+                  <Text style={{ fontSize: FontSize.md, fontWeight: adhkarPeriod === 'morning' ? '700' : '500', color: adhkarPeriod === 'morning' ? t.accent : t.textDim }}>Morgen</Text>
                 </Pressable>
                 <Pressable
-                  style={[styles.periodBtn, adhkarPeriod === 'evening' && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
+                  style={[
+                    styles.periodBtn,
+                    { borderColor: t.border },
+                    adhkarPeriod === 'evening' && { backgroundColor: t.accent + '18', borderColor: t.accent },
+                  ]}
                   onPress={() => setAdhkarPeriod('evening')}
                 >
-                  <Text style={{ fontSize: 20 }}>🌙</Text>
-                  <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: adhkarPeriod === 'evening' ? t.accent : t.textDim }}>Abend</Text>
+                  <Text style={{ fontSize: 22 }}>🌙</Text>
+                  <Text style={{ fontSize: FontSize.md, fontWeight: adhkarPeriod === 'evening' ? '700' : '500', color: adhkarPeriod === 'evening' ? t.accent : t.textDim }}>Abend</Text>
                 </Pressable>
               </View>
 
               {/* Progress Header */}
               <Card centered>
-                <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: allDone ? '#D4A843' : t.accent }}>{completedCount}/{adhkarList.length}</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Adhkar erledigt</Text>
-                <View style={[styles.bar, { backgroundColor: t.border, marginTop: Spacing.md, width: '100%' }]}>
+                <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: allDone ? '#D4A843' : t.accent }}>
+                  {completedCount} von {adhkarList.length} Adhkar erledigt
+                </Text>
+                <View style={[styles.bar, { backgroundColor: t.border, marginTop: Spacing.md, marginBottom: 0, width: '100%' }]}>
                   <View style={[styles.barFill, { width: `${(completedCount / adhkarList.length) * 100}%`, backgroundColor: allDone ? '#D4A843' : t.accent }]} />
                 </View>
               </Card>
 
               {allDone && (
-                <Card centered style={{ borderColor: '#D4A843' + '44' }}>
-                  <Text style={{ fontSize: 28, marginBottom: Spacing.xs }}>✨</Text>
-                  <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: '#D4A843' }}>MashaAllah! Alle Adhkar erledigt</Text>
+                <Card centered style={{ borderColor: '#D4A843' + '44', backgroundColor: '#D4A843' + '0A' }}>
+                  <Text style={{ fontSize: 28, marginBottom: Spacing.sm }}>✨</Text>
+                  <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: '#D4A843' }}>MashaAllah! Alle Adhkar erledigt</Text>
                 </Card>
               )}
 
@@ -270,47 +287,51 @@ export default function DhikrScreen() {
               {adhkarList.map((adhkar) => {
                 const currentCount = counts[adhkar.id] || 0;
                 const done = currentCount >= adhkar.repetitions;
-                const isExpanded = expanded === `adhkar-${adhkarPeriod}-${adhkar.id}`;
 
                 return (
-                  <Pressable key={adhkar.id} onPress={() => setExpanded(isExpanded ? null : `adhkar-${adhkarPeriod}-${adhkar.id}`)}>
-                    <Card>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <View style={{ flex: 1, marginRight: Spacing.md }}>
-                          <Text style={{ fontSize: FontSize.arabic, lineHeight: 36, textAlign: 'right', color: done ? t.textDim : t.accentLight }}>{adhkar.arabic}</Text>
-                        </View>
-                        <Pressable
-                          onPress={async (e) => {
-                            e.stopPropagation?.();
-                            if (!done) {
-                              incrementAdhkar(adhkarPeriod, adhkar.id);
-                              try { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); } catch {}
-                              if (currentCount + 1 >= adhkar.repetitions) {
-                                try { await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch {}
-                              }
+                  <Card key={adhkar.id}>
+                    {/* Counter Badge - top right */}
+                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: Spacing.sm }}>
+                      <Pressable
+                        onPress={async () => {
+                          if (!done) {
+                            incrementAdhkar(adhkarPeriod, adhkar.id);
+                            try { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); } catch {}
+                            if (currentCount + 1 >= adhkar.repetitions) {
+                              try { await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch {}
                             }
-                          }}
-                          style={[styles.adhkarCounter, { borderColor: done ? '#D4A843' + '44' : t.accent + '44', backgroundColor: done ? '#D4A843' + '10' : 'transparent' }]}
-                        >
-                          {done ? (
-                            <Text style={{ fontSize: 20 }}>✅</Text>
-                          ) : (
-                            <>
-                              <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent }}>{currentCount}</Text>
-                              <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>/{adhkar.repetitions}</Text>
-                            </>
-                          )}
-                        </Pressable>
-                      </View>
-                      {isExpanded && (
-                        <View style={{ marginTop: Spacing.md, paddingTop: Spacing.md, borderTopWidth: 1, borderTopColor: t.border }}>
-                          <Text style={{ fontSize: FontSize.sm, color: t.accent, marginBottom: Spacing.xs }}>{adhkar.transliteration}</Text>
-                          <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, lineHeight: 22, marginBottom: Spacing.xs }}>{adhkar.translation}</Text>
-                          <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>— {adhkar.source}</Text>
-                        </View>
-                      )}
-                    </Card>
-                  </Pressable>
+                          }
+                        }}
+                        style={[
+                          styles.adhkarBadge,
+                          {
+                            backgroundColor: done ? '#2E7D32' + '15' : t.accent + '15',
+                            borderColor: done ? '#2E7D32' + '44' : t.accent + '44',
+                          },
+                        ]}
+                      >
+                        {done ? (
+                          <Text style={{ fontSize: 18 }}>✅</Text>
+                        ) : (
+                          <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: t.accent }}>{currentCount}/{adhkar.repetitions}</Text>
+                        )}
+                      </Pressable>
+                    </View>
+
+                    {/* Arabic Text */}
+                    <View style={{ padding: Spacing.lg, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08' }}>
+                      <Text style={{ fontSize: 24, lineHeight: 48, textAlign: 'right', color: done ? t.textDim : t.accentLight }}>{adhkar.arabic}</Text>
+                    </View>
+
+                    {/* Transliteration */}
+                    <Text style={{ fontSize: 14, color: t.accent, fontStyle: 'italic', marginTop: 10 }}>{adhkar.transliteration}</Text>
+
+                    {/* Translation */}
+                    <Text style={{ fontSize: 14, color: t.textDim, lineHeight: 22, marginTop: 6 }}>{adhkar.translation}</Text>
+
+                    {/* Source */}
+                    <Text style={{ fontSize: 11, color: t.textDim + '99', marginTop: Spacing.sm }}>— {adhkar.source}</Text>
+                  </Card>
                 );
               })}
             </>
@@ -319,26 +340,29 @@ export default function DhikrScreen() {
 
         {tab === 'sleep' && (
           <>
-            <Card centered>
-              <Text style={{ fontSize: 36 }}>🌙</Text>
-              <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text, marginTop: Spacing.sm }}>Schlafmodus</Text>
-              <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs, textAlign: 'center' }}>Adhkar und Suren zum Lesen vor dem Schlafen</Text>
+            <Card centered style={{ backgroundColor: isDark ? '#060E1A' : t.card }}>
+              <Text style={{ fontSize: 40 }}>🌙</Text>
+              <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.accentLight, marginTop: Spacing.sm }}>Schlafmodus</Text>
+              <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs, textAlign: 'center' }}>Abend-Duas und Suren vor dem Schlafen</Text>
             </Card>
             {SLEEP_CONTENT.map((item) => (
               <Card key={item.id}>
+                {/* Title + Ref */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
-                  <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>{item.title}</Text>
-                  <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{item.ref}</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '600', color: t.accent }}>{item.title}</Text>
+                  <Text style={{ fontSize: FontSize.xs, color: t.textDim + '99' }}>{item.ref}</Text>
                 </View>
-                <View style={{ padding: Spacing.lg, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08', borderWidth: 1, borderColor: t.accent + '15' }}>
-                  <Text style={{ fontSize: FontSize.arabic, lineHeight: 42, textAlign: 'right', color: t.accentLight }}>{item.arabic}</Text>
+
+                {/* Arabic Text */}
+                <View style={{ padding: Spacing.lg, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08' }}>
+                  <Text style={{ fontSize: 22, lineHeight: 44, textAlign: 'right', color: t.accentLight }}>{item.arabic}</Text>
                 </View>
-                {item.transliteration && (
-                  <Text style={{ fontSize: FontSize.sm, color: t.accent, marginTop: Spacing.md }}>{item.transliteration}</Text>
-                )}
-                {item.translation && (
-                  <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, marginTop: Spacing.xs, lineHeight: 22 }}>{item.translation}</Text>
-                )}
+
+                {/* Transliteration */}
+                <Text style={{ fontSize: 13, color: t.accent, fontStyle: 'italic', marginTop: 10 }}>{item.transliteration}</Text>
+
+                {/* Translation */}
+                <Text style={{ fontSize: 13, color: t.textDim, lineHeight: 20, marginTop: 6 }}>{item.translation}</Text>
               </Card>
             ))}
           </>
@@ -382,6 +406,6 @@ const styles = StyleSheet.create({
   focusExitWrap: { marginTop: Spacing.xxxl },
   focusExitBtn: { paddingHorizontal: 32, paddingVertical: Spacing.lg, borderRadius: BorderRadius.full, borderWidth: 1, borderColor: '#333', minHeight: 44, justifyContent: 'center' },
   focusExitText: { fontSize: 16, color: '#888' },
-  periodBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
-  adhkarCounter: { width: 60, height: 60, borderRadius: 30, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  periodBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
+  adhkarBadge: { minWidth: 44, height: 44, borderRadius: 22, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.md },
 });
