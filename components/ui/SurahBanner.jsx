@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import Svg, { Line, Path, Circle } from 'react-native-svg';
 import { Spacing, BorderRadius, Colors } from '../../constants/theme';
-import SurahCalligraphy from './SurahCalligraphy';
+
+const ARABIC_FONT_BOLD = 'ScheherazadeNew-Bold';
+const ARABIC_FALLBACK = Platform.OS === 'ios' ? 'Al Nile' : 'serif';
 
 function OrnamentalLine({ width, color = Colors.gold }) {
   return (
@@ -30,10 +32,10 @@ export default function SurahBanner({ name, englishName, translation, ayahCount,
       {/* Top ornamental line */}
       <OrnamentalLine width={280} color={goldColor} />
 
-      {/* Arabic Surah name — calligraphy via WebView */}
-      <View style={styles.calliWrap}>
-        <SurahCalligraphy name={name} width={200} height={80} color={goldColor} fontSize={38} />
-      </View>
+      {/* Arabic Surah name — text with calligraphy font */}
+      <Text style={[styles.arabicName, { fontFamily: ARABIC_FONT_BOLD || ARABIC_FALLBACK, color: goldColor }]}>
+        {name}
+      </Text>
 
       {/* English name */}
       <Text style={[styles.englishName, { color: isDark ? '#E8E0D4' : '#1A1A2E' }]}>
@@ -64,10 +66,16 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.sm,
     marginBottom: 16,
   },
-  calliWrap: {
-    alignItems: 'center',
+  arabicName: {
+    fontSize: 40,
+    fontWeight: '700',
+    textAlign: 'center',
     marginTop: Spacing.md,
     marginBottom: Spacing.sm,
+    lineHeight: 70,
+    textShadowColor: 'rgba(184, 134, 11, 0.15)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   englishName: {
     fontSize: 18,

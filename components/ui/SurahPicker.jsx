@@ -4,7 +4,9 @@ import { useRouter } from 'expo-router';
 import { SURAH_LIST } from '../../features/quran/surahData';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '../../constants/theme';
-import SurahCalligraphy from './SurahCalligraphy';
+
+const ARABIC_FONT = 'ScheherazadeNew';
+const ARABIC_FALLBACK = Platform.OS === 'ios' ? 'Geeza Pro' : 'serif';
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const ITEM_HEIGHT = 72;
 
@@ -64,7 +66,6 @@ export default function SurahPicker({ visible, onClose, currentSurah }) {
   };
 
   const initialIndex = search.trim() ? 0 : Math.max(0, currentSurah - 1);
-  const calliColor = isDark ? '#E8E0D4' : '#1A1A2E';
 
   const renderItem = ({ item }) => {
     const isActive = item.number === currentSurah;
@@ -77,16 +78,13 @@ export default function SurahPicker({ visible, onClose, currentSurah }) {
         {/* Number */}
         <Text style={[styles.numText, { color: isActive ? t.accent : t.textDim }]}>{item.number}</Text>
 
-        {/* Arabic name — calligraphy WebView */}
-        <View style={styles.itemCenter}>
-          <SurahCalligraphy
-            name={item.name}
-            width={80}
-            height={30}
-            color={isActive ? Colors.gold : calliColor}
-            fontSize={22}
-          />
-        </View>
+        {/* Arabic name — text with calligraphy font */}
+        <Text
+          style={[styles.itemArabic, { color: isActive ? t.accent : t.text, fontFamily: ARABIC_FONT || ARABIC_FALLBACK }]}
+          numberOfLines={1}
+        >
+          {item.name}
+        </Text>
 
         {/* English name + translation */}
         <View style={styles.itemRight}>
@@ -226,10 +224,11 @@ const styles = StyleSheet.create({
     width: 36,
     textAlign: 'center',
   },
-  itemCenter: {
+  itemArabic: {
+    fontSize: 22,
+    lineHeight: 38,
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    textAlign: 'center',
   },
   itemRight: {
     width: 130,
