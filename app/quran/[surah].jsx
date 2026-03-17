@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -9,7 +9,7 @@ import { getSurah, saveSurah, isSurahCached } from '../../lib/database';
 import * as AudioPlayer from '../../features/quran/audioPlayer';
 import AyahOrnament from '../../components/ui/AyahOrnament';
 import SurahBanner from '../../components/ui/SurahBanner';
-import { FONTS, getArabicDisplayFont } from '../../lib/fonts';
+
 
 const ARABIC_FONT = 'ScheherazadeNew';
 const ARABIC_FONT_FALLBACK = Platform.OS === 'ios' ? 'Al Nile' : 'serif';
@@ -108,8 +108,7 @@ export default function SurahDetail() {
   const t = isDark ? DarkTheme : LightTheme;
 
   const [showLangPicker, setShowLangPicker] = useState(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [dropdownSearch, setDropdownSearch] = useState('');
+  const [showPicker, setShowPicker] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [currentPlayingAyah, setCurrentPlayingAyah] = useState(-1);
@@ -122,10 +121,11 @@ export default function SurahDetail() {
   const ayahs2Ref = useRef(null);
   const playingRef = useRef(false);
 
-  // Simple swipe navigation refs
-  const touchStart = useRef({ x: 0, y: 0 });
-  const isHorizontal = useRef(false);
-  const hasMoved = useRef(false);
+  // Swipe navigation refs
+  const swipeStartX = useRef(0);
+  const swipeStartY = useRef(0);
+  const swipeDecided = useRef(false);
+  const swipeIsHorizontal = useRef(false);
 
   const langMeta = QURAN_LANGUAGES.find(l => l.code === lang);
   const lang2Meta = lang2 ? QURAN_LANGUAGES.find(l => l.code === lang2) : null;
@@ -143,13 +143,13 @@ export default function SurahDetail() {
     navigation.setOptions({
       headerTitle: () => (
         <Pressable
-          onPress={() => setShowDropdown(true)}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+          onPress={() => setShowPicker(true)}
+          style={{ flexDirection: 'row', alignItems: 'center' }}
         >
           <Text style={{ fontSize: 17, fontWeight: '600', color: isDark ? '#E8E0D4' : '#1A1A2E' }}>
             {meta?.englishName || 'Quran'}
           </Text>
-          <Text style={{ fontSize: 12, color: isDark ? '#E8E0D4' : '#1A1A2E' }}>▾</Text>
+          <Text style={{ fontSize: 12, marginLeft: 6, color: isDark ? '#E8E0D4' : '#1A1A2E' }}>▼</Text>
         </Pressable>
       ),
       headerBackTitle: 'Quran',
@@ -206,34 +206,6 @@ export default function SurahDetail() {
     if (ayahs) { setLastRead(num, 1); setCached1(true); }
   }, [ayahs]);
   useEffect(() => { if (ayahs2) setCached2(true); }, [ayahs2]);
-
-  // --- Simple swipe navigation ---
-  const handleTouchStart = useCallback((e) => {
-    touchStart.current = { x: e.nativeEvent.pageX, y: e.nativeEvent.pageY };
-    isHorizontal.current = false;
-    hasMoved.current = false;
-  }, []);
-
-  const handleTouchMove = useCallback((e) => {
-    if (hasMoved.current) return;
-    const dx = e.nativeEvent.pageX - touchStart.current.x;
-    const dy = e.nativeEvent.pageY - touchStart.current.y;
-    if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
-      isHorizontal.current = Math.abs(dx) > Math.abs(dy);
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback((e) => {
-    if (!isHorizontal.current || hasMoved.current) return;
-    const dx = e.nativeEvent.pageX - touchStart.current.x;
-    if (dx < -80 && num < 114) {
-      hasMoved.current = true;
-      router.replace(`/quran/${num + 1}`);
-    } else if (dx > 80 && num > 1) {
-      hasMoved.current = true;
-      router.replace(`/quran/${num - 1}`);
-    }
-  }, [num, router]);
 
   // --- Audio ---
   const scrollToAyah = useCallback((index) => {
@@ -565,19 +537,6 @@ export default function SurahDetail() {
 
   const showPlayerBar = isPlaying || currentPlayingAyah >= 0;
 
-  const dropdownFiltered = useMemo(() => {
-    if (!dropdownSearch.trim()) return SURAH_LIST;
-    const q = dropdownSearch.toLowerCase();
-    return SURAH_LIST.filter(s =>
-      s.englishName.toLowerCase().includes(q) ||
-      s.name.includes(dropdownSearch) ||
-      s.englishTranslation.toLowerCase().includes(q) ||
-      String(s.number) === q
-    );
-  }, [dropdownSearch]);
-
-  const ITEM_HEIGHT = 72;
-
   if (isLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
@@ -606,9 +565,30 @@ export default function SurahDetail() {
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
       <View
         style={{ flex: 1 }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={(e) => {
+          swipeStartX.current = e.nativeEvent.pageX;
+          swipeStartY.current = e.nativeEvent.pageY;
+          swipeDecided.current = false;
+          swipeIsHorizontal.current = false;
+        }}
+        onTouchMove={(e) => {
+          if (swipeDecided.current) return;
+          const dx = e.nativeEvent.pageX - swipeStartX.current;
+          const dy = e.nativeEvent.pageY - swipeStartY.current;
+          if (Math.abs(dx) > 25 || Math.abs(dy) > 25) {
+            swipeDecided.current = true;
+            swipeIsHorizontal.current = Math.abs(dx) > Math.abs(dy) * 2;
+          }
+        }}
+        onTouchEnd={(e) => {
+          if (!swipeIsHorizontal.current) return;
+          const dx = e.nativeEvent.pageX - swipeStartX.current;
+          if (dx < -100 && num < 114) {
+            router.replace('/quran/' + (num + 1));
+          } else if (dx > 100 && num > 1) {
+            router.replace('/quran/' + (num - 1));
+          }
+        }}
       >
         <FlatList
           ref={flatListRef}
@@ -627,72 +607,54 @@ export default function SurahDetail() {
         />
       </View>
 
-      {/* Inline Surah Dropdown Modal */}
-      <Modal visible={showDropdown} transparent animationType="slide" onRequestClose={() => { setShowDropdown(false); setDropdownSearch(''); }}>
-        <View style={styles.dropdownOverlay}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => { setShowDropdown(false); setDropdownSearch(''); }} />
-          <View style={[styles.dropdownContainer, { backgroundColor: t.card }]}>
-            <View style={styles.dropdownHandle}>
-              <View style={[styles.dropdownHandleBar, { backgroundColor: t.textDim + '40' }]} />
-            </View>
-            <Text style={[styles.dropdownTitle, { color: t.text }]}>Sure auswählen</Text>
-            <View style={[styles.dropdownSearch, { backgroundColor: t.surface, borderColor: t.border }]}>
-              <Text style={{ fontSize: 14, marginRight: Spacing.sm }}>🔍</Text>
-              <TextInput
-                style={{ flex: 1, fontSize: FontSize.md, paddingVertical: 0, color: t.text }}
-                placeholder="Suche nach Name oder Nummer..."
-                placeholderTextColor={t.textDim}
-                value={dropdownSearch}
-                onChangeText={setDropdownSearch}
-                autoCorrect={false}
-              />
-              {dropdownSearch.length > 0 && (
-                <Pressable onPress={() => setDropdownSearch('')} hitSlop={8}>
-                  <Text style={{ fontSize: 16, color: t.textDim }}>✕</Text>
-                </Pressable>
-              )}
-            </View>
-            <FlatList
-              data={dropdownFiltered}
-              keyExtractor={(item) => String(item.number)}
-              initialScrollIndex={dropdownSearch.trim() ? 0 : Math.max(0, num - 1)}
-              getItemLayout={(_, index) => ({ length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index })}
-              onScrollToIndexFailed={() => {}}
-              keyboardShouldPersistTaps="handled"
-              style={{ flex: 1 }}
-              renderItem={({ item }) => {
-                const isActive = item.number === num;
-                return (
-                  <Pressable
-                    style={[styles.dropdownItem, { height: ITEM_HEIGHT }, isActive && { backgroundColor: t.accent + '18' }]}
-                    onPress={() => {
-                      setShowDropdown(false);
-                      setDropdownSearch('');
-                      router.replace(`/quran/${item.number}`);
-                    }}
-                  >
-                    <Text style={[styles.dropdownNum, { color: isActive ? t.accent : t.textDim }]}>{item.number}</Text>
-                    <Text
-                      style={[styles.dropdownArabic, { color: isActive ? t.accent : t.text, fontFamily: FONTS.arabicText }]}
-                      numberOfLines={1}
+      {/* Surah Picker Modal */}
+      {showPicker && (
+        <Modal visible={true} transparent animationType="slide" onRequestClose={() => setShowPicker(false)}>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+            <Pressable style={{ flex: 1 }} onPress={() => setShowPicker(false)} />
+            <View style={{ maxHeight: '70%', backgroundColor: isDark ? '#0F1F38' : '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingBottom: 40 }}>
+              <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+                <View style={{ width: 40, height: 4, borderRadius: 2, backgroundColor: isDark ? '#1A3055' : '#E0DCD4' }} />
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: '700', textAlign: 'center', marginBottom: 12, color: isDark ? '#E8E0D4' : '#1A1A2E' }}>Sure auswählen</Text>
+              <FlatList
+                data={SURAH_LIST}
+                keyExtractor={(item) => String(item.number)}
+                initialScrollIndex={Math.max(0, num - 3)}
+                getItemLayout={(data, index) => ({ length: 56, offset: 56 * index, index })}
+                onScrollToIndexFailed={() => {}}
+                renderItem={({ item }) => {
+                  const isActive = item.number === num;
+                  return (
+                    <Pressable
+                      onPress={() => {
+                        setShowPicker(false);
+                        if (item.number !== num) {
+                          router.replace('/quran/' + item.number);
+                        }
+                      }}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        height: 56,
+                        paddingHorizontal: 16,
+                        backgroundColor: isActive ? '#B8860B22' : 'transparent',
+                      }}
                     >
-                      {item.name}
-                    </Text>
-                    <View style={styles.dropdownRight}>
-                      <Text style={[styles.dropdownEnglish, { color: isActive ? t.accent : t.text }]} numberOfLines={1}>
-                        {item.englishName}
-                      </Text>
-                      <Text style={[styles.dropdownTranslation, { color: t.textDim }]} numberOfLines={1}>
-                        {item.englishTranslation}
-                      </Text>
-                    </View>
-                  </Pressable>
-                );
-              }}
-            />
+                      <Text style={{ width: 36, fontSize: 14, color: isActive ? '#B8860B' : (isDark ? '#8B9BB4' : '#666'), textAlign: 'center' }}>{item.number}</Text>
+                      <Text style={{ flex: 1, fontSize: 20, color: isActive ? '#B8860B' : (isDark ? '#E8E0D4' : '#1A1A2E'), textAlign: 'center' }}>{item.name}</Text>
+                      <View style={{ width: 120 }}>
+                        <Text style={{ fontSize: 13, fontWeight: '600', color: isActive ? '#B8860B' : (isDark ? '#E8E0D4' : '#1A1A2E') }}>{item.englishName}</Text>
+                        <Text style={{ fontSize: 10, color: isDark ? '#8B9BB4' : '#666', marginTop: 1 }}>{item.englishTranslation}</Text>
+                      </View>
+                    </Pressable>
+                  );
+                }}
+              />
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
 
       {/* Floating Audio Player Bar */}
       {showPlayerBar && (
@@ -832,78 +794,6 @@ const styles = StyleSheet.create({
   navTouch: { minHeight: 44, justifyContent: 'center', paddingHorizontal: Spacing.sm },
   footerNav: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.xl },
   navBtn: { flex: 1, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1.5, alignItems: 'center', minHeight: 44 },
-
-  // --- Dropdown ---
-  dropdownOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  dropdownContainer: {
-    maxHeight: '75%',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.25, shadowRadius: 16 },
-      android: { elevation: 16 },
-    }),
-  },
-  dropdownHandle: {
-    alignItems: 'center',
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.sm,
-  },
-  dropdownHandleBar: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-  },
-  dropdownTitle: {
-    fontSize: FontSize.lg,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: Spacing.md,
-  },
-  dropdownSearch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.md,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.md,
-    height: 44,
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-  },
-  dropdownNum: {
-    fontSize: FontSize.md,
-    fontWeight: '300',
-    width: 36,
-    textAlign: 'center',
-  },
-  dropdownArabic: {
-    fontSize: 22,
-    lineHeight: 38,
-    flex: 1,
-    textAlign: 'center',
-  },
-  dropdownRight: {
-    width: 130,
-    alignItems: 'flex-end',
-  },
-  dropdownEnglish: {
-    fontSize: FontSize.md,
-    fontWeight: '600',
-  },
-  dropdownTranslation: {
-    fontSize: FontSize.xs,
-    marginTop: 2,
-  },
 
   // --- Player bar ---
   playerBar: {
