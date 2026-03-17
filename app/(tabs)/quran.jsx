@@ -1,14 +1,13 @@
 import { View, Text, StyleSheet, FlatList, Pressable, TextInput, SafeAreaView, Platform } from 'react-native';
 import { useState, useMemo } from 'react';
-
-const SCHEHERAZADE = 'ScheherazadeNew';
-const ARABIC_FALLBACK = Platform.OS === 'ios' ? 'Geeza Pro' : 'serif';
 import { useRouter } from 'expo-router';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '../../constants/theme';
 import { SURAH_LIST } from '../../features/quran/surahData';
 import LanguagePicker from '../../components/ui/LanguagePicker';
-import SurahCalligraphy from '../../components/ui/SurahCalligraphy';
+
+const SCHEHERAZADE = 'ScheherazadeNew';
+const ARABIC_FALLBACK = Platform.OS === 'ios' ? 'Geeza Pro' : 'serif';
 
 const SUB_TABS = [
   { id: 'read', label: 'Lesen' },
@@ -36,7 +35,6 @@ export default function QuranScreen() {
   }, [search]);
 
   const cardBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
-  const calliColor = isDark ? '#E8E0D4' : '#1A1A2E';
 
   const renderSurah = ({ item }) => {
     const isLastRead = item.number === lastRead;
@@ -47,9 +45,16 @@ export default function QuranScreen() {
         onPress={() => router.push(`/quran/${item.number}`)}
       >
         <Text style={[styles.surahNum, { color: t.textDim }]}>{item.number}</Text>
-        <View style={styles.surahCenter}>
-          <SurahCalligraphy name={item.name} width={120} height={50} color={calliColor} fontSize={30} />
-        </View>
+        <Text
+          style={[styles.surahArabic, {
+            color: isDark ? '#E8E0D4' : t.text,
+            fontFamily: SCHEHERAZADE || ARABIC_FALLBACK,
+            fontWeight: Platform.OS === 'ios' ? '400' : undefined,
+          }]}
+          numberOfLines={1}
+        >
+          {item.name}
+        </Text>
         <View style={styles.surahInfo}>
           <Text style={[styles.surahEnglish, { color: t.text }]}>{item.englishName}</Text>
           <Text style={[styles.surahTranslation, { color: t.textDim }]}>{item.englishTranslation}</Text>
@@ -252,10 +257,11 @@ const styles = StyleSheet.create({
     width: 50,
     textAlign: 'center',
   },
-  surahCenter: {
+  surahArabic: {
+    fontSize: 30,
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    textAlign: 'center',
+    lineHeight: 52,
   },
   surahInfo: {
     alignItems: 'flex-end',
