@@ -2,7 +2,6 @@ import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform, 
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
-import { WebView } from 'react-native-webview';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';
 import { fetchPrayerTimes, getNextPrayer, calculateQiblaDirection, distanceToKaaba } from '../../features/prayer/prayerCalculation';
@@ -12,6 +11,8 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../co
 import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
+import QiblaMap from '../../components/ui/QiblaMap';
+import MosqueMap from '../../components/ui/MosqueMap';
 
 const COMPASS_SIZE = 280;
 const CX = COMPASS_SIZE / 2;
@@ -20,8 +21,6 @@ const OUTER_R = 134;
 const INNER_R = 110;
 const TICK_R = OUTER_R - 2;
 const LABEL_R = 95;
-const KAABA_LAT = 21.4225;
-const KAABA_LNG = 39.8262;
 
 function isNightTime(times) {
   if (!times) return false;
@@ -96,6 +95,7 @@ export default function PrayerScreen() {
     { id: 'times', label: 'Zeiten', emoji: '🕐' },
     { id: 'qibla', label: 'Qibla', emoji: '🧭' },
     { id: 'tracker', label: 'Tracker', emoji: '✅' },
+    { id: 'mosques', label: 'Moscheen', emoji: '🕌' },
   ];
 
   return (
@@ -248,6 +248,19 @@ export default function PrayerScreen() {
             )}
           </>
         )}
+
+        {tab === 'mosques' && (
+          <>
+            {location ? (
+              <MosqueMap userLat={location.lat} userLng={location.lng} t={t} />
+            ) : (
+              <Card centered>
+                <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: 8 }} />
+                <Text style={{ color: t.textDim }}>Standort wird ermittelt...</Text>
+              </Card>
+            )}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -256,37 +269,6 @@ export default function PrayerScreen() {
 function polarToXY(cx, cy, r, deg) {
   const rad = ((deg - 90) * Math.PI) / 180;
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-}
-
-function QiblaMap({ lat, lng, t }) {
-  const [mapError, setMapError] = useState(false);
-
-  const html = `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<style>body{margin:0}#map{width:100%;height:100%}</style></head>
-<body><div id="map"></div><script>
-var map=L.map('map',{zoomControl:false,attributionControl:false}).fitBounds([[${lat},${lng}],[${KAABA_LAT},${KAABA_LNG}]],{padding:[30,30]});
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-L.polyline([[${lat},${lng}],[${KAABA_LAT},${KAABA_LNG}]],{color:'#D4A04A',weight:2,dashArray:'6,6'}).addTo(map);
-L.circleMarker([${lat},${lng}],{radius:6,fillColor:'#3B82F6',color:'#fff',weight:2,fillOpacity:1}).addTo(map);
-L.marker([${KAABA_LAT},${KAABA_LNG}]).addTo(map).bindPopup('Kaaba');
-</script></body></html>`;
-
-  if (mapError) {
-    return null;
-  }
-
-  return (
-    <Card style={{ padding: 0, overflow: 'hidden' }}>
-      <WebView
-        source={{ html }}
-        style={{ height: 200, borderRadius: BorderRadius.md }}
-        scrollEnabled={false}
-        onError={() => setMapError(true)}
-      />
-    </Card>
-  );
 }
 
 function QiblaCompass({ qibla, dist, t, location }) {
@@ -393,7 +375,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
             Magnetometer nicht verfügbar.{'\n'}Statische Qibla-Richtung wird angezeigt.
           </Text>
         </Card>
-        {location && <QiblaMap lat={location.lat} lng={location.lng} t={t} />}
+        {location && qibla !== null && <QiblaMap userLat={location.lat} userLng={location.lng} qiblaAngle={qibla} t={t} />}
       </>
     );
   }
@@ -490,7 +472,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
       </Card>
 
       {/* Map */}
-      {location && <QiblaMap lat={location.lat} lng={location.lng} t={t} />}
+      {location && qibla !== null && <QiblaMap userLat={location.lat} userLng={location.lng} qiblaAngle={qibla} t={t} />}
     </>
   );
 }
