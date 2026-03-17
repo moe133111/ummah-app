@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert, PanResponder, Dimensions, Animated } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
@@ -13,14 +13,27 @@ import SurahBanner from '../../components/ui/SurahBanner';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 100;
 
-const BISMILLAH_VARIANTS = [
-  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
-  'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
-  'بسم الله الرحمن الرحيم',
-  'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
-];
-
 const ARABIC_FONT = Platform.OS === 'ios' ? 'Al Nile' : 'serif';
+const BISMILLAH_DISPLAY = 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ';
+const BISMILLAH_BASE = 'بسم الله الرحمن الرحيم';
+
+// Strip Arabic diacritical marks (tashkeel, small letters, tatweel)
+function isDiacritic(ch) {
+  const c = ch.charCodeAt(0);
+  return (c >= 0x064B && c <= 0x065F) || c === 0x0670 ||
+    (c >= 0x06D6 && c <= 0x06DC) || (c >= 0x06DF && c <= 0x06E4) ||
+    c === 0x06E7 || c === 0x06E8 || (c >= 0x06EA && c <= 0x06ED) || c === 0x0640;
+}
+
+function stripDiacritics(text) {
+  let result = '';
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (isDiacritic(ch)) continue;
+    result += ch === 'ٱ' ? 'ا' : ch;
+  }
+  return result;
+}
 
 function cleanBismillah(ayahs, surahNumber) {
   if (!ayahs || ayahs.length === 0) return { showBismillah: false, ayahs: ayahs || [] };
@@ -31,20 +44,32 @@ function cleanBismillah(ayahs, surahNumber) {
   // Surah 9 (At-Tawbah): No bismillah at all
   if (surahNumber === 9) return { showBismillah: false, ayahs };
 
-  // All other surahs: strip bismillah prefix from first ayah text
+  // All other surahs: strip bismillah from first ayah text
   const modifiedAyahs = [...ayahs];
-  let firstText = modifiedAyahs[0]?.text || '';
+  const originalText = modifiedAyahs[0]?.text || '';
+  const stripped = stripDiacritics(originalText);
 
-  for (const variant of BISMILLAH_VARIANTS) {
-    if (firstText.includes(variant)) {
-      firstText = firstText.replace(variant, '').trim();
+  if (!stripped.startsWith(BISMILLAH_BASE)) {
+    // No bismillah found in text — still show decorative header
+    return { showBismillah: true, ayahs: modifiedAyahs };
+  }
+
+  // Map stripped position back to original text to find cut point
+  let baseCount = 0;
+  let cutPos = originalText.length;
+  for (let i = 0; i < originalText.length; i++) {
+    if (!isDiacritic(originalText[i])) {
+      baseCount++;
+    }
+    if (baseCount >= BISMILLAH_BASE.length) {
+      cutPos = i + 1;
       break;
     }
   }
 
-  // Only modify if we actually stripped something and text remains
-  if (firstText.length > 0 && firstText !== (modifiedAyahs[0]?.text || '')) {
-    modifiedAyahs[0] = { ...modifiedAyahs[0], text: firstText };
+  const remaining = originalText.slice(cutPos).trim();
+  if (remaining.length > 0) {
+    modifiedAyahs[0] = { ...modifiedAyahs[0], text: remaining };
   }
 
   return { showBismillah: true, ayahs: modifiedAyahs };
@@ -90,6 +115,9 @@ export default function SurahDetail() {
   const flatListRef = useRef(null);
   const currentIndexRef = useRef(-1);
   const ayahsRef = useRef(null);
+  const arabicAyahsRef = useRef(null);
+  const translitAyahsRef = useRef(null);
+  const ayahs2Ref = useRef(null);
   const playingRef = useRef(false);
 
   // Swipe navigation
@@ -139,20 +167,19 @@ export default function SurahDetail() {
   const rawTranslitAyahs = translitResult?.ayahs;
   const rawArabicAyahs = isAr ? rawAyahs : arabicResult?.ayahs;
 
-  // Clean bismillah from all text sources
-  const arabicCleaned = cleanBismillah(rawArabicAyahs, num);
-  const primaryCleaned = cleanBismillah(rawAyahs, num);
-  const secondCleaned = cleanBismillah(rawAyahs2, num);
-  const translitCleaned = cleanBismillah(rawTranslitAyahs, num);
-  const showBismillah = arabicCleaned.showBismillah;
+  // Clean bismillah — memoized to avoid recalculating every render
+  const { showBismillah, ayahs: cleanedAyahs } = useMemo(() => cleanBismillah(rawAyahs, num), [rawAyahs, num]);
+  const { ayahs: arabicAyahs } = useMemo(() => cleanBismillah(rawArabicAyahs, num), [rawArabicAyahs, num]);
+  const { ayahs: translitAyahs } = useMemo(() => cleanBismillah(rawTranslitAyahs, num), [rawTranslitAyahs, num]);
+  const { ayahs: ayahs2 } = useMemo(() => cleanBismillah(rawAyahs2, num), [rawAyahs2, num]);
 
-  const ayahs = primaryCleaned.ayahs;
-  const ayahs2 = secondCleaned.ayahs;
-  const translitAyahs = translitCleaned.ayahs;
-  const arabicAyahs = arabicCleaned.ayahs;
+  const ayahs = cleanedAyahs;
 
-  // Keep ref in sync so onFinish callback always reads current ayahs
+  // Keep refs in sync so callbacks always read current data
   ayahsRef.current = ayahs;
+  arabicAyahsRef.current = arabicAyahs;
+  translitAyahsRef.current = translitAyahs;
+  ayahs2Ref.current = ayahs2;
 
   useEffect(() => {
     if (ayahs) { setLastRead(num, 1); setCached1(true); }
@@ -325,13 +352,25 @@ export default function SurahDetail() {
 
   const scrollToCurrentAyah = useCallback(() => scrollToAyah(currentPlayingAyah), [currentPlayingAyah, scrollToAyah]);
 
+  const keyExtractor = useCallback((i) => String(i.numberInSurah), []);
+  const handleScrollFail = useCallback((info) => {
+    flatListRef.current?.scrollToOffset({ offset: info.averageItemLength * info.index, animated: true });
+  }, []);
+
   const highlightBg = isDark ? '#1C2D4A' : '#FFF9EF';
 
-  // --- Render Ayah ---
-  const renderAyah = ({ item, index }) => {
+  // --- Render Ayah (memoized) ---
+  const totalAyahs = ayahs?.length || 0;
+  const renderAyah = useCallback(({ item, index }) => {
+    const curArabic = arabicAyahsRef.current;
+    const curTranslit = translitAyahsRef.current;
+    const curAyahs2 = ayahs2Ref.current;
     const isActive = currentPlayingAyah === index;
     const isLoadingThis = audioLoading && currentPlayingAyah === index;
-    const isLast = index === (ayahs?.length || 0) - 1;
+    const isLast = index === totalAyahs - 1;
+
+    const arabicText = curArabic?.[index]?.text;
+    const dynamicSize = arabicText ? getArabicFontSize(arabicText) : 26;
 
     return (
       <Pressable onPress={() => playFromAyah(index)}>
@@ -353,25 +392,21 @@ export default function SurahDetail() {
           </View>
 
           {/* Arabic text with ornament */}
-          {arabicAyahs?.[index] && (() => {
-            const arabicText = arabicAyahs[index].text;
-            const dynamicSize = getArabicFontSize(arabicText);
-            return (
-              <View style={styles.arabicRow}>
-                <Text style={[styles.arabicText, { color: t.text, fontFamily: ARABIC_FONT, fontSize: dynamicSize, lineHeight: dynamicSize * 2.2 }]}>
-                  {arabicText}
-                </Text>
-                <View style={{ marginLeft: Spacing.sm }}>
-                  <AyahOrnament number={toArabicNumerals(item.numberInSurah)} color={t.accent} />
-                </View>
+          {arabicText && (
+            <View style={styles.arabicRow}>
+              <Text style={[styles.arabicText, { color: t.text, fontFamily: ARABIC_FONT, fontSize: dynamicSize, lineHeight: dynamicSize * 2.2 }]}>
+                {arabicText}
+              </Text>
+              <View style={{ marginLeft: Spacing.sm }}>
+                <AyahOrnament number={toArabicNumerals(item.numberInSurah)} color={t.accent} />
               </View>
-            );
-          })()}
+            </View>
+          )}
 
           {/* Transliteration */}
-          {translitAyahs?.[index] && (
+          {curTranslit?.[index] && (
             <Text style={[styles.translitText, { color: t.accent }]}>
-              {translitAyahs[index].text}
+              {curTranslit[index].text}
             </Text>
           )}
 
@@ -383,9 +418,9 @@ export default function SurahDetail() {
           )}
 
           {/* Second language */}
-          {ayahs2?.[index] && (
+          {curAyahs2?.[index] && (
             <Text style={[styles.secondLangText, { color: t.textDim }]}>
-              {ayahs2[index].text}
+              {curAyahs2[index].text}
             </Text>
           )}
 
@@ -394,7 +429,7 @@ export default function SurahDetail() {
         </View>
       </Pressable>
     );
-  };
+  }, [currentPlayingAyah, audioLoading, isPlaying, totalAyahs, num, isAr, t, highlightBg, playFromAyah]);
 
   // --- Lang picker ---
   const LangChip = ({ label, langObj, slot }) => (
@@ -483,7 +518,7 @@ export default function SurahDetail() {
       {showBismillah && (
         <View style={styles.bismillahWrap}>
           <Text style={[styles.bismillahText, { color: t.accentLight, fontFamily: ARABIC_FONT }]}>
-            {BISMILLAH_VARIANTS[0]}
+            {BISMILLAH_DISPLAY}
           </Text>
         </View>
       )}
@@ -535,14 +570,17 @@ export default function SurahDetail() {
         <FlatList
           ref={flatListRef}
           data={ayahs}
-          keyExtractor={(i) => String(i.numberInSurah)}
+          keyExtractor={keyExtractor}
           renderItem={renderAyah}
+          extraData={currentPlayingAyah}
           ListHeaderComponent={Header}
           ListFooterComponent={Footer}
+          initialNumToRender={10}
+          maxToRenderPerBatch={5}
+          windowSize={5}
+          removeClippedSubviews={true}
           contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayerBar ? 110 : 100 }}
-          onScrollToIndexFailed={(info) => {
-            flatListRef.current?.scrollToOffset({ offset: info.averageItemLength * info.index, animated: true });
-          }}
+          onScrollToIndexFailed={handleScrollFail}
         />
 
         {/* Swipe hints */}

@@ -11,7 +11,7 @@ const DHIKR = [
   { id: 1, arabic: 'سُبْحَانَ اللَّهِ', text: 'SubhanAllah', target: 33 },
   { id: 2, arabic: 'الْحَمْدُ لِلَّهِ', text: 'Alhamdulillah', target: 33 },
   { id: 3, arabic: 'اللَّهُ أَكْبَرُ', text: 'Allahu Akbar', target: 33 },
-  { id: 4, arabic: 'لَا إِلَهَ إِلَّا اللَّهُ', text: 'La ilaha illallah', target: 100 },
+  { id: 4, arabic: 'لَا إِلَٰهَ إِلَّا اللَّهُ', text: 'La ilaha illallah', target: 100 },
 ];
 
 const SLEEP_CONTENT = [
