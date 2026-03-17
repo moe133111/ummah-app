@@ -11,6 +11,7 @@ import { DUAS } from '../../features/duas/duaData';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 import { getStreakEmoji, getStreakMessage } from '../../features/streaks/streakManager';
+import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
 
 const DAILY_AYAHS = [
   { arabic: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا', translation: 'Wahrlich, mit der Erschwernis kommt die Erleichterung.', ref: 'Ash-Sharh 94:6' },
@@ -39,7 +40,6 @@ const DHIKR_MINI = [
 ];
 
 const PRAYER_ORDER = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
-const PRAYER_NAMES = { fajr: 'Fajr', sunrise: 'Sunrise', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha' };
 
 function getDailyIndex(arr) {
   const now = new Date();
@@ -58,7 +58,8 @@ function getCurrentPrayer(times) {
   for (let i = PRAYER_ORDER.length - 1; i >= 0; i--) {
     const mins = timeToMinutes(times[PRAYER_ORDER[i]]);
     if (cur >= mins) {
-      return { key: PRAYER_ORDER[i], name: PRAYER_NAMES[PRAYER_ORDER[i]], time: times[PRAYER_ORDER[i]] };
+      const k = PRAYER_ORDER[i];
+      return { key: k, name: PRAYER_META[k].name, time: times[k] };
     }
   }
   return { key: 'isha', name: 'Isha', time: times.isha };
@@ -246,42 +247,61 @@ export default function HomeScreen() {
         </Card>
 
         {/* Enhanced Prayer Countdown */}
-        {nextPrayer && currentPrayer && (
-          <Card style={{ borderColor: t.accent + '44' }}>
-            {/* Current Prayer */}
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
-              <View>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Aktuelles Gebet</Text>
-                <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.text }}>{currentPrayer.name}</Text>
-                <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>{currentPrayer.time}</Text>
+        {nextPrayer && currentPrayer && (() => {
+          const nextMeta = PRAYER_META[nextPrayer.key];
+          const curMeta = PRAYER_META[currentPrayer.key];
+          return (
+            <View style={{ borderRadius: BorderRadius.md, overflow: 'hidden', borderWidth: 1, borderColor: nextMeta.color + '44', backgroundColor: t.card }}>
+              {/* Gradient-like tinted background */}
+              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: nextMeta.color + '08', borderRadius: BorderRadius.md }} />
+
+              <View style={{ padding: Spacing.lg }}>
+                {/* Current & Next Prayer */}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
+                  <View>
+                    <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Aktuelles Gebet</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                      <Text style={{ fontSize: 24 }}>{curMeta.emoji}</Text>
+                      <View>
+                        <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.text }}>{currentPrayer.name}</Text>
+                        <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{curMeta.description}</Text>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Nächstes Gebet</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: nextMeta.color }}>{nextPrayer.name}</Text>
+                        <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{nextMeta.description}</Text>
+                      </View>
+                      <Text style={{ fontSize: 24 }}>{nextMeta.emoji}</Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Progress bar between prayers */}
+                <View style={[styles.prayerProgressBar, { backgroundColor: t.border }]}>
+                  <View style={[styles.prayerProgressFill, { width: `${progress * 100}%`, backgroundColor: nextMeta.color }]} />
+                </View>
+
+                {/* Countdown */}
+                <View style={{ alignItems: 'center', marginTop: Spacing.md }}>
+                  <Text style={{ fontSize: 36, fontWeight: '700', color: nextMeta.color, fontVariant: ['tabular-nums'] }}>{countdown}</Text>
+                  <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>bis {nextPrayer.name}</Text>
+                </View>
+
+                {/* Prayer dots - colored per prayer */}
+                <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.md, gap: 6 }}>
+                  {TRACKABLE_KEYS.map((p) => (
+                    <View key={p} style={[styles.miniDot, { backgroundColor: todayPrayers[p] ? PRAYER_META[p].color : t.border }]} />
+                  ))}
+                </View>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginTop: 4 }}>{completedCount}/5 verrichtet</Text>
               </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Nächstes Gebet</Text>
-                <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.accent }}>{nextPrayer.name}</Text>
-                <Text style={{ fontSize: FontSize.sm, color: t.accentLight }}>{nextPrayer.time}</Text>
-              </View>
             </View>
-
-            {/* Progress bar between prayers */}
-            <View style={[styles.prayerProgressBar, { backgroundColor: t.border }]}>
-              <View style={[styles.prayerProgressFill, { width: `${progress * 100}%`, backgroundColor: t.accent }]} />
-            </View>
-
-            {/* Countdown */}
-            <View style={{ alignItems: 'center', marginTop: Spacing.md }}>
-              <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent, fontVariant: ['tabular-nums'] }}>{countdown}</Text>
-              <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>bis {nextPrayer.name}</Text>
-            </View>
-
-            {/* Prayer dots */}
-            <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.md, gap: 6 }}>
-              {['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].map((p) => (
-                <View key={p} style={[styles.miniDot, { backgroundColor: todayPrayers[p] ? t.accent : t.border }]} />
-              ))}
-            </View>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginTop: 4 }}>{completedCount}/5 verrichtet</Text>
-          </Card>
-        )}
+          );
+        })()}
 
         {/* Streak & Daily Goals side by side */}
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
