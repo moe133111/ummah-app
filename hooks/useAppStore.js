@@ -143,6 +143,32 @@ export const useAppStore = create(
 
       todayDhikrCount: 0,
 
+      // Adhkar tracking
+      adhkarCounts: { morning: {}, evening: {} },
+      lastAdhkarDate: null,
+      incrementAdhkar: (period, adhkarId) => {
+        const today = todayString();
+        set((s) => {
+          const counts = s.lastAdhkarDate === today ? s.adhkarCounts : { morning: {}, evening: {} };
+          return {
+            adhkarCounts: {
+              ...counts,
+              [period]: { ...counts[period], [adhkarId]: (counts[period]?.[adhkarId] || 0) + 1 },
+            },
+            lastAdhkarDate: today,
+          };
+        });
+      },
+      resetAdhkarIfNewDay: () => {
+        const today = todayString();
+        const { lastAdhkarDate } = get();
+        if (lastAdhkarDate && lastAdhkarDate !== today) {
+          set({ adhkarCounts: { morning: {}, evening: {} }, lastAdhkarDate: today });
+        } else if (!lastAdhkarDate) {
+          set({ lastAdhkarDate: today });
+        }
+      },
+
       // Daily Goals
       dailyGoals: {
         dhikr: { target: 100, enabled: true },
@@ -271,6 +297,8 @@ export const useAppStore = create(
         lastDhikrDate: state.lastDhikrDate,
         dailyDhikrGoal: state.dailyDhikrGoal,
         todayDhikrCount: state.todayDhikrCount,
+        adhkarCounts: state.adhkarCounts,
+        lastAdhkarDate: state.lastAdhkarDate,
         dailyGoals: state.dailyGoals,
         dailyProgress: state.dailyProgress,
         weeklyPrayers: state.weeklyPrayers,
