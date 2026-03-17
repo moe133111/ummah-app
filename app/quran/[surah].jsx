@@ -563,6 +563,21 @@ export default function SurahDetail() {
     </View>
   );
 
+  const showPlayerBar = isPlaying || currentPlayingAyah >= 0;
+
+  const dropdownFiltered = useMemo(() => {
+    if (!dropdownSearch.trim()) return SURAH_LIST;
+    const q = dropdownSearch.toLowerCase();
+    return SURAH_LIST.filter(s =>
+      s.englishName.toLowerCase().includes(q) ||
+      s.name.includes(dropdownSearch) ||
+      s.englishTranslation.toLowerCase().includes(q) ||
+      String(s.number) === q
+    );
+  }, [dropdownSearch]);
+
+  const ITEM_HEIGHT = 72;
+
   if (isLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
@@ -586,21 +601,6 @@ export default function SurahDetail() {
       </SafeAreaView>
     );
   }
-
-  const showPlayerBar = isPlaying || currentPlayingAyah >= 0;
-
-  const dropdownFiltered = useMemo(() => {
-    if (!dropdownSearch.trim()) return SURAH_LIST;
-    const q = dropdownSearch.toLowerCase();
-    return SURAH_LIST.filter(s =>
-      s.englishName.toLowerCase().includes(q) ||
-      s.name.includes(dropdownSearch) ||
-      s.englishTranslation.toLowerCase().includes(q) ||
-      String(s.number) === q
-    );
-  }, [dropdownSearch]);
-
-  const ITEM_HEIGHT = 72;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
