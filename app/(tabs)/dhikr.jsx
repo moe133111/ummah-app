@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Modal, StatusBar } from 'react-native';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import * as Haptics from 'expo-haptics';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { DUAS } from '../../features/duas/duaData';
+import { MORNING_ADHKAR, EVENING_ADHKAR } from '../../features/dhikr/adhkarData';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 
@@ -55,12 +56,18 @@ export default function DhikrScreen() {
   const toggleFavorite = useAppStore((s) => s.toggleFavorite);
   const incrementDhikr = useAppStore((s) => s.incrementDhikr);
   const incrementDailyProgress = useAppStore((s) => s.incrementDailyProgress);
+  const adhkarCounts = useAppStore((s) => s.adhkarCounts);
+  const incrementAdhkar = useAppStore((s) => s.incrementAdhkar);
+  const resetAdhkarIfNewDay = useAppStore((s) => s.resetAdhkarIfNewDay);
   const t = isDark ? DarkTheme : LightTheme;
   const [tab, setTab] = useState('dhikr');
   const [sel, setSel] = useState(DHIKR[0]);
   const [count, setCount] = useState(0);
   const [expanded, setExpanded] = useState(null);
   const [focusMode, setFocusMode] = useState(false);
+  const [adhkarPeriod, setAdhkarPeriod] = useState(() => new Date().getHours() < 15 ? 'morning' : 'evening');
+
+  useEffect(() => { resetAdhkarIfNewDay(); }, []);
 
   const handleCount = useCallback(async () => {
     if (count < sel.target) {
@@ -76,6 +83,7 @@ export default function DhikrScreen() {
   const tabs = [
     { id: 'dhikr', label: 'Dhikr', emoji: '📿' },
     { id: 'duas', label: 'Duas', emoji: '🤲' },
+    { id: 'adhkar', label: 'Adhkar', emoji: '🌅' },
     { id: 'sleep', label: 'Schlaf', emoji: '🌙' },
     { id: 'favorites', label: 'Favoriten', emoji: '⭐' },
   ];
@@ -216,6 +224,99 @@ export default function DhikrScreen() {
           </>
         )}
 
+        {tab === 'adhkar' && (() => {
+          const adhkarList = adhkarPeriod === 'morning' ? MORNING_ADHKAR : EVENING_ADHKAR;
+          const counts = adhkarCounts[adhkarPeriod] || {};
+          const completedCount = adhkarList.filter((a) => (counts[a.id] || 0) >= a.repetitions).length;
+          const allDone = completedCount === adhkarList.length;
+
+          return (
+            <>
+              {/* Period Toggle */}
+              <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
+                <Pressable
+                  style={[styles.periodBtn, adhkarPeriod === 'morning' && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
+                  onPress={() => setAdhkarPeriod('morning')}
+                >
+                  <Text style={{ fontSize: 20 }}>🌅</Text>
+                  <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: adhkarPeriod === 'morning' ? t.accent : t.textDim }}>Morgen</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.periodBtn, adhkarPeriod === 'evening' && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
+                  onPress={() => setAdhkarPeriod('evening')}
+                >
+                  <Text style={{ fontSize: 20 }}>🌙</Text>
+                  <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: adhkarPeriod === 'evening' ? t.accent : t.textDim }}>Abend</Text>
+                </Pressable>
+              </View>
+
+              {/* Progress Header */}
+              <Card centered>
+                <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: allDone ? '#D4A843' : t.accent }}>{completedCount}/{adhkarList.length}</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Adhkar erledigt</Text>
+                <View style={[styles.bar, { backgroundColor: t.border, marginTop: Spacing.md, width: '100%' }]}>
+                  <View style={[styles.barFill, { width: `${(completedCount / adhkarList.length) * 100}%`, backgroundColor: allDone ? '#D4A843' : t.accent }]} />
+                </View>
+              </Card>
+
+              {allDone && (
+                <Card centered style={{ borderColor: '#D4A843' + '44' }}>
+                  <Text style={{ fontSize: 28, marginBottom: Spacing.xs }}>✨</Text>
+                  <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: '#D4A843' }}>MashaAllah! Alle Adhkar erledigt</Text>
+                </Card>
+              )}
+
+              {/* Adhkar List */}
+              {adhkarList.map((adhkar) => {
+                const currentCount = counts[adhkar.id] || 0;
+                const done = currentCount >= adhkar.repetitions;
+                const isExpanded = expanded === `adhkar-${adhkarPeriod}-${adhkar.id}`;
+
+                return (
+                  <Pressable key={adhkar.id} onPress={() => setExpanded(isExpanded ? null : `adhkar-${adhkarPeriod}-${adhkar.id}`)}>
+                    <Card>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View style={{ flex: 1, marginRight: Spacing.md }}>
+                          <Text style={{ fontSize: FontSize.arabic, lineHeight: 36, textAlign: 'right', color: done ? t.textDim : t.accentLight }}>{adhkar.arabic}</Text>
+                        </View>
+                        <Pressable
+                          onPress={async (e) => {
+                            e.stopPropagation?.();
+                            if (!done) {
+                              incrementAdhkar(adhkarPeriod, adhkar.id);
+                              try { await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); } catch {}
+                              if (currentCount + 1 >= adhkar.repetitions) {
+                                try { await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch {}
+                              }
+                            }
+                          }}
+                          style={[styles.adhkarCounter, { borderColor: done ? '#D4A843' + '44' : t.accent + '44', backgroundColor: done ? '#D4A843' + '10' : 'transparent' }]}
+                        >
+                          {done ? (
+                            <Text style={{ fontSize: 20 }}>✅</Text>
+                          ) : (
+                            <>
+                              <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent }}>{currentCount}</Text>
+                              <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>/{adhkar.repetitions}</Text>
+                            </>
+                          )}
+                        </Pressable>
+                      </View>
+                      {isExpanded && (
+                        <View style={{ marginTop: Spacing.md, paddingTop: Spacing.md, borderTopWidth: 1, borderTopColor: t.border }}>
+                          <Text style={{ fontSize: FontSize.sm, color: t.accent, marginBottom: Spacing.xs }}>{adhkar.transliteration}</Text>
+                          <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, lineHeight: 22, marginBottom: Spacing.xs }}>{adhkar.translation}</Text>
+                          <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>— {adhkar.source}</Text>
+                        </View>
+                      )}
+                    </Card>
+                  </Pressable>
+                );
+              })}
+            </>
+          );
+        })()}
+
         {tab === 'sleep' && (
           <>
             <Card centered>
@@ -281,4 +382,6 @@ const styles = StyleSheet.create({
   focusExitWrap: { marginTop: Spacing.xxxl },
   focusExitBtn: { paddingHorizontal: 32, paddingVertical: Spacing.lg, borderRadius: BorderRadius.full, borderWidth: 1, borderColor: '#333', minHeight: 44, justifyContent: 'center' },
   focusExitText: { fontSize: 16, color: '#888' },
+  periodBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
+  adhkarCounter: { width: 60, height: 60, borderRadius: 30, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
 });
