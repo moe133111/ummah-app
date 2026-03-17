@@ -9,6 +9,7 @@ import { fetchPrayerTimes, getNextPrayer, calculateQiblaDirection, distanceToKaa
 import { schedulePrayerNotifications } from '../../features/prayer/notifications';
 import { useCompass, requestIOSPermission } from '../../features/qibla/useCompass';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
+import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 
@@ -22,14 +23,30 @@ const LABEL_R = 95;
 const KAABA_LAT = 21.4225;
 const KAABA_LNG = 39.8262;
 
-const PRAYER_META = {
-  fajr: { name: 'Fajr', icon: '🌙', trackable: true },
-  sunrise: { name: 'Sunrise', icon: '🌅', trackable: false },
-  dhuhr: { name: 'Dhuhr', icon: '☀️', trackable: true },
-  asr: { name: 'Asr', icon: '🌤', trackable: true },
-  maghrib: { name: 'Maghrib', icon: '🌇', trackable: true },
-  isha: { name: 'Isha', icon: '🌃', trackable: true },
-};
+function isNightTime(times) {
+  if (!times) return false;
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  const [ih, im] = times.isha.split(':').map(Number);
+  const [fh, fm] = times.fajr.split(':').map(Number);
+  return cur >= ih * 60 + im || cur < fh * 60 + fm;
+}
+
+function NightStars({ t }) {
+  const stars = Array.from({ length: 20 }, (_, i) => ({
+    left: `${(i * 37 + 13) % 100}%`,
+    top: (i * 23 + 7) % 60,
+    opacity: 0.1 + (i % 5) * 0.06,
+    size: 2 + (i % 3),
+  }));
+  return (
+    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 60, overflow: 'hidden' }}>
+      {stars.map((s, i) => (
+        <View key={i} style={{ position: 'absolute', left: s.left, top: s.top, width: s.size, height: s.size, borderRadius: s.size / 2, backgroundColor: '#fff', opacity: s.opacity }} />
+      ))}
+    </View>
+  );
+}
 
 export default function PrayerScreen() {
   const { location, loading } = useLocation();
@@ -54,13 +71,13 @@ export default function PrayerScreen() {
   const prayerSource = prayerData?.source || null;
   const nextPrayer = useMemo(() => (times ? getNextPrayer(times) : null), [times]);
   const completedCount = Object.values(todayPrayers).filter(Boolean).length;
-  const trackableKeys = Object.entries(PRAYER_META).filter(([, m]) => m.trackable).map(([k]) => k);
-  const activeNotifCount = trackableKeys.filter((k) => notifications[k]).length;
-  const allNotifsOn = activeNotifCount === trackableKeys.length;
+  const activeNotifCount = TRACKABLE_KEYS.filter((k) => notifications[k]).length;
+  const allNotifsOn = activeNotifCount === TRACKABLE_KEYS.length;
+  const nightMode = times ? isNightTime(times) : false;
 
   const toggleAllNotifications = () => {
     const targetState = !allNotifsOn;
-    trackableKeys.forEach((k) => {
+    TRACKABLE_KEYS.forEach((k) => {
       if (notifications[k] !== targetState) toggleNotification(k);
     });
   };
@@ -101,13 +118,25 @@ export default function PrayerScreen() {
 
         {tab === 'times' && (
           <>
-            {nextPrayer && (
-              <Card centered style={{ borderColor: t.accent + '44' }}>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Nächstes Gebet</Text>
-                <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent }}>{nextPrayer.name}</Text>
-                <Text style={{ fontSize: FontSize.lg, color: t.accentLight, marginTop: 2 }}>{nextPrayer.time}</Text>
-              </Card>
-            )}
+            {/* Next prayer hero card */}
+            {nextPrayer && (() => {
+              const nextMeta = PRAYER_META[nextPrayer.key];
+              return (
+                <View style={{ borderRadius: BorderRadius.md, overflow: 'hidden', marginBottom: Spacing.md, position: 'relative' }}>
+                  {nightMode && <NightStars t={t} />}
+                  <View style={[styles.nextPrayerCard, { backgroundColor: nextMeta.color + '18', borderColor: nextMeta.color + '44' }]}>
+                    <Text style={{ fontSize: 48 }}>{nextMeta.emoji}</Text>
+                    <View style={{ marginLeft: Spacing.md, flex: 1 }}>
+                      <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Nächstes Gebet</Text>
+                      <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: nextMeta.color }}>{nextPrayer.name}</Text>
+                      <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{nextMeta.description}</Text>
+                    </View>
+                    <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: nextMeta.color }}>{nextPrayer.time}</Text>
+                  </View>
+                </View>
+              );
+            })()}
+
             {/* Notification summary */}
             {times && (
               <Pressable onPress={toggleAllNotifications} style={[styles.notifSummary, { backgroundColor: t.accent + '10', borderColor: t.accent + '30' }]}>
@@ -124,43 +153,46 @@ export default function PrayerScreen() {
                 {prayerSource === 'aladhan' ? 'via Aladhan API' : prayerSource === 'cache' ? 'via Aladhan (Cache)' : 'Offline-Berechnung'}
               </Text>
             )}
-            <Card>
-              {loading || timesLoading || !times ? (
+
+            {/* Prayer time cards */}
+            {loading || timesLoading || !times ? (
+              <Card>
                 <View style={{ alignItems: 'center', paddingVertical: 30 }}>
                   {timesLoading ? <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: 8 }} /> : <Text style={{ fontSize: 28, marginBottom: 8 }}>📍</Text>}
                   <Text style={{ color: t.textDim }}>{timesLoading ? 'Gebetszeiten werden geladen...' : 'Standort wird ermittelt...'}</Text>
                 </View>
-              ) : (
-                Object.entries(PRAYER_META).map(([key, meta]) => {
-                  const isNext = nextPrayer?.key === key;
-                  return (
-                    <Pressable
-                      key={key}
-                      onPress={() => meta.trackable && togglePrayerDone(key)}
-                      style={[styles.prayerRow, isNext && { backgroundColor: t.accent + '12', borderColor: t.accent + '33', borderWidth: 1 }]}
-                    >
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        <Text style={{ fontSize: 20 }}>{meta.icon}</Text>
-                        <Text style={[{ fontSize: FontSize.lg, color: isNext ? t.accent : t.text }, isNext && { fontWeight: '700' }]}>{meta.name}</Text>
+              </Card>
+            ) : (
+              Object.entries(PRAYER_META).map(([key, meta]) => {
+                const isNext = nextPrayer?.key === key;
+                return (
+                  <View key={key} style={[styles.prayerCard, { backgroundColor: t.card, borderColor: isNext ? meta.color + '44' : t.border }]}>
+                    {/* Colored left accent bar */}
+                    <View style={[styles.prayerAccentBar, { backgroundColor: meta.color }]} />
+                    <View style={styles.prayerCardContent}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
+                        <Text style={{ fontSize: 28 }}>{meta.emoji}</Text>
+                        <View>
+                          <Text style={{ fontSize: FontSize.lg, fontWeight: isNext ? '700' : '600', color: isNext ? meta.color : t.text }}>{meta.name}</Text>
+                          <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{meta.description}</Text>
+                        </View>
                       </View>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                        <Text style={{ fontSize: FontSize.lg, fontWeight: '600', color: isNext ? t.accentLight : t.textDim }}>{times[key]}</Text>
+                        <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: isNext ? meta.color : t.text }}>{times[key]}</Text>
                         {meta.trackable && (
-                          <Pressable
-                            onPress={(e) => { e.stopPropagation(); toggleNotification(key); }}
-                            hitSlop={8}
-                          >
-                            <Text style={{ fontSize: 18, color: notifications[key] ? t.accent : t.textDim }}>
+                          <Pressable onPress={() => toggleNotification(key)} hitSlop={8}>
+                            <Text style={{ fontSize: 18, color: notifications[key] ? meta.color : t.textDim }}>
                               {notifications[key] ? '🔔' : '🔕'}
                             </Text>
                           </Pressable>
                         )}
                       </View>
-                    </Pressable>
-                  );
-                })
-              )}
-            </Card>
+                    </View>
+                    {isNext && <View style={[styles.prayerCardGlow, { backgroundColor: meta.color + '0A' }]} />}
+                  </View>
+                );
+              })
+            )}
           </>
         )}
 
@@ -173,30 +205,45 @@ export default function PrayerScreen() {
             <Card centered>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Heute verrichtet</Text>
               <Text style={{ fontSize: 48, fontWeight: '700', color: t.accent }}>{completedCount}/5</Text>
-              <View style={styles.trackerBar}>
-                <View style={[styles.trackerFill, { width: `${(completedCount / 5) * 100}%`, backgroundColor: t.accent }]} />
+              {/* Segmented progress bar - one segment per prayer */}
+              <View style={{ flexDirection: 'row', gap: 3, width: '100%', marginTop: Spacing.sm }}>
+                {TRACKABLE_KEYS.map((key) => {
+                  const meta = PRAYER_META[key];
+                  return (
+                    <View key={key} style={{ flex: 1, height: 8, borderRadius: 4, backgroundColor: todayPrayers[key] ? meta.color : t.border }} />
+                  );
+                })}
               </View>
             </Card>
-            <Card>
-              <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginBottom: Spacing.md }}>Gebete abhaken</Text>
-              {Object.entries(PRAYER_META)
-                .filter(([, meta]) => meta.trackable)
-                .map(([key, meta]) => (
-                  <Pressable key={key} onPress={() => togglePrayerDone(key)} style={styles.trackerRow}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                      <Text style={{ fontSize: 20 }}>{meta.icon}</Text>
-                      <Text style={{ fontSize: FontSize.lg, color: t.text }}>{meta.name}</Text>
-                    </View>
-                    <View style={[styles.checkbox, { borderColor: t.accent }, todayPrayers[key] && { backgroundColor: t.accent }]}>
-                      {todayPrayers[key] && <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>✓</Text>}
+            <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginBottom: Spacing.sm }}>Gebete abhaken</Text>
+            {Object.entries(PRAYER_META)
+              .filter(([, meta]) => meta.trackable)
+              .map(([key, meta]) => {
+                const done = todayPrayers[key];
+                return (
+                  <Pressable key={key} onPress={() => togglePrayerDone(key)}>
+                    <View style={[styles.trackerCard, { backgroundColor: done ? '#4CAF5010' : t.card, borderColor: done ? '#4CAF5044' : t.border }]}>
+                      <View style={[styles.prayerAccentBar, { backgroundColor: meta.color, opacity: done ? 0.4 : 1 }]} />
+                      <View style={styles.trackerCardContent}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+                          <Text style={{ fontSize: 28 }}>{meta.emoji}</Text>
+                          <View>
+                            <Text style={{ fontSize: FontSize.lg, fontWeight: '600', color: done ? '#4CAF50' : t.text }}>{meta.name}</Text>
+                            <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{meta.description}</Text>
+                          </View>
+                        </View>
+                        <View style={[styles.checkbox, { borderColor: done ? '#4CAF50' : meta.color }, done && { backgroundColor: '#4CAF50' }]}>
+                          {done && <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>✓</Text>}
+                        </View>
+                      </View>
                     </View>
                   </Pressable>
-                ))}
-            </Card>
+                );
+              })}
             {completedCount === 5 && (
-              <Card centered style={{ borderColor: t.accent + '44' }}>
+              <Card centered style={{ borderColor: '#4CAF5044', marginTop: Spacing.sm }}>
                 <Text style={{ fontSize: 28, marginBottom: 4 }}>✨</Text>
-                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent }}>MashaAllah! Alle Gebete verrichtet!</Text>
+                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: '#4CAF50' }}>MashaAllah! Alle Gebete verrichtet!</Text>
               </Card>
             )}
           </>
@@ -457,9 +504,12 @@ const compassStyles = StyleSheet.create({
 const styles = StyleSheet.create({
   tab: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
   notifSummary: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
-  prayerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, paddingHorizontal: Spacing.lg, borderRadius: BorderRadius.md, marginBottom: 4 },
-  checkbox: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  trackerBar: { width: '100%', height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, marginTop: 8, overflow: 'hidden' },
-  trackerFill: { height: '100%', borderRadius: 3 },
-  trackerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, paddingHorizontal: Spacing.sm },
+  nextPrayerCard: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1 },
+  prayerCard: { flexDirection: 'row', borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.sm, overflow: 'hidden', position: 'relative' },
+  prayerAccentBar: { width: 4, alignSelf: 'stretch' },
+  prayerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: Spacing.md },
+  prayerCardGlow: { ...StyleSheet.absoluteFillObject, borderRadius: BorderRadius.md },
+  checkbox: { width: 28, height: 28, borderRadius: 8, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  trackerCard: { flexDirection: 'row', borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.sm, overflow: 'hidden' },
+  trackerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: Spacing.md },
 });
