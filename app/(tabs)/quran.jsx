@@ -5,9 +5,7 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '../../constants/theme';
 import { SURAH_LIST } from '../../features/quran/surahData';
 import LanguagePicker from '../../components/ui/LanguagePicker';
-
-const SCHEHERAZADE = 'ScheherazadeNew';
-const ARABIC_FALLBACK = Platform.OS === 'ios' ? 'Geeza Pro' : 'serif';
+import { FONTS, getArabicDisplayFont } from '../../lib/fonts';
 
 const SUB_TABS = [
   { id: 'read', label: 'Lesen' },
@@ -46,11 +44,7 @@ export default function QuranScreen() {
       >
         <Text style={[styles.surahNum, { color: t.textDim }]}>{item.number}</Text>
         <Text
-          style={[styles.surahArabic, {
-            color: isDark ? '#E8E0D4' : t.text,
-            fontFamily: SCHEHERAZADE || ARABIC_FALLBACK,
-            fontWeight: Platform.OS === 'ios' ? '400' : undefined,
-          }]}
+          style={[styles.surahArabic, { color: isDark ? '#E8E0D4' : t.text, fontFamily: FONTS.arabicDisplay || getArabicDisplayFont() }]}
           numberOfLines={1}
         >
           {item.name}
@@ -247,9 +241,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 14,
-    padding: 14,
+    padding: 16,
     marginBottom: 8,
-    minHeight: 80,
+    minHeight: 85,
   },
   surahNum: {
     fontSize: 24,
@@ -258,10 +252,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   surahArabic: {
-    fontSize: 30,
+    fontSize: 32,
     flex: 1,
     textAlign: 'center',
-    lineHeight: 52,
+    lineHeight: 54,
   },
   surahInfo: {
     alignItems: 'flex-end',
