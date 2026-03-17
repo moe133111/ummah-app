@@ -43,14 +43,14 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 40 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 100 }}>
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={[styles.avatarLarge, { backgroundColor: t.surface, borderColor: t.accent }]}>
             <Text style={{ fontSize: 36 }}>👤</Text>
           </View>
           <Text style={[styles.name, { color: t.text }]}>Nutzer</Text>
-          <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 2 }}>Mitglied seit {memberDate}</Text>
+          <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Mitglied seit {memberDate}</Text>
           {currentStreak > 0 && (
             <View style={[styles.streakBadge, { backgroundColor: t.accent + '18' }]}>
               <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>🔥 {currentStreak} Tage Streak</Text>
@@ -65,15 +65,15 @@ export default function ProfileScreen() {
             <View key={s.label} style={styles.statItem}>
               <Card centered>
                 <Text style={{ fontSize: 24 }}>{s.emoji}</Text>
-                <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: 4 }}>{s.value}</Text>
-                <Text style={{ fontSize: 10, color: t.textDim, textAlign: 'center', marginTop: 2 }}>{s.label}</Text>
+                <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>{s.value}</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginTop: Spacing.xs }}>{s.label}</Text>
               </Card>
             </View>
           ))}
         </View>
 
         <Pressable
-          style={{ alignSelf: 'center', paddingHorizontal: 20, paddingVertical: 10, borderRadius: BorderRadius.full, borderWidth: 1, borderColor: t.accent + '44', marginTop: Spacing.sm, marginBottom: Spacing.sm }}
+          style={[styles.detailBtn, { borderColor: t.accent + '44' }]}
           onPress={() => router.push('/stats')}
         >
           <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>Statistiken ansehen</Text>
@@ -110,10 +110,10 @@ export default function ProfileScreen() {
                   <View style={[styles.badgeIcon, !unlocked && { opacity: 0.3 }]}>
                     <Text style={{ fontSize: 28 }}>{unlocked ? badge.emoji : '🔒'}</Text>
                   </View>
-                  <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: unlocked ? t.text : t.textDim, textAlign: 'center', marginTop: 4 }}>
+                  <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: unlocked ? t.text : t.textDim, textAlign: 'center', marginTop: Spacing.xs }}>
                     {badge.name}
                   </Text>
-                  <Text style={{ fontSize: 9, color: t.textDim, textAlign: 'center', marginTop: 2 }}>{badge.description}</Text>
+                  <Text style={{ fontSize: 9, color: t.textDim, textAlign: 'center', marginTop: Spacing.xs }}>{badge.description}</Text>
                 </Card>
               </View>
             );
@@ -157,10 +157,20 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 0,
   },
   statItem: {
     width: '50%',
+  },
+  detailBtn: {
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.sm,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   progressRow: {
     flexDirection: 'row',

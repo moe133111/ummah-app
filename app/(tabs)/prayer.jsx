@@ -39,7 +39,7 @@ function NightStars({ t }) {
     size: 2 + (i % 3),
   }));
   return (
-    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 60, overflow: 'hidden' }}>
+    <View style={StyleSheet.absoluteFill}>
       {stars.map((s, i) => (
         <View key={i} style={{ position: 'absolute', left: s.left, top: s.top, width: s.size, height: s.size, borderRadius: s.size / 2, backgroundColor: '#fff', opacity: s.opacity }} />
       ))}
@@ -63,7 +63,7 @@ export default function PrayerScreen() {
     queryKey: ['prayerTimes', location?.lat, location?.lng, method, dateString],
     queryFn: () => fetchPrayerTimes(location.lat, location.lng, method),
     enabled: !!location,
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60,
   });
 
   const times = prayerData?.times || null;
@@ -81,7 +81,6 @@ export default function PrayerScreen() {
     });
   };
 
-  // Schedule notifications when times or settings change
   useEffect(() => {
     if (times) {
       schedulePrayerNotifications(times, notifications);
@@ -100,17 +99,17 @@ export default function PrayerScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 40 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 100 }}>
         <HeaderBar title="Gebet" t={t} />
 
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: Spacing.lg }}>
+        <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
           {tabs.map((tb) => (
             <Pressable
               key={tb.id}
               style={[styles.tab, tab === tb.id && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
               onPress={() => setTab(tb.id)}
             >
-              <Text style={{ fontSize: 20, marginBottom: 4 }}>{tb.emoji}</Text>
+              <Text style={{ fontSize: 20, marginBottom: Spacing.xs }}>{tb.emoji}</Text>
               <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: tab === tb.id ? t.accent : t.textDim }}>{tb.label}</Text>
             </Pressable>
           ))}
@@ -122,7 +121,7 @@ export default function PrayerScreen() {
             {nextPrayer && (() => {
               const nextMeta = PRAYER_META[nextPrayer.key];
               return (
-                <View style={{ borderRadius: BorderRadius.md, overflow: 'hidden', marginBottom: Spacing.md, position: 'relative' }}>
+                <View style={{ borderRadius: BorderRadius.md, overflow: 'hidden', marginBottom: Spacing.md }}>
                   {nightMode && <NightStars t={t} />}
                   <View style={[styles.nextPrayerCard, { backgroundColor: nextMeta.color + '18', borderColor: nextMeta.color + '44' }]}>
                     <Text style={{ fontSize: 48 }}>{nextMeta.emoji}</Text>
@@ -141,7 +140,7 @@ export default function PrayerScreen() {
             {times && (
               <Pressable onPress={toggleAllNotifications} style={[styles.notifSummary, { backgroundColor: t.accent + '10', borderColor: t.accent + '30' }]}>
                 <Text style={{ fontSize: 16 }}>{allNotifsOn ? '🔔' : '🔕'}</Text>
-                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent, flex: 1, marginLeft: 8 }}>
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent, flex: 1, marginLeft: Spacing.sm }}>
                   {activeNotifCount}/5 Benachrichtigungen aktiv
                 </Text>
                 <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{allNotifsOn ? 'Alle aus' : 'Alle an'}</Text>
@@ -157,8 +156,8 @@ export default function PrayerScreen() {
             {/* Prayer time cards */}
             {loading || timesLoading || !times ? (
               <Card>
-                <View style={{ alignItems: 'center', paddingVertical: 30 }}>
-                  {timesLoading ? <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: 8 }} /> : <Text style={{ fontSize: 28, marginBottom: 8 }}>📍</Text>}
+                <View style={{ alignItems: 'center', paddingVertical: Spacing.xxl }}>
+                  {timesLoading ? <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: Spacing.sm }} /> : <Text style={{ fontSize: 28, marginBottom: Spacing.sm }}>📍</Text>}
                   <Text style={{ color: t.textDim }}>{timesLoading ? 'Gebetszeiten werden geladen...' : 'Standort wird ermittelt...'}</Text>
                 </View>
               </Card>
@@ -167,20 +166,19 @@ export default function PrayerScreen() {
                 const isNext = nextPrayer?.key === key;
                 return (
                   <View key={key} style={[styles.prayerCard, { backgroundColor: t.card, borderColor: isNext ? meta.color + '44' : t.border }]}>
-                    {/* Colored left accent bar */}
                     <View style={[styles.prayerAccentBar, { backgroundColor: meta.color }]} />
                     <View style={styles.prayerCardContent}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: Spacing.md }}>
                         <Text style={{ fontSize: 28 }}>{meta.emoji}</Text>
                         <View>
                           <Text style={{ fontSize: FontSize.lg, fontWeight: isNext ? '700' : '600', color: isNext ? meta.color : t.text }}>{meta.name}</Text>
                           <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{meta.description}</Text>
                         </View>
                       </View>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md }}>
                         <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: isNext ? meta.color : t.text }}>{times[key]}</Text>
                         {meta.trackable && (
-                          <Pressable onPress={() => toggleNotification(key)} hitSlop={8}>
+                          <Pressable onPress={() => toggleNotification(key)} hitSlop={Spacing.sm} style={styles.notifTouch}>
                             <Text style={{ fontSize: 18, color: notifications[key] ? meta.color : t.textDim }}>
                               {notifications[key] ? '🔔' : '🔕'}
                             </Text>
@@ -205,12 +203,11 @@ export default function PrayerScreen() {
             <Card centered>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Heute verrichtet</Text>
               <Text style={{ fontSize: 48, fontWeight: '700', color: t.accent }}>{completedCount}/5</Text>
-              {/* Segmented progress bar - one segment per prayer */}
               <View style={{ flexDirection: 'row', gap: 3, width: '100%', marginTop: Spacing.sm }}>
                 {TRACKABLE_KEYS.map((key) => {
                   const meta = PRAYER_META[key];
                   return (
-                    <View key={key} style={{ flex: 1, height: 8, borderRadius: 4, backgroundColor: todayPrayers[key] ? meta.color : t.border }} />
+                    <View key={key} style={{ flex: 1, height: Spacing.sm, borderRadius: Spacing.xs, backgroundColor: todayPrayers[key] ? meta.color : t.border }} />
                   );
                 })}
               </View>
@@ -225,7 +222,7 @@ export default function PrayerScreen() {
                     <View style={[styles.trackerCard, { backgroundColor: done ? '#4CAF5010' : t.card, borderColor: done ? '#4CAF5044' : t.border }]}>
                       <View style={[styles.prayerAccentBar, { backgroundColor: meta.color, opacity: done ? 0.4 : 1 }]} />
                       <View style={styles.trackerCardContent}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, flex: 1 }}>
                           <Text style={{ fontSize: 28 }}>{meta.emoji}</Text>
                           <View>
                             <Text style={{ fontSize: FontSize.lg, fontWeight: '600', color: done ? '#4CAF50' : t.text }}>{meta.name}</Text>
@@ -242,7 +239,7 @@ export default function PrayerScreen() {
               })}
             {completedCount === 5 && (
               <Card centered style={{ borderColor: '#4CAF5044', marginTop: Spacing.sm }}>
-                <Text style={{ fontSize: 28, marginBottom: 4 }}>✨</Text>
+                <Text style={{ fontSize: 28, marginBottom: Spacing.xs }}>✨</Text>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: '#4CAF50' }}>MashaAllah! Alle Gebete verrichtet!</Text>
               </Card>
             )}
@@ -255,7 +252,7 @@ export default function PrayerScreen() {
               <MosqueMap userLat={location.lat} userLng={location.lng} t={t} />
             ) : (
               <Card centered>
-                <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: 8 }} />
+                <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: Spacing.sm }} />
                 <Text style={{ color: t.textDim }}>Standort wird ermittelt...</Text>
               </Card>
             )}
@@ -284,7 +281,6 @@ function QiblaCompass({ qibla, dist, t, location }) {
   const borderColor = t.border;
   const textColor = t.text;
 
-  // Generate tick marks
   const ticks = [];
   for (let i = 0; i < 72; i++) {
     const deg = i * 5;
@@ -298,7 +294,6 @@ function QiblaCompass({ qibla, dist, t, location }) {
     ticks.push(<Line key={`t${i}`} x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke={color} strokeWidth={sw} />);
   }
 
-  // Direction labels
   const dirs = [
     { label: 'N', deg: 0, color: accentColor },
     { label: 'E', deg: 90, color: textColor },
@@ -306,17 +301,13 @@ function QiblaCompass({ qibla, dist, t, location }) {
     { label: 'W', deg: 270, color: textColor },
   ];
 
-  // Qibla arrow geometry
   const arrowTip = polarToXY(CX, CY, OUTER_R - 6, qiblaRotation);
   const headBack = polarToXY(CX, CY, OUTER_R - 22, qiblaRotation);
   const headL = polarToXY(headBack.x, headBack.y, 10, qiblaRotation - 90);
   const headR = polarToXY(headBack.x, headBack.y, 10, qiblaRotation + 90);
   const arrowLineTip = polarToXY(CX, CY, OUTER_R - 20, qiblaRotation);
-
-  // Kaaba emoji position (beyond arrow tip)
   const kaabaPos = polarToXY(CX, CY, OUTER_R + 8, qiblaRotation);
 
-  // Static fallback when no sensor
   if (available === false) {
     return (
       <>
@@ -328,13 +319,9 @@ function QiblaCompass({ qibla, dist, t, location }) {
                 <Stop offset="100%" stopColor={accentColor} stopOpacity="0" />
               </RadialGradient>
             </Defs>
-            {/* Outer circle */}
             <Circle cx={CX} cy={CY} r={OUTER_R} stroke={accentColor} strokeWidth={2} fill="none" />
-            {/* Inner dashed circle */}
             <Circle cx={CX} cy={CY} r={INNER_R} stroke={borderColor} strokeWidth={1} strokeDasharray="4,4" fill="none" />
-            {/* Ticks */}
             {ticks}
-            {/* Direction labels */}
             {dirs.map((d) => {
               const pos = polarToXY(CX, CY, LABEL_R, d.deg);
               return (
@@ -343,7 +330,6 @@ function QiblaCompass({ qibla, dist, t, location }) {
                 </SvgText>
               );
             })}
-            {/* Qibla arrow line */}
             {qibla !== null && (
               <>
                 <Line x1={CX} y1={CY} x2={arrowLineTip.x} y2={arrowLineTip.y} stroke={accentColor} strokeWidth={3} strokeLinecap="round" />
@@ -351,12 +337,9 @@ function QiblaCompass({ qibla, dist, t, location }) {
                 <Line x1={headR.x} y1={headR.y} x2={arrowTip.x} y2={arrowTip.y} stroke={accentColor} strokeWidth={2.5} strokeLinecap="round" />
               </>
             )}
-            {/* Center glow */}
             <Circle cx={CX} cy={CY} r={14} fill="url(#glow)" />
-            {/* Center dot */}
             <Circle cx={CX} cy={CY} r={5} fill={accentColor} />
           </Svg>
-          {/* Kaaba emoji overlay */}
           {qibla !== null && (
             <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 14, top: kaabaPos.y - 14 }]}>
               <Text style={{ fontSize: 22 }}>🕋</Text>
@@ -366,12 +349,12 @@ function QiblaCompass({ qibla, dist, t, location }) {
         <Card centered>
           <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Qibla Richtung</Text>
           {qibla !== null && (
-            <Text style={{ fontSize: 28, fontWeight: '700', color: accentColor, marginTop: 4 }}>{qibla.toFixed(1)}° von Norden</Text>
+            <Text style={{ fontSize: FontSize.arabicLarge, fontWeight: '700', color: accentColor, marginTop: Spacing.xs }}>{qibla.toFixed(1)}° von Norden</Text>
           )}
           {dist != null && (
-            <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 2 }}>Entfernung: {dist.toLocaleString('de-DE')} km</Text>
+            <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Entfernung: {dist.toLocaleString('de-DE')} km</Text>
           )}
-          <Text style={{ color: t.textDim, fontSize: FontSize.xs, textAlign: 'center', marginTop: 8 }}>
+          <Text style={{ color: t.textDim, fontSize: FontSize.xs, textAlign: 'center', marginTop: Spacing.sm }}>
             Magnetometer nicht verfügbar.{'\n'}Statische Qibla-Richtung wird angezeigt.
           </Text>
         </Card>
@@ -380,11 +363,10 @@ function QiblaCompass({ qibla, dist, t, location }) {
     );
   }
 
-  // Loading state
   if (available === null) {
     return (
       <Card centered>
-        <Text style={{ fontSize: 28, marginBottom: 8 }}>🧭</Text>
+        <Text style={{ fontSize: 28, marginBottom: Spacing.sm }}>🧭</Text>
         <Text style={{ color: t.textDim }}>Kompass wird initialisiert...</Text>
       </Card>
     );
@@ -392,7 +374,6 @@ function QiblaCompass({ qibla, dist, t, location }) {
 
   return (
     <>
-      {/* iOS permission button */}
       {Platform.OS === 'ios' && !iosGranted && (
         <Card centered>
           <Pressable
@@ -407,7 +388,6 @@ function QiblaCompass({ qibla, dist, t, location }) {
         </Card>
       )}
 
-      {/* SVG Compass */}
       <View style={compassStyles.compassContainer}>
         <Svg width={COMPASS_SIZE} height={COMPASS_SIZE} viewBox={`0 0 ${COMPASS_SIZE} ${COMPASS_SIZE}`}>
           <Defs>
@@ -417,15 +397,10 @@ function QiblaCompass({ qibla, dist, t, location }) {
             </RadialGradient>
           </Defs>
 
-          {/* Rotating compass group */}
           <G rotation={compassRotation} origin={`${CX}, ${CY}`}>
-            {/* Outer circle */}
             <Circle cx={CX} cy={CY} r={OUTER_R} stroke={accentColor} strokeWidth={2} fill="none" />
-            {/* Inner dashed circle */}
             <Circle cx={CX} cy={CY} r={INNER_R} stroke={borderColor} strokeWidth={1} strokeDasharray="4,4" fill="none" />
-            {/* Tick marks */}
             {ticks}
-            {/* Direction labels (counter-rotate so they stay upright) */}
             {dirs.map((d) => {
               const pos = polarToXY(CX, CY, LABEL_R, d.deg);
               return (
@@ -437,7 +412,6 @@ function QiblaCompass({ qibla, dist, t, location }) {
             })}
           </G>
 
-          {/* Qibla arrow (rotates to qibla relative to device) */}
           {qibla !== null && (
             <G>
               <Line x1={CX} y1={CY} x2={arrowLineTip.x} y2={arrowLineTip.y} stroke={accentColor} strokeWidth={3} strokeLinecap="round" />
@@ -446,13 +420,10 @@ function QiblaCompass({ qibla, dist, t, location }) {
             </G>
           )}
 
-          {/* Center glow */}
           <Circle cx={CX} cy={CY} r={14} fill="url(#glow)" />
-          {/* Center dot */}
           <Circle cx={CX} cy={CY} r={5} fill={accentColor} />
         </Svg>
 
-        {/* Kaaba emoji overlay (positioned outside SVG for proper rendering) */}
         {qibla !== null && (
           <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 14, top: kaabaPos.y - 14 }]}>
             <Text style={{ fontSize: 22 }}>🕋</Text>
@@ -460,18 +431,16 @@ function QiblaCompass({ qibla, dist, t, location }) {
         )}
       </View>
 
-      {/* Info below compass */}
       <Card centered>
         <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Qibla Richtung</Text>
         {qibla !== null && (
-          <Text style={{ fontSize: 28, fontWeight: '700', color: accentColor, marginTop: 4 }}>{qibla.toFixed(1)}°</Text>
+          <Text style={{ fontSize: FontSize.arabicLarge, fontWeight: '700', color: accentColor, marginTop: Spacing.xs }}>{qibla.toFixed(1)}°</Text>
         )}
-        <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 2 }}>
+        <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>
           Kompass: {Math.round(heading)}° | {dist ? `${dist.toLocaleString('de-DE')} km zur Kaaba` : ''}
         </Text>
       </Card>
 
-      {/* Map */}
       {location && qibla !== null && <QiblaMap userLat={location.lat} userLng={location.lng} qiblaAngle={qibla} t={t} />}
     </>
   );
@@ -480,18 +449,19 @@ function QiblaCompass({ qibla, dist, t, location }) {
 const compassStyles = StyleSheet.create({
   compassContainer: { alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginVertical: Spacing.lg, width: COMPASS_SIZE, height: COMPASS_SIZE },
   kaabaEmoji: { position: 'absolute', width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
-  iosBtn: { paddingHorizontal: 24, paddingVertical: 14, borderRadius: BorderRadius.md, borderWidth: 1 },
+  iosBtn: { paddingHorizontal: Spacing.xxl, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1 },
 });
 
 const styles = StyleSheet.create({
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 12, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
   notifSummary: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
+  notifTouch: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   nextPrayerCard: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1 },
-  prayerCard: { flexDirection: 'row', borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.sm, overflow: 'hidden', position: 'relative' },
-  prayerAccentBar: { width: 4, alignSelf: 'stretch' },
-  prayerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: Spacing.md },
+  prayerCard: { flexDirection: 'row', borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.sm, overflow: 'hidden' },
+  prayerAccentBar: { width: Spacing.xs, alignSelf: 'stretch' },
+  prayerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: Spacing.lg, paddingHorizontal: Spacing.md },
   prayerCardGlow: { ...StyleSheet.absoluteFillObject, borderRadius: BorderRadius.md },
-  checkbox: { width: 28, height: 28, borderRadius: 8, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  checkbox: { width: 28, height: 28, borderRadius: Spacing.sm, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   trackerCard: { flexDirection: 'row', borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.sm, overflow: 'hidden' },
-  trackerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: Spacing.md },
+  trackerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: Spacing.lg, paddingHorizontal: Spacing.md },
 });

@@ -17,7 +17,7 @@ export default function HeaderBar({ title, titleAr, t }) {
           <Text style={[styles.title, { color: t.text }]}>{title}</Text>
         )}
       </View>
-      <Pressable onPress={() => router.push('/profile')} hitSlop={8}>
+      <Pressable onPress={() => router.push('/profile')} hitSlop={Spacing.sm} style={styles.avatarTouch}>
         <View style={[styles.avatar, { backgroundColor: t.surface, borderColor: t.accent }]}>
           <Text style={{ fontSize: 18 }}>👤</Text>
         </View>
@@ -33,26 +33,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
+    minHeight: 56,
   },
   titleWrap: {
     flex: 1,
+    marginRight: Spacing.md,
   },
   title: {
     fontSize: FontSize.xxl,
     fontWeight: '700',
   },
   titleAr: {
-    fontSize: 28,
+    fontSize: FontSize.arabicLarge,
     fontWeight: '700',
   },
   subtitle: {
     fontSize: FontSize.sm,
-    marginTop: 2,
+    marginTop: Spacing.xs,
+  },
+  avatarTouch: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatar: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: BorderRadius.xl,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',

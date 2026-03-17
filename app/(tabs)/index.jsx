@@ -27,7 +27,7 @@ const DAILY_HADITHS = [
   { arabic: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ', translation: '"Wahrlich, die Taten sind nur entsprechend den Absichten."', source: 'Sahih al-Bukhari, Hadith 1' },
   { arabic: 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', translation: '"Die Besten unter euch sind diejenigen, die den Quran lernen und lehren."', source: 'Sahih al-Bukhari, Hadith 5027' },
   { arabic: 'تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ', translation: '"Dein Lächeln für deinen Bruder ist eine Sadaqah."', source: 'At-Tirmidhi, Hadith 1956' },
-  { arabic: 'لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ', translation: '"Keiner von euch glaubt wirklich, bis er für seinen Bruder liebt, was er für sich selbst liebt."', source: 'Sahih al-Bukhari, Hadith 13' },
+  { arabic: 'لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبَّ لِنَفْسِهِ', translation: '"Keiner von euch glaubt wirklich, bis er für seinen Bruder liebt, was er für sich selbst liebt."', source: 'Sahih al-Bukhari, Hadith 13' },
   { arabic: 'مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ طَرِيقًا إِلَى الْجَنَّةِ', translation: '"Wer einen Weg beschreitet, um Wissen zu erlangen, dem erleichtert Allah den Weg ins Paradies."', source: 'Sahih Muslim, Hadith 2699' },
   { arabic: 'الدُّنْيَا سِجْنُ الْمُؤْمِنِ وَجَنَّةُ الْكَافِرِ', translation: '"Die Dunya ist das Gefängnis des Gläubigen und das Paradies des Ungläubigen."', source: 'Sahih Muslim, Hadith 2956' },
   { arabic: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ', translation: '"Der Muslim ist derjenige, vor dessen Zunge und Hand die anderen Muslime sicher sind."', source: 'Sahih al-Bukhari, Hadith 10' },
@@ -113,22 +113,22 @@ function DailyGoalsRing({ goals, progress, t }) {
 
   return (
     <Card centered>
-      <Svg width={size} height={size}>
-        <Circle cx={size / 2} cy={size / 2} r={radius} stroke={t.border} strokeWidth={strokeWidth} fill="none" />
-        <Circle
-          cx={size / 2} cy={size / 2} r={radius}
-          stroke={allDone ? '#D4A843' : t.accent}
-          strokeWidth={strokeWidth} fill="none"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-      </Svg>
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+        <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
+          <Circle cx={size / 2} cy={size / 2} r={radius} stroke={t.border} strokeWidth={strokeWidth} fill="none" />
+          <Circle
+            cx={size / 2} cy={size / 2} r={radius}
+            stroke={allDone ? '#D4A843' : t.accent}
+            strokeWidth={strokeWidth} fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        </Svg>
         <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: allDone ? '#D4A843' : t.accent }}>{completed}/{total}</Text>
       </View>
-      <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 4 }}>Tagesziele</Text>
+      <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Tagesziele</Text>
     </Card>
   );
 }
@@ -147,18 +147,18 @@ function DailyGoalsDetail({ goals, progress, t }) {
         const meta = GOAL_META[key] || { emoji: '🎯', label: key };
         return (
           <View key={key} style={{ marginBottom: key !== entries[entries.length - 1]?.[0] ? Spacing.md : 0 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.xs }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
                 <Text style={{ fontSize: 18 }}>{meta.emoji}</Text>
                 <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>{meta.label}</Text>
               </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
                 <Text style={{ fontSize: FontSize.sm, color: done ? '#D4A843' : t.textDim }}>{current}/{goal.target}</Text>
                 {done && <Text style={{ fontSize: 14 }}>✅</Text>}
               </View>
             </View>
-            <View style={{ height: 6, borderRadius: 3, backgroundColor: t.border, overflow: 'hidden' }}>
-              <View style={{ height: '100%', borderRadius: 3, width: `${Math.min(pct, 100)}%`, backgroundColor: done ? '#D4A843' : t.accent }} />
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${Math.min(pct, 100)}%`, backgroundColor: done ? '#D4A843' : t.accent }]} />
             </View>
           </View>
         );
@@ -230,7 +230,7 @@ export default function HomeScreen() {
   const dailyDua = DUAS[getDailyIndex(DUAS)];
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]}>
+    <SafeAreaView style={styles.safe}>
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.content}>
         {/* Header */}
         <HeaderBar titleAr="بِسْمِ ٱللَّهِ" title="Dein täglicher Begleiter" t={t} />
@@ -238,7 +238,7 @@ export default function HomeScreen() {
         {/* Date & Location */}
         <Card centered>
           <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>{gregorianDate}</Text>
-          {hijriDate ? <Text style={{ fontSize: FontSize.md, color: t.accent, marginTop: 4 }}>{hijriDate}</Text> : null}
+          {hijriDate ? <Text style={{ fontSize: FontSize.md, color: t.accent, marginTop: Spacing.xs }}>{hijriDate}</Text> : null}
           {location?.name ? (
             <View style={[styles.badge, { backgroundColor: t.accent + '18' }]}>
               <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent }}>📍 {location.name}</Text>
@@ -251,16 +251,15 @@ export default function HomeScreen() {
           const nextMeta = PRAYER_META[nextPrayer.key];
           const curMeta = PRAYER_META[currentPrayer.key];
           return (
-            <View style={{ borderRadius: BorderRadius.md, overflow: 'hidden', borderWidth: 1, borderColor: nextMeta.color + '44', backgroundColor: t.card }}>
-              {/* Gradient-like tinted background */}
-              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: nextMeta.color + '08', borderRadius: BorderRadius.md }} />
+            <View style={[styles.prayerCountdownCard, { borderColor: nextMeta.color + '44', backgroundColor: t.card }]}>
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: nextMeta.color + '08', borderRadius: BorderRadius.md }]} />
 
               <View style={{ padding: Spacing.lg }}>
                 {/* Current & Next Prayer */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
                   <View>
                     <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Aktuelles Gebet</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: Spacing.xs }}>
                       <Text style={{ fontSize: 24 }}>{curMeta.emoji}</Text>
                       <View>
                         <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.text }}>{currentPrayer.name}</Text>
@@ -270,7 +269,7 @@ export default function HomeScreen() {
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
                     <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Nächstes Gebet</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: Spacing.xs }}>
                       <View style={{ alignItems: 'flex-end' }}>
                         <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: nextMeta.color }}>{nextPrayer.name}</Text>
                         <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{nextMeta.description}</Text>
@@ -288,16 +287,16 @@ export default function HomeScreen() {
                 {/* Countdown */}
                 <View style={{ alignItems: 'center', marginTop: Spacing.md }}>
                   <Text style={{ fontSize: 36, fontWeight: '700', color: nextMeta.color, fontVariant: ['tabular-nums'] }}>{countdown}</Text>
-                  <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>bis {nextPrayer.name}</Text>
+                  <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>bis {nextPrayer.name}</Text>
                 </View>
 
                 {/* Prayer dots - colored per prayer */}
-                <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.md, gap: 6 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.md, gap: Spacing.sm }}>
                   {TRACKABLE_KEYS.map((p) => (
                     <View key={p} style={[styles.miniDot, { backgroundColor: todayPrayers[p] ? PRAYER_META[p].color : t.border }]} />
                   ))}
                 </View>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginTop: 4 }}>{completedCount}/5 verrichtet</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginTop: Spacing.xs }}>{completedCount}/5 verrichtet</Text>
               </View>
             </View>
           );
@@ -308,9 +307,9 @@ export default function HomeScreen() {
           <View style={{ flex: 1 }}>
             <Card centered>
               <Text style={{ fontSize: 28 }}>{getStreakEmoji(currentStreak) || '🔥'}</Text>
-              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>{currentStreak}</Text>
+              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>{currentStreak}</Text>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Tage Streak</Text>
-              <Text style={{ fontSize: FontSize.xs, color: t.accent, marginTop: 2 }}>{getStreakMessage(currentStreak)}</Text>
+              <Text style={{ fontSize: FontSize.xs, color: t.accent, marginTop: Spacing.xs }}>{getStreakMessage(currentStreak)}</Text>
             </Card>
           </View>
           <View style={{ flex: 1 }}>
@@ -340,7 +339,7 @@ export default function HomeScreen() {
         {/* Dua des Tages */}
         <Card>
           <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Dua des Tages</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: Spacing.md }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.md }}>
             <Text style={{ fontSize: 24 }}>{dailyDua.emoji || '🤲'}</Text>
             <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>{dailyDua.title}</Text>
           </View>
@@ -353,7 +352,7 @@ export default function HomeScreen() {
         {/* Mini Dhikr Counter */}
         <Card centered>
           <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Schneller Dhikr</Text>
-          <View style={{ flexDirection: 'row', gap: 8, marginBottom: Spacing.md }}>
+          <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md }}>
             {DHIKR_MINI.map((d, i) => (
               <Pressable
                 key={i}
@@ -367,8 +366,8 @@ export default function HomeScreen() {
           <Pressable onPress={() => { setMiniCount((c) => c + 1); incrementDhikr(); }} style={[styles.miniCounter, { borderColor: t.accent + '44' }]}>
             <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent }}>{miniCount}</Text>
           </Pressable>
-          <Pressable onPress={() => setMiniCount(0)}>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.sm }}>Zurücksetzen</Text>
+          <Pressable onPress={() => setMiniCount(0)} style={styles.resetTouch}>
+            <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Zurücksetzen</Text>
           </Pressable>
         </Card>
 
@@ -379,13 +378,13 @@ export default function HomeScreen() {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Weiterlesen</Text>
-                <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 2 }}>Sure {lastReadSurah} von 114</Text>
+                <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Sure {lastReadSurah} von 114</Text>
               </View>
               <View style={{ alignItems: 'center' }}>
                 <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent }}>{Math.round((lastReadSurah / 114) * 100)}%</Text>
               </View>
             </View>
-            <View style={styles.progressBar}>
+            <View style={[styles.progressBar, { marginTop: Spacing.md }]}>
               <View style={[styles.progressFill, { width: `${(lastReadSurah / 114) * 100}%`, backgroundColor: t.accent }]} />
             </View>
           </Card>
@@ -395,8 +394,8 @@ export default function HomeScreen() {
         <Card centered>
           <Text style={{ fontSize: 32 }}>🌍</Text>
           <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginTop: Spacing.sm }}>Globaler Tasbih heute</Text>
-          <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: 4 }}>--</Text>
-          <View style={{ backgroundColor: t.accent + '10', paddingHorizontal: 12, paddingVertical: 6, borderRadius: BorderRadius.full, marginTop: Spacing.sm }}>
+          <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>--</Text>
+          <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
             <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Kommt in Phase 3</Text>
           </View>
         </Card>
@@ -407,16 +406,16 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: Spacing.lg, paddingBottom: 40 },
-  header: { alignItems: 'center', paddingVertical: Spacing.xl },
-  bismillah: { fontSize: 32, fontWeight: '700' },
-  subtitle: { fontSize: FontSize.sm, letterSpacing: 3, textTransform: 'uppercase', marginTop: 4 },
-  badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, marginTop: 8 },
+  content: { padding: Spacing.lg, paddingBottom: 100 },
+  badge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: BorderRadius.xl, marginTop: Spacing.sm },
   miniDot: { width: 10, height: 10, borderRadius: 5 },
-  miniChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 9999, borderWidth: 1 },
+  miniChip: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, borderWidth: 1 },
   miniCounter: { width: 100, height: 100, borderRadius: 50, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  prayerProgressBar: { width: '100%', height: 8, borderRadius: 4, overflow: 'hidden' },
-  prayerProgressFill: { height: '100%', borderRadius: 4 },
-  progressBar: { width: '100%', height: 6, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 3, marginTop: Spacing.md, overflow: 'hidden' },
+  resetTouch: { marginTop: Spacing.sm, minHeight: 44, justifyContent: 'center' },
+  prayerCountdownCard: { borderRadius: BorderRadius.md, overflow: 'hidden', borderWidth: 1, marginBottom: Spacing.md },
+  prayerProgressBar: { width: '100%', height: Spacing.sm, borderRadius: Spacing.xs, overflow: 'hidden' },
+  prayerProgressFill: { height: '100%', borderRadius: Spacing.xs },
+  progressBar: { height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
+  phaseBadge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, marginTop: Spacing.sm },
 });

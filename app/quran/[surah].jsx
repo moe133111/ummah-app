@@ -257,7 +257,7 @@ export default function SurahDetail() {
           {/* Ornament + Play button stacked top-right */}
           <View style={styles.ornamentPlayColumn}>
             <AyahOrnament number={toArabicNumerals(item.numberInSurah)} color={t.accent} />
-            <View style={[styles.ayahPlayBtn, { borderColor: isActive ? t.accent + '4D' : t.accent + '4D' }]}>
+            <View style={[styles.ayahPlayBtn, { borderColor: t.accent + '4D' }]}>
               {isLoadingThis ? (
                 <ActivityIndicator size={12} color={t.accent} />
               ) : (
@@ -306,7 +306,7 @@ export default function SurahDetail() {
       onPress={() => setShowLangPicker(showLangPicker === slot ? null : slot)}
     >
       <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{label}:</Text>
-      <Text style={{ fontSize: FontSize.xs, fontWeight: '700', color: t.accent, marginLeft: 4 }}>{langObj?.label || 'Keine'}</Text>
+      <Text style={{ fontSize: FontSize.xs, fontWeight: '700', color: t.accent, marginLeft: Spacing.xs }}>{langObj?.label || 'Keine'}</Text>
     </Pressable>
   );
 
@@ -382,10 +382,10 @@ export default function SurahDetail() {
       {showLangPicker && <LangOptions slot={showLangPicker} />}
 
       <View style={styles.headerNav}>
-        <TouchableOpacity onPress={() => goToSurah(num - 1)} disabled={!prevMeta} style={{ opacity: prevMeta ? 1 : 0.3 }}>
+        <TouchableOpacity onPress={() => goToSurah(num - 1)} disabled={!prevMeta} style={[styles.navTouch, { opacity: prevMeta ? 1 : 0.3 }]}>
           <Text style={{ fontSize: FontSize.sm, color: t.accent }}>← {prevMeta?.englishName || ''}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => goToSurah(num + 1)} disabled={!nextMeta} style={{ opacity: nextMeta ? 1 : 0.3 }}>
+        <TouchableOpacity onPress={() => goToSurah(num + 1)} disabled={!nextMeta} style={[styles.navTouch, { opacity: nextMeta ? 1 : 0.3 }]}>
           <Text style={{ fontSize: FontSize.sm, color: t.accent }}>{nextMeta?.englishName || ''} →</Text>
         </TouchableOpacity>
       </View>
@@ -428,7 +428,7 @@ export default function SurahDetail() {
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator size="large" color={t.accent} />
-          <Text style={{ marginTop: 12, color: t.textDim }}>{loadingText}</Text>
+          <Text style={{ marginTop: Spacing.md, color: t.textDim }}>{loadingText}</Text>
         </View>
       </SafeAreaView>
     );
@@ -438,7 +438,7 @@ export default function SurahDetail() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 36, marginBottom: 12 }}>⚠️</Text>
+          <Text style={{ fontSize: 36, marginBottom: Spacing.md }}>⚠️</Text>
           <Text style={{ color: t.textDim }}>Fehler beim Laden. Prüfe deine Internetverbindung.</Text>
         </View>
       </SafeAreaView>
@@ -456,7 +456,7 @@ export default function SurahDetail() {
         renderItem={renderAyah}
         ListHeaderComponent={Header}
         ListFooterComponent={Footer}
-        contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayerBar ? 110 : 60 }}
+        contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayerBar ? 110 : 100 }}
         onScrollToIndexFailed={(info) => {
           flatListRef.current?.scrollToOffset({ offset: info.averageItemLength * info.index, animated: true });
         }}
@@ -469,7 +469,7 @@ export default function SurahDetail() {
             <Text style={{ fontSize: FontSize.xs, color: t.textDim }} numberOfLines={1}>
               Mishary Rashid Alafasy
             </Text>
-            <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: t.text, marginTop: 2 }} numberOfLines={1}>
+            <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: t.text, marginTop: Spacing.xs }} numberOfLines={1}>
               {meta?.englishName} · Ayah {currentPlayingAyah >= 0 ? currentPlayingAyah + 1 : '-'}/{ayahs?.length}
             </Text>
           </View>
@@ -491,11 +491,10 @@ export default function SurahDetail() {
 
 const styles = StyleSheet.create({
   ayahCard: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
     borderWidth: 1,
-    position: 'relative',
     ...Platform.select({
       ios: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 6 },
       android: { elevation: 2 },
@@ -510,11 +509,11 @@ const styles = StyleSheet.create({
   },
   ornamentPlayColumn: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: Spacing.md,
+    right: Spacing.md,
     zIndex: 1,
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.sm,
   },
   ayahPlayBtn: {
     width: 28,
@@ -534,18 +533,18 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontStyle: 'italic',
     lineHeight: 24,
-    marginTop: 10,
+    marginTop: Spacing.md,
   },
   translationText: {
     fontSize: FontSize.md,
     lineHeight: 26,
-    marginTop: 8,
+    marginTop: Spacing.sm,
   },
   secondLangText: {
     fontSize: FontSize.sm,
     fontStyle: 'italic',
     lineHeight: 22,
-    marginTop: 8,
+    marginTop: Spacing.sm,
   },
   headerPlayRow: {
     flexDirection: 'row',
@@ -564,8 +563,8 @@ const styles = StyleSheet.create({
     }),
   },
   bismillahCard: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xl,
     marginTop: Spacing.lg,
     borderWidth: 1,
     alignItems: 'center',
@@ -586,30 +585,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   offlineBadge: {
-    marginTop: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    marginTop: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
   },
   langRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
-  langChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.sm, borderWidth: 1 },
+  langChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.sm, borderWidth: 1, minHeight: 44 },
   langOptions: { width: '100%', borderRadius: BorderRadius.md, borderWidth: 1, padding: Spacing.sm, marginTop: Spacing.sm },
-  langOption: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.sm },
+  langOption: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.sm, minHeight: 44, justifyContent: 'center' },
   headerNav: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: Spacing.md, paddingHorizontal: Spacing.xs },
+  navTouch: { minHeight: 44, justifyContent: 'center', paddingHorizontal: Spacing.sm },
   footerNav: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.xl },
-  navBtn: { flex: 1, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1.5, alignItems: 'center' },
+  navBtn: { flex: 1, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1.5, alignItems: 'center', minHeight: 44 },
   playerBar: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 70,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    paddingVertical: Spacing.md,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,

@@ -90,15 +90,15 @@ export default function DhikrScreen() {
     }}>
       <Card>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, flex: 1 }}>
             <Text style={{ fontSize: 24 }}>{dua.emoji || '🤲'}</Text>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: expanded === dua.id ? t.accent : t.text }}>{dua.title}</Text>
-              <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>{dua.category}</Text>
+              <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>{dua.category}</Text>
             </View>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Pressable onPress={() => toggleFavorite(dua.id)} hitSlop={8}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
+            <Pressable onPress={() => toggleFavorite(dua.id)} hitSlop={Spacing.sm} style={styles.favTouch}>
               <Text style={{ fontSize: 18 }}>{favorites.includes(dua.id) ? '⭐' : '☆'}</Text>
             </Pressable>
             <Text style={{ fontSize: 18, color: t.textDim, transform: [{ rotate: expanded === dua.id ? '180deg' : '0deg' }] }}>▾</Text>
@@ -109,7 +109,7 @@ export default function DhikrScreen() {
             <View style={{ padding: Spacing.lg, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08', borderWidth: 1, borderColor: t.accent + '15', marginBottom: Spacing.md }}>
               <Text style={{ fontSize: FontSize.arabic, lineHeight: 40, textAlign: 'right', color: t.accentLight }}>{dua.arabic}</Text>
             </View>
-            <Text style={{ fontSize: FontSize.sm, color: t.accent, marginBottom: 8 }}>{dua.transliteration}</Text>
+            <Text style={{ fontSize: FontSize.sm, color: t.accent, marginBottom: Spacing.sm }}>{dua.transliteration}</Text>
             <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, lineHeight: 22 }}>{dua.translation}</Text>
           </View>
         )}
@@ -126,7 +126,6 @@ export default function DhikrScreen() {
           <Text style={styles.focusArabic}>{sel.arabic}</Text>
           <Text style={styles.focusCount}>{count}</Text>
           <Text style={styles.focusTarget}>/ {sel.target}</Text>
-          {/* Progress dots */}
           <View style={styles.focusDots}>
             {Array.from({ length: sel.target }, (_, i) => (
               <View
@@ -134,7 +133,6 @@ export default function DhikrScreen() {
                 style={[
                   styles.focusDot,
                   { backgroundColor: i < count ? '#B8860B' : '#222' },
-                  // Show only every nth dot for large targets
                   sel.target > 40 && i % Math.ceil(sel.target / 33) !== 0 && i !== sel.target - 1 && { display: 'none' },
                 ]}
               />
@@ -143,31 +141,33 @@ export default function DhikrScreen() {
           {count >= sel.target && (
             <Text style={styles.focusComplete}>✨ MashaAllah!</Text>
           )}
-          <Pressable onPress={() => setFocusMode(false)} style={styles.focusExitBtn}>
-            <Text style={styles.focusExitText}>Beenden</Text>
-          </Pressable>
+          <View style={styles.focusExitWrap}>
+            <Pressable onPress={() => setFocusMode(false)} style={styles.focusExitBtn}>
+              <Text style={styles.focusExitText}>Beenden</Text>
+            </Pressable>
+          </View>
         </Pressable>
       </Modal>
 
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 40 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 100 }}>
         <HeaderBar title="Dhikr & Duas" t={t} />
 
-        <View style={{ flexDirection: 'row', gap: 6, marginBottom: Spacing.lg }}>
+        <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
           {tabs.map((tb) => (
             <Pressable
               key={tb.id}
               style={[styles.tab, tab === tb.id && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
               onPress={() => setTab(tb.id)}
             >
-              <Text style={{ fontSize: 18, marginBottom: 2 }}>{tb.emoji}</Text>
-              <Text style={{ fontSize: 10, fontWeight: '600', color: tab === tb.id ? t.accent : t.textDim }}>{tb.label}</Text>
+              <Text style={{ fontSize: 18, marginBottom: Spacing.xs }}>{tb.emoji}</Text>
+              <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: tab === tb.id ? t.accent : t.textDim }}>{tb.label}</Text>
             </Pressable>
           ))}
         </View>
 
         {tab === 'dhikr' && (
           <>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.lg }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.lg }}>
               {DHIKR.map((d) => (
                 <Pressable
                   key={d.id}
@@ -189,7 +189,7 @@ export default function DhikrScreen() {
             <View style={[styles.bar, { backgroundColor: t.border }]}>
               <View style={[styles.barFill, { width: `${Math.min((count / sel.target) * 100, 100)}%`, backgroundColor: t.accent }]} />
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 12, marginBottom: Spacing.lg }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', gap: Spacing.md, marginBottom: Spacing.lg }}>
               <Pressable style={[styles.resetBtn, { borderColor: t.border }]} onPress={() => setCount(0)}>
                 <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>Zurücksetzen</Text>
               </Pressable>
@@ -202,7 +202,7 @@ export default function DhikrScreen() {
             </View>
             {count >= sel.target && (
               <Card centered style={{ borderColor: t.accent + '44' }}>
-                <Text style={{ fontSize: 28, marginBottom: 4 }}>✨</Text>
+                <Text style={{ fontSize: 28, marginBottom: Spacing.xs }}>✨</Text>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent }}>MashaAllah! Ziel erreicht!</Text>
               </Card>
             )}
@@ -221,7 +221,7 @@ export default function DhikrScreen() {
             <Card centered>
               <Text style={{ fontSize: 36 }}>🌙</Text>
               <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text, marginTop: Spacing.sm }}>Schlafmodus</Text>
-              <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 4, textAlign: 'center' }}>Adhkar und Suren zum Lesen vor dem Schlafen</Text>
+              <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs, textAlign: 'center' }}>Adhkar und Suren zum Lesen vor dem Schlafen</Text>
             </Card>
             {SLEEP_CONTENT.map((item) => (
               <Card key={item.id}>
@@ -236,7 +236,7 @@ export default function DhikrScreen() {
                   <Text style={{ fontSize: FontSize.sm, color: t.accent, marginTop: Spacing.md }}>{item.transliteration}</Text>
                 )}
                 {item.translation && (
-                  <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, marginTop: 4, lineHeight: 22 }}>{item.translation}</Text>
+                  <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, marginTop: Spacing.xs, lineHeight: 22 }}>{item.translation}</Text>
                 )}
               </Card>
             ))}
@@ -263,20 +263,22 @@ export default function DhikrScreen() {
 }
 
 const styles = StyleSheet.create({
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
-  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 9999, borderWidth: 1 },
+  tab: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
+  chip: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, borderWidth: 1 },
   counterBtn: { alignSelf: 'center', width: 180, height: 180, borderRadius: 90, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginVertical: Spacing.xl },
   bar: { height: 6, borderRadius: 3, overflow: 'hidden', marginBottom: Spacing.lg },
   barFill: { height: '100%', borderRadius: 3 },
-  resetBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: BorderRadius.md, borderWidth: 1 },
+  resetBtn: { paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, minHeight: 44, justifyContent: 'center' },
+  favTouch: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   // Focus Mode styles
-  focusContainer: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
-  focusArabic: { fontSize: 36, color: '#D4A843', textAlign: 'center', marginBottom: 24 },
+  focusContainer: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.xl },
+  focusArabic: { fontSize: 36, color: '#D4A843', textAlign: 'center', marginBottom: Spacing.xxl },
   focusCount: { fontSize: 120, fontWeight: '700', color: '#B8860B', fontVariant: ['tabular-nums'] },
-  focusTarget: { fontSize: 24, color: '#555', marginTop: -8 },
-  focusDots: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4, marginTop: 32, paddingHorizontal: 20, maxWidth: 300 },
+  focusTarget: { fontSize: 24, color: '#555' },
+  focusDots: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: Spacing.xs, marginTop: Spacing.xxl, paddingHorizontal: Spacing.xl, maxWidth: 300 },
   focusDot: { width: 6, height: 6, borderRadius: 3 },
-  focusComplete: { fontSize: 28, color: '#B8860B', marginTop: 24 },
-  focusExitBtn: { position: 'absolute', bottom: 60, paddingHorizontal: 32, paddingVertical: 14, borderRadius: 9999, borderWidth: 1, borderColor: '#333' },
+  focusComplete: { fontSize: 28, color: '#B8860B', marginTop: Spacing.xxl },
+  focusExitWrap: { marginTop: Spacing.xxxl },
+  focusExitBtn: { paddingHorizontal: 32, paddingVertical: Spacing.lg, borderRadius: BorderRadius.full, borderWidth: 1, borderColor: '#333', minHeight: 44, justifyContent: 'center' },
   focusExitText: { fontSize: 16, color: '#888' },
 });
