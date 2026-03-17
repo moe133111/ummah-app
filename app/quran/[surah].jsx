@@ -7,6 +7,8 @@ import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { SURAH_LIST, QURAN_LANGUAGES, toArabicNumerals } from '../../features/quran/surahData';
 import { getSurah, saveSurah, isSurahCached } from '../../lib/database';
+import AyahMarker from '../../components/ui/AyahMarker';
+import { SurahHeaderFrame, BismillahDecoration, AyahDividerSimple } from '../../components/ui/QuranDecorations';
 
 async function fetchSurahWithCache(num, edition) {
   // Try loading from SQLite cache first
@@ -177,19 +179,24 @@ export default function SurahDetail() {
     }
   }, [isPlaying, num, playAyah]);
 
+  const totalAyahs = ayahs?.length || 0;
+
   // --- Render ---
   const renderAyah = ({ item, index }) => (
-    <View style={[styles.ayahRow, { borderBottomColor: t.border }]}>
+    <View style={styles.ayahRow}>
       <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-        <View style={[styles.ayahNum, { backgroundColor: t.accent + '15', borderColor: t.accent + '30' }]}>
-          <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>{toArabicNumerals(item.numberInSurah)}</Text>
-        </View>
+        <AyahMarker number={toArabicNumerals(item.numberInSurah)} color={t.accent} />
       </View>
       <Text style={[{ fontSize: isAr ? FontSize.arabic : FontSize.md, lineHeight: isAr ? 44 : 26, textAlign: isAr ? 'right' : 'left', color: isAr ? t.accentLight : t.text }]}>{item.text}</Text>
       {translitAyahs?.[index] && (
         <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', lineHeight: 24, marginTop: 6, color: t.accent }}>{translitAyahs[index].text}</Text>
       )}
       {ayahs2?.[index] && <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', lineHeight: 22, marginTop: 8, color: t.textDim }}>{ayahs2[index].text}</Text>}
+      {index < totalAyahs - 1 && (
+        <View style={{ marginTop: Spacing.lg }}>
+          <AyahDividerSimple color={t.accent} />
+        </View>
+      )}
     </View>
   );
 
@@ -233,10 +240,16 @@ export default function SurahDetail() {
   );
 
   const Header = () => (
-    <View style={{ alignItems: 'center', paddingVertical: Spacing.xl }}>
-      <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent }}>{meta?.name}</Text>
-      <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.text, marginTop: 4 }}>{meta?.englishName}</Text>
-      <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 4 }}>{meta?.englishTranslation} · {meta?.numberOfAyahs} Ayat</Text>
+    <View style={{ alignItems: 'center' }}>
+      {/* Decorative Surah Header */}
+      <SurahHeaderFrame
+        name={meta?.name}
+        englishName={meta?.englishName}
+        translation={meta?.englishTranslation}
+        ayahCount={meta?.numberOfAyahs}
+        t={t}
+      />
+
       {cached1 && (
         <View style={[styles.offlineBadge, { backgroundColor: '#4CAF5020', borderColor: '#4CAF5040' }]}>
           <Text style={{ fontSize: FontSize.xs, color: '#4CAF50', fontWeight: '600' }}>✓ Offline verfügbar</Text>
@@ -270,11 +283,9 @@ export default function SurahDetail() {
           <Text style={{ fontSize: FontSize.sm, color: t.accent }}>{nextMeta?.englishName || ''} →</Text>
         </TouchableOpacity>
       </View>
-      {num !== 1 && num !== 9 && (
-        <View style={{ marginTop: Spacing.lg, padding: Spacing.lg, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08', borderWidth: 1, borderColor: t.accent + '15' }}>
-          <Text style={{ fontSize: 24, textAlign: 'center', color: t.accent }}>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</Text>
-        </View>
-      )}
+
+      {/* Decorative Bismillah */}
+      {num !== 1 && num !== 9 && <BismillahDecoration t={t} />}
     </View>
   );
 
@@ -319,8 +330,7 @@ export default function SurahDetail() {
 }
 
 const styles = StyleSheet.create({
-  ayahRow: { paddingVertical: Spacing.lg, borderBottomWidth: 1 },
-  ayahNum: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  ayahRow: { paddingVertical: Spacing.md },
   offlineBadge: { marginTop: 8, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, borderWidth: 1 },
   audioBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, borderWidth: 1, marginTop: Spacing.md },
   langRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
