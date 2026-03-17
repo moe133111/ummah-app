@@ -13,7 +13,8 @@ import SurahBanner from '../../components/ui/SurahBanner';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 100;
 
-const ARABIC_FONT = Platform.OS === 'ios' ? 'Al Nile' : 'serif';
+const ARABIC_FONT = 'ScheherazadeNew';
+const ARABIC_FONT_FALLBACK = Platform.OS === 'ios' ? 'Al Nile' : 'serif';
 const BISMILLAH_DISPLAY = 'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ';
 const BISMILLAH_BASE = 'بسم الله الرحمن الرحيم';
 
