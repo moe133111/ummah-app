@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { Audio } from 'expo-av';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { SURAH_LIST, QURAN_LANGUAGES, toArabicNumerals } from '../../features/quran/surahData';
 import { getSurah, saveSurah, isSurahCached } from '../../lib/database';
+import * as AudioPlayer from '../../features/quran/audioPlayer';
 import AyahOrnament from '../../components/ui/AyahOrnament';
 import { SurahHeaderFrame, OrnamentalBorder } from '../../components/ui/QuranDecorations';
 
@@ -41,8 +41,9 @@ export default function SurahDetail() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [currentPlayingAyah, setCurrentPlayingAyah] = useState(-1);
-  const soundRef = useRef(null);
+  const [audioError, setAudioError] = useState(false);
   const flatListRef = useRef(null);
+  const currentIndexRef = useRef(-1);
 
   const langMeta = QURAN_LANGUAGES.find(l => l.code === lang);
   const lang2Meta = lang2 ? QURAN_LANGUAGES.find(l => l.code === lang2) : null;
@@ -62,18 +63,6 @@ export default function SurahDetail() {
     isSurahCached(num, ed).then(setCached1);
     if (ed2) isSurahCached(num, ed2).then(setCached2);
   }, [num, ed, ed2]);
-
-  // Audio cleanup on unmount or surah change
-  useEffect(() => {
-    return () => {
-      if (soundRef.current) {
-        soundRef.current.unloadAsync();
-        soundRef.current = null;
-      }
-      setCurrentPlayingAyah(-1);
-      setIsPlaying(false);
-    };
-  }, [num]);
 
   const { data: result1, isLoading, error } = useQuery({
     queryKey: ['surah', num, ed],
@@ -114,118 +103,140 @@ export default function SurahDetail() {
     if (ayahs2) setCached2(true);
   }, [ayahs2]);
 
-  // --- Ayah-by-ayah audio playback ---
-  const playAyah = useCallback(async (ayahNumber, index, totalCount) => {
-    if (index >= totalCount) {
-      setIsPlaying(false);
-      setCurrentPlayingAyah(-1);
-      return;
-    }
-
-    setCurrentPlayingAyah(index);
-
-    // Scroll to the active ayah
-    if (flatListRef.current) {
+  // --- Audio: scroll helper ---
+  const scrollToAyah = useCallback((index) => {
+    if (flatListRef.current && index >= 0) {
       try {
         flatListRef.current.scrollToIndex({ index, animated: true, viewPosition: 0.3 });
       } catch {}
     }
-
-    if (soundRef.current) {
-      await soundRef.current.unloadAsync();
-    }
-
-    const url = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${ayahNumber}.mp3`;
-
-    try {
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: url },
-        { shouldPlay: true },
-        (status) => {
-          if (status.didJustFinish) {
-            // Play next ayah
-            const nextAyahNum = ayahNumber + 1;
-            playAyah(nextAyahNum, index + 1, totalCount);
-          }
-        }
-      );
-      soundRef.current = sound;
-    } catch {
-      setIsPlaying(false);
-      setCurrentPlayingAyah(-1);
-    }
   }, []);
 
+  // --- Audio: play a specific ayah by index, with auto-advance ---
+  const startPlaybackFromIndex = useCallback(async (index) => {
+    if (!ayahs || index < 0 || index >= ayahs.length) return;
+
+    setAudioError(false);
+    currentIndexRef.current = index;
+
+    // Set up the onFinish callback for auto-advance
+    AudioPlayer.setOnFinish(() => {
+      const nextIdx = currentIndexRef.current + 1;
+      if (ayahs && nextIdx < ayahs.length) {
+        // Play next ayah
+        currentIndexRef.current = nextIdx;
+        setCurrentPlayingAyah(nextIdx);
+        scrollToAyah(nextIdx);
+
+        AudioPlayer.playAyah(ayahs[nextIdx].number).catch(() => {
+          setIsPlaying(false);
+          setCurrentPlayingAyah(-1);
+          currentIndexRef.current = -1;
+          setAudioError(true);
+        });
+      } else {
+        // Surah finished
+        setIsPlaying(false);
+        setCurrentPlayingAyah(-1);
+        currentIndexRef.current = -1;
+      }
+    });
+
+    try {
+      setAudioLoading(true);
+      setCurrentPlayingAyah(index);
+      setIsPlaying(true);
+      scrollToAyah(index);
+
+      await AudioPlayer.initAudioMode();
+      await AudioPlayer.playAyah(ayahs[index].number);
+      setAudioLoading(false);
+    } catch {
+      setAudioLoading(false);
+      setIsPlaying(false);
+      setCurrentPlayingAyah(-1);
+      currentIndexRef.current = -1;
+      setAudioError(true);
+      Alert.alert('Audio nicht verfügbar', 'Prüfe deine Internetverbindung und versuche es erneut.');
+    }
+  }, [ayahs, scrollToAyah]);
+
+  // --- Toggle play/pause ---
   const toggleAudio = useCallback(async () => {
     if (isPlaying) {
-      if (soundRef.current) {
-        await soundRef.current.pauseAsync();
-      }
+      await AudioPlayer.pause();
       setIsPlaying(false);
       return;
     }
 
-    try {
-      // Resume if paused
-      if (soundRef.current && currentPlayingAyah >= 0) {
-        const status = await soundRef.current.getStatusAsync();
-        if (status.isLoaded && !status.isPlaying) {
-          await soundRef.current.playAsync();
-          setIsPlaying(true);
-          return;
-        }
+    // Try to resume if paused
+    if (currentPlayingAyah >= 0) {
+      const resumed = await AudioPlayer.resume();
+      if (resumed) {
+        setIsPlaying(true);
+        return;
       }
-
-      if (!ayahs || ayahs.length === 0) return;
-
-      setAudioLoading(true);
-      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true });
-
-      const startIndex = currentPlayingAyah >= 0 ? currentPlayingAyah : 0;
-      const startAyahNumber = ayahs[startIndex].number;
-
-      setIsPlaying(true);
-      setAudioLoading(false);
-      await playAyah(startAyahNumber, startIndex, ayahs.length);
-    } catch {
-      setAudioLoading(false);
-      setIsPlaying(false);
     }
-  }, [isPlaying, ayahs, currentPlayingAyah, playAyah]);
 
+    // Start from beginning or current position
+    const startIdx = currentPlayingAyah >= 0 ? currentPlayingAyah : 0;
+    await startPlaybackFromIndex(startIdx);
+  }, [isPlaying, currentPlayingAyah, startPlaybackFromIndex]);
+
+  // --- Play from header button (always from ayah 1) ---
+  const playFromStart = useCallback(async () => {
+    if (isPlaying) {
+      await AudioPlayer.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    // If paused, resume
+    if (currentPlayingAyah >= 0) {
+      const resumed = await AudioPlayer.resume();
+      if (resumed) {
+        setIsPlaying(true);
+        return;
+      }
+    }
+
+    await startPlaybackFromIndex(0);
+  }, [isPlaying, currentPlayingAyah, startPlaybackFromIndex]);
+
+  // --- Tap on ayah to play from there ---
   const playFromAyah = useCallback(async (index) => {
-    if (!ayahs || index >= ayahs.length) return;
-
-    try {
-      setAudioLoading(true);
-      await Audio.setAudioModeAsync({ playsInSilentModeIOS: true, staysActiveInBackground: true });
-      setIsPlaying(true);
-      setAudioLoading(false);
-      await playAyah(ayahs[index].number, index, ayahs.length);
-    } catch {
-      setAudioLoading(false);
+    // If already playing this ayah, pause
+    if (isPlaying && currentPlayingAyah === index) {
+      await AudioPlayer.pause();
       setIsPlaying(false);
+      return;
     }
-  }, [ayahs, playAyah]);
+    await startPlaybackFromIndex(index);
+  }, [isPlaying, currentPlayingAyah, startPlaybackFromIndex]);
+
+  // --- Cleanup on unmount or surah change ---
+  useEffect(() => {
+    return () => {
+      AudioPlayer.stop();
+      AudioPlayer.setOnFinish(null);
+    };
+  }, [num]);
 
   const scrollToCurrentAyah = useCallback(() => {
-    if (flatListRef.current && currentPlayingAyah >= 0) {
-      try {
-        flatListRef.current.scrollToIndex({ index: currentPlayingAyah, animated: true, viewPosition: 0.3 });
-      } catch {}
-    }
-  }, [currentPlayingAyah]);
+    scrollToAyah(currentPlayingAyah);
+  }, [currentPlayingAyah, scrollToAyah]);
 
   // Card colors
   const cardBg = isDark ? '#152238' : '#FFFFFF';
   const highlightBg = isDark ? '#1C2D4A' : '#FFF9EF';
 
-  // --- Render ---
+  // --- Render ayah card ---
   const renderAyah = ({ item, index }) => {
     const isActive = currentPlayingAyah === index;
+    const isLoadingThis = audioLoading && currentPlayingAyah === index;
 
     return (
-      <Pressable onLongPress={() => playFromAyah(index)}>
+      <Pressable onPress={() => playFromAyah(index)}>
         <View style={[
           styles.ayahCard,
           { backgroundColor: isActive ? highlightBg : cardBg, borderColor: isActive ? t.accent + '44' : t.border + '66' },
@@ -263,6 +274,17 @@ export default function SurahDetail() {
               {ayahs2[index].text}
             </Text>
           )}
+
+          {/* Small play indicator bottom-left */}
+          <View style={styles.ayahPlayIcon}>
+            {isLoadingThis ? (
+              <ActivityIndicator size={12} color={t.accent} />
+            ) : (
+              <Text style={{ fontSize: 12, color: isActive ? t.accent : t.textDim + '66' }}>
+                {isActive && isPlaying ? '⏸' : '▶'}
+              </Text>
+            )}
+          </View>
         </View>
       </Pressable>
     );
@@ -322,6 +344,26 @@ export default function SurahDetail() {
           <Text style={{ fontSize: FontSize.xs, color: '#4CAF50', fontWeight: '600' }}>✓ Offline verfügbar</Text>
         </View>
       )}
+
+      {/* Big play button */}
+      <Pressable
+        onPress={playFromStart}
+        disabled={audioLoading && currentPlayingAyah === 0}
+        style={({ pressed }) => [styles.headerPlayRow, { opacity: pressed ? 0.7 : 1 }]}
+      >
+        <View style={[styles.headerPlayBtn, { backgroundColor: t.accent }]}>
+          {audioLoading && currentPlayingAyah === 0 ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={{ fontSize: 24, color: '#fff', marginLeft: isPlaying ? 0 : 2 }}>
+              {isPlaying ? '⏸' : '▶'}
+            </Text>
+          )}
+        </View>
+        <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent, marginLeft: Spacing.md }}>
+          {isPlaying ? 'Rezitation pausieren' : 'Rezitation abspielen'}
+        </Text>
+      </Pressable>
 
       <View style={styles.langRow}>
         <LangChip label="Sprache 1" langObj={langMeta} slot="1" />
@@ -393,6 +435,8 @@ export default function SurahDetail() {
     );
   }
 
+  const showPlayerBar = isPlaying || currentPlayingAyah >= 0;
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
       <FlatList
@@ -402,17 +446,19 @@ export default function SurahDetail() {
         renderItem={renderAyah}
         ListHeaderComponent={Header}
         ListFooterComponent={Footer}
-        contentContainerStyle={{ padding: Spacing.lg, paddingBottom: isPlaying ? 100 : 60 }}
+        contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayerBar ? 110 : 60 }}
         onScrollToIndexFailed={(info) => {
           flatListRef.current?.scrollToOffset({ offset: info.averageItemLength * info.index, animated: true });
         }}
       />
 
-      {/* Audio Player Bar */}
-      {(isPlaying || currentPlayingAyah >= 0) && (
-        <Pressable onPress={scrollToCurrentAyah} style={[styles.playerBar, { backgroundColor: isDark ? '#152238EE' : '#FFFFFFEE', borderColor: t.border }]}>
+      {/* Floating Audio Player Bar */}
+      {showPlayerBar && (
+        <Pressable onPress={scrollToCurrentAyah} style={[styles.playerBar, { backgroundColor: isDark ? '#152238F2' : '#FFFFFFF2', borderColor: t.border }]}>
           <View style={{ flex: 1, marginRight: Spacing.md }}>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim }} numberOfLines={1}>Mishary Rashid Alafasy</Text>
+            <Text style={{ fontSize: FontSize.xs, color: t.textDim }} numberOfLines={1}>
+              Mishary Rashid Alafasy
+            </Text>
             <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: t.text, marginTop: 2 }} numberOfLines={1}>
               {meta?.englishName} · Ayah {currentPlayingAyah >= 0 ? currentPlayingAyah + 1 : '-'}/{ayahs?.length}
             </Text>
@@ -424,7 +470,7 @@ export default function SurahDetail() {
             {audioLoading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text style={{ fontSize: 18, color: '#fff' }}>{isPlaying ? '⏸' : '▶️'}</Text>
+              <Text style={{ fontSize: 22, color: '#fff' }}>{isPlaying ? '⏸' : '▶'}</Text>
             )}
           </Pressable>
         </Pressable>
@@ -458,6 +504,15 @@ const styles = StyleSheet.create({
     right: 12,
     zIndex: 1,
   },
+  ayahPlayIcon: {
+    position: 'absolute',
+    bottom: 10,
+    left: 14,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   arabicText: {
     fontSize: FontSize.arabic,
     lineHeight: 44,
@@ -479,6 +534,22 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     lineHeight: 22,
     marginTop: 8,
+  },
+  headerPlayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.lg,
+  },
+  headerPlayBtn: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: { shadowColor: '#B8860B', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.3, shadowRadius: 8 },
+      android: { elevation: 6 },
+    }),
   },
   bismillahCard: {
     borderRadius: 16,
@@ -521,25 +592,29 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+    height: 70,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: -3 }, shadowOpacity: 0.12, shadowRadius: 8 },
-      android: { elevation: 8 },
+      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.15, shadowRadius: 10 },
+      android: { elevation: 10 },
     }),
   },
   playerPlayBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
+    ...Platform.select({
+      ios: { shadowColor: '#B8860B', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 6 },
+      android: { elevation: 4 },
+    }),
   },
 });

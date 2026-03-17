@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppStore } from '../hooks/useAppStore';
 import { requestNotificationPermission } from '../features/prayer/notifications';
 import { initDatabase } from '../lib/database';
+import { initAudioMode } from '../features/quran/audioPlayer';
 import Onboarding from './onboarding';
 
 Notifications.setNotificationHandler({
@@ -27,6 +28,7 @@ export default function RootLayout() {
   useEffect(() => {
     requestNotificationPermission();
     initDatabase();
+    initAudioMode();
     checkDailyReset();
     resetDailyProgressIfNewDay();
   }, []);
