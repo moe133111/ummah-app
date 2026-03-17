@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput, SafeAreaView, Platform } from 'react-native';
-import { useState, useMemo } from 'react';
+import { View, Text, Image, StyleSheet, FlatList, Pressable, TextInput, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
+import { useState, useMemo, useCallback } from 'react';
 
-const ARABIC_CALLIGRAPHY = Platform.OS === 'ios' ? 'Geeza Pro' : 'serif';
 const SCHEHERAZADE = 'ScheherazadeNew';
+const ARABIC_FALLBACK = Platform.OS === 'ios' ? 'Geeza Pro' : 'serif';
+const SURAH_IMAGE_URL = (num) => `https://cdn.islamic.network/quran/images/surah/${num}.png`;
 import { useRouter } from 'expo-router';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '../../constants/theme';
@@ -35,25 +36,43 @@ export default function QuranScreen() {
   }, [search]);
 
   const cardBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+  const [imageErrors, setImageErrors] = useState({});
+
+  const handleImageError = useCallback((num) => {
+    setImageErrors((prev) => ({ ...prev, [num]: true }));
+  }, []);
 
   const renderSurah = ({ item }) => {
     const isLastRead = item.number === lastRead;
+    const imgTint = isDark ? '#E8E0D4' : '#1A1A2E';
+    const hasError = imageErrors[item.number];
+
     return (
       <Pressable
         style={[styles.surahCard, { backgroundColor: isLastRead ? t.accent + '12' : cardBg }, isLastRead && { borderWidth: 1, borderColor: t.accent + '30' }]}
         onPress={() => router.push(`/quran/${item.number}`)}
       >
         <Text style={[styles.surahNum, { color: t.textDim }]}>{item.number}</Text>
-        <Text
-          style={[styles.surahArabic, {
-            color: isDark ? '#E8E0D4' : t.text,
-            fontFamily: SCHEHERAZADE,
-            fontWeight: Platform.OS === 'ios' ? '400' : undefined,
-          }]}
-          numberOfLines={1}
-        >
-          {item.name}
-        </Text>
+        <View style={styles.surahCenter}>
+          {hasError ? (
+            <Text
+              style={[styles.surahArabicFallback, {
+                color: isDark ? '#E8E0D4' : t.text,
+                fontFamily: SCHEHERAZADE || ARABIC_FALLBACK,
+                fontWeight: Platform.OS === 'ios' ? '400' : undefined,
+              }]}
+              numberOfLines={1}
+            >
+              {item.name}
+            </Text>
+          ) : (
+            <Image
+              source={{ uri: SURAH_IMAGE_URL(item.number) }}
+              style={[styles.surahImage, { tintColor: imgTint }]}
+              onError={() => handleImageError(item.number)}
+            />
+          )}
+        </View>
         <View style={styles.surahInfo}>
           <Text style={[styles.surahEnglish, { color: t.text }]}>{item.englishName}</Text>
           <Text style={[styles.surahTranslation, { color: t.textDim }]}>{item.englishTranslation}</Text>
@@ -246,7 +265,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 14,
-    padding: Spacing.lg,
+    padding: 14,
     marginBottom: 8,
     minHeight: 80,
   },
@@ -256,9 +275,18 @@ const styles = StyleSheet.create({
     width: 50,
     textAlign: 'center',
   },
-  surahArabic: {
-    fontSize: 30,
+  surahCenter: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  surahImage: {
+    width: 120,
+    height: 50,
+    resizeMode: 'contain',
+  },
+  surahArabicFallback: {
+    fontSize: 30,
     textAlign: 'center',
     lineHeight: 52,
   },
