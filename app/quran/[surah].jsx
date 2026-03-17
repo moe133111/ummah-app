@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert, PanResponder, Dimensions, Animated } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert, Dimensions } from 'react-native';
+import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '../../constants/theme';
@@ -9,9 +9,11 @@ import { getSurah, saveSurah, isSurahCached } from '../../lib/database';
 import * as AudioPlayer from '../../features/quran/audioPlayer';
 import AyahOrnament from '../../components/ui/AyahOrnament';
 import SurahBanner from '../../components/ui/SurahBanner';
+import SurahPicker from '../../components/ui/SurahPicker';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 100;
+const SWIPE_ANGLE_LOCK = 20; // px before deciding horizontal vs vertical
 
 const ARABIC_FONT = 'ScheherazadeNew';
 const ARABIC_FONT_FALLBACK = Platform.OS === 'ios' ? 'Al Nile' : 'serif';
@@ -99,6 +101,7 @@ async function fetchSurahWithCache(num, edition) {
 export default function SurahDetail() {
   const { surah } = useLocalSearchParams();
   const router = useRouter();
+  const navigation = useNavigation();
   const num = parseInt(surah, 10);
   const isDark = useAppStore((s) => s.theme === 'dark');
   const lang = useAppStore((s) => s.quranLanguage);
@@ -109,6 +112,7 @@ export default function SurahDetail() {
   const t = isDark ? DarkTheme : LightTheme;
 
   const [showLangPicker, setShowLangPicker] = useState(null);
+  const [showSurahPicker, setShowSurahPicker] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [currentPlayingAyah, setCurrentPlayingAyah] = useState(-1);
@@ -121,9 +125,10 @@ export default function SurahDetail() {
   const ayahs2Ref = useRef(null);
   const playingRef = useRef(false);
 
-  // Swipe navigation
+  // Swipe navigation state (touch-based)
   const [swipeHint, setSwipeHint] = useState(null);
-  const swipeAnim = useRef(new Animated.Value(0)).current;
+  const touchStartRef = useRef({ x: 0, y: 0, time: 0 });
+  const swipeLockedRef = useRef(null); // null | 'horizontal' | 'vertical'
 
   const langMeta = QURAN_LANGUAGES.find(l => l.code === lang);
   const lang2Meta = lang2 ? QURAN_LANGUAGES.find(l => l.code === lang2) : null;
@@ -135,6 +140,24 @@ export default function SurahDetail() {
   const isAr = lang === 'ar';
 
   const goToSurah = (n) => router.replace(`/quran/${n}`);
+
+  // Set dynamic header title with tappable SurahPicker trigger
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <Pressable
+          onPress={() => setShowSurahPicker(true)}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+        >
+          <Text style={{ fontSize: 17, fontWeight: '600', color: isDark ? '#E8E0D4' : '#1A1A2E' }}>
+            {meta?.englishName || 'Quran'}
+          </Text>
+          <Text style={{ fontSize: 12, color: isDark ? '#E8E0D4' : '#1A1A2E' }}>▾</Text>
+        </Pressable>
+      ),
+      headerBackTitle: 'Quran',
+    });
+  }, [meta, isDark, navigation]);
 
   const [cached1, setCached1] = useState(false);
   const [cached2, setCached2] = useState(false);
@@ -187,31 +210,52 @@ export default function SurahDetail() {
   }, [ayahs]);
   useEffect(() => { if (ayahs2) setCached2(true); }, [ayahs2]);
 
-  // --- Swipe PanResponder ---
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gs) => Math.abs(gs.dx) > 20 && Math.abs(gs.dx) > Math.abs(gs.dy) * 1.5,
-      onPanResponderMove: (_, gs) => {
-        if (gs.dx > 30 && prevMeta) setSwipeHint('prev');
-        else if (gs.dx < -30 && nextMeta) setSwipeHint('next');
-        else setSwipeHint(null);
-        swipeAnim.setValue(gs.dx);
-      },
-      onPanResponderRelease: (_, gs) => {
-        if (gs.dx > SWIPE_THRESHOLD && prevMeta) {
-          goToSurah(num - 1);
-        } else if (gs.dx < -SWIPE_THRESHOLD && nextMeta) {
-          goToSurah(num + 1);
-        }
-        setSwipeHint(null);
-        Animated.spring(swipeAnim, { toValue: 0, useNativeDriver: false }).start();
-      },
-      onPanResponderTerminate: () => {
-        setSwipeHint(null);
-        Animated.spring(swipeAnim, { toValue: 0, useNativeDriver: false }).start();
-      },
-    })
-  ).current;
+  // --- Touch-based Swipe Navigation ---
+  const handleTouchStart = useCallback((e) => {
+    touchStartRef.current = {
+      x: e.nativeEvent.pageX,
+      y: e.nativeEvent.pageY,
+      time: Date.now(),
+    };
+    swipeLockedRef.current = null;
+  }, []);
+
+  const handleTouchMove = useCallback((e) => {
+    const dx = e.nativeEvent.pageX - touchStartRef.current.x;
+    const dy = e.nativeEvent.pageY - touchStartRef.current.y;
+
+    // Decide direction lock after minimum movement
+    if (swipeLockedRef.current === null) {
+      if (Math.abs(dx) > SWIPE_ANGLE_LOCK || Math.abs(dy) > SWIPE_ANGLE_LOCK) {
+        swipeLockedRef.current = Math.abs(dx) > Math.abs(dy) * 2 ? 'horizontal' : 'vertical';
+      }
+      return;
+    }
+
+    if (swipeLockedRef.current !== 'horizontal') return;
+
+    if (dx > 40 && prevMeta) setSwipeHint('prev');
+    else if (dx < -40 && nextMeta) setSwipeHint('next');
+    else setSwipeHint(null);
+  }, [prevMeta, nextMeta]);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (swipeLockedRef.current !== 'horizontal') {
+      setSwipeHint(null);
+      return;
+    }
+
+    const dx = e.nativeEvent.pageX - touchStartRef.current.x;
+
+    if (dx < -SWIPE_THRESHOLD && num < 114) {
+      goToSurah(num + 1);
+    } else if (dx > SWIPE_THRESHOLD && num > 1) {
+      goToSurah(num - 1);
+    }
+
+    setSwipeHint(null);
+    swipeLockedRef.current = null;
+  }, [num]);
 
   // --- Audio ---
   const scrollToAyah = useCallback((index) => {
@@ -466,13 +510,15 @@ export default function SurahDetail() {
   // --- Header ---
   const Header = () => (
     <View>
-      {/* Surah Banner */}
+      {/* Surah Banner with calligraphy */}
       <SurahBanner
         name={meta?.name}
         englishName={meta?.englishName}
         translation={meta?.englishTranslation}
         ayahCount={meta?.numberOfAyahs}
         revelationType={meta?.revelationType}
+        surahNumber={num}
+        isDark={isDark}
       />
 
       {cached1 && (
@@ -567,7 +613,12 @@ export default function SurahDetail() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-      <View style={{ flex: 1 }} {...panResponder.panHandlers}>
+      <View
+        style={{ flex: 1 }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         <FlatList
           ref={flatListRef}
           data={ayahs}
@@ -596,6 +647,13 @@ export default function SurahDetail() {
           </View>
         )}
       </View>
+
+      {/* Surah Picker Modal */}
+      <SurahPicker
+        visible={showSurahPicker}
+        onClose={() => setShowSurahPicker(false)}
+        currentSurah={num}
+      />
 
       {/* Floating Audio Player Bar */}
       {showPlayerBar && (
