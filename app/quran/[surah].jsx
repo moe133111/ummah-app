@@ -13,6 +13,34 @@ import SurahBanner from '../../components/ui/SurahBanner';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 100;
 
+const BISMILLAH_PREFIX = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+
+const ARABIC_FONT = Platform.OS === 'ios' ? 'Al Nile' : 'serif';
+
+function cleanBismillah(ayahs, surahNumber) {
+  if (!ayahs || ayahs.length === 0) return { showBismillah: false, ayahs: ayahs || [] };
+
+  // Surah 1 (Al-Fatiha): Bismillah IS verse 1 — return unchanged
+  if (surahNumber === 1) return { showBismillah: false, ayahs };
+
+  // Surah 9 (At-Tawbah): No bismillah at all
+  if (surahNumber === 9) return { showBismillah: false, ayahs };
+
+  // All other surahs: strip bismillah prefix from first ayah
+  const first = ayahs[0];
+  const text = first.text || '';
+  const stripped = text.replace(BISMILLAH_PREFIX, '').trim();
+  const cleaned = [{ ...first, text: stripped || text }, ...ayahs.slice(1)];
+  return { showBismillah: true, ayahs: cleaned };
+}
+
+function getArabicFontSize(text) {
+  const len = (text || '').length;
+  if (len < 50) return 30;
+  if (len <= 200) return 26;
+  return 24;
+}
+
 async function fetchSurahWithCache(num, edition) {
   const cached = await getSurah(num, edition);
   if (cached && cached[0]?.number) {
@@ -88,10 +116,22 @@ export default function SurahDetail() {
     enabled: !isAr,
   });
 
-  const ayahs = result1?.ayahs;
-  const ayahs2 = result2?.ayahs;
-  const translitAyahs = translitResult?.ayahs;
-  const arabicAyahs = isAr ? ayahs : arabicResult?.ayahs;
+  const rawAyahs = result1?.ayahs;
+  const rawAyahs2 = result2?.ayahs;
+  const rawTranslitAyahs = translitResult?.ayahs;
+  const rawArabicAyahs = isAr ? rawAyahs : arabicResult?.ayahs;
+
+  // Clean bismillah from all text sources
+  const arabicCleaned = cleanBismillah(rawArabicAyahs, num);
+  const primaryCleaned = cleanBismillah(rawAyahs, num);
+  const secondCleaned = cleanBismillah(rawAyahs2, num);
+  const translitCleaned = cleanBismillah(rawTranslitAyahs, num);
+  const showBismillah = arabicCleaned.showBismillah;
+
+  const ayahs = primaryCleaned.ayahs;
+  const ayahs2 = secondCleaned.ayahs;
+  const translitAyahs = translitCleaned.ayahs;
+  const arabicAyahs = arabicCleaned.ayahs;
 
   useEffect(() => {
     if (ayahs) { setLastRead(num, 1); setCached1(true); }
@@ -234,16 +274,20 @@ export default function SurahDetail() {
           </View>
 
           {/* Arabic text with ornament */}
-          {arabicAyahs?.[index] && (
-            <View style={styles.arabicRow}>
-              <Text style={[styles.arabicText, { color: t.text }]}>
-                {arabicAyahs[index].text}
-              </Text>
-              <View style={{ marginLeft: Spacing.sm }}>
-                <AyahOrnament number={toArabicNumerals(item.numberInSurah)} color={t.accent} />
+          {arabicAyahs?.[index] && (() => {
+            const arabicText = arabicAyahs[index].text;
+            const dynamicSize = getArabicFontSize(arabicText);
+            return (
+              <View style={styles.arabicRow}>
+                <Text style={[styles.arabicText, { color: t.text, fontFamily: ARABIC_FONT, fontSize: dynamicSize, lineHeight: dynamicSize * 2.2 }]}>
+                  {arabicText}
+                </Text>
+                <View style={{ marginLeft: Spacing.sm }}>
+                  <AyahOrnament number={toArabicNumerals(item.numberInSurah)} color={t.accent} />
+                </View>
               </View>
-            </View>
-          )}
+            );
+          })()}
 
           {/* Transliteration */}
           {translitAyahs?.[index] && (
@@ -356,11 +400,11 @@ export default function SurahDetail() {
         </TouchableOpacity>
       </View>
 
-      {/* Bismillah — not for Surah 1 (part of verses) and Surah 9 (no bismillah) */}
-      {num !== 1 && num !== 9 && (
+      {/* Bismillah — shown decoratively when stripped from ayah 1 */}
+      {showBismillah && (
         <View style={styles.bismillahWrap}>
-          <Text style={[styles.bismillahText, { color: t.accentLight }]}>
-            بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+          <Text style={[styles.bismillahText, { color: t.accentLight, fontFamily: ARABIC_FONT }]}>
+            {BISMILLAH_PREFIX}
           </Text>
         </View>
       )}
@@ -463,7 +507,7 @@ export default function SurahDetail() {
 const styles = StyleSheet.create({
   // --- Ayah styles ---
   ayahContainer: {
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.xl,
     paddingHorizontal: Spacing.xs,
   },
   ayahTopRow: {
@@ -493,23 +537,25 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   arabicText: {
-    fontSize: 28,
-    lineHeight: 50,
     textAlign: 'right',
     flex: 1,
+    letterSpacing: 0.5,
+    paddingHorizontal: Spacing.sm,
   },
   translitText: {
-    fontSize: FontSize.md,
+    fontSize: 14,
     fontStyle: 'italic',
     lineHeight: 24,
     textAlign: 'right',
+    marginTop: Spacing.md,
     marginBottom: Spacing.sm,
   },
   translationText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '500',
-    lineHeight: 26,
+    lineHeight: 24,
     textAlign: 'right',
+    marginTop: Spacing.sm,
   },
   secondLangText: {
     fontSize: FontSize.sm,
@@ -520,7 +566,8 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 1,
-    marginTop: Spacing.lg,
+    marginTop: Spacing.xl,
+    marginHorizontal: Spacing.xxl,
   },
 
   // --- Bismillah ---
@@ -532,7 +579,8 @@ const styles = StyleSheet.create({
   bismillahText: {
     fontSize: 30,
     textAlign: 'center',
-    lineHeight: 50,
+    lineHeight: 60,
+    fontFamily: Platform.OS === 'ios' ? 'Al Nile' : 'serif',
   },
 
   // --- Header controls ---
