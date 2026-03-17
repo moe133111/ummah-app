@@ -13,7 +13,12 @@ import SurahBanner from '../../components/ui/SurahBanner';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = 100;
 
-const BISMILLAH_PREFIX = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
+const BISMILLAH_VARIANTS = [
+  'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ',
+  'بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',
+  'بسم الله الرحمن الرحيم',
+  'بِسۡمِ ٱللَّهِ ٱلرَّحۡمَـٰنِ ٱلرَّحِیمِ',
+];
 
 const ARABIC_FONT = Platform.OS === 'ios' ? 'Al Nile' : 'serif';
 
@@ -26,12 +31,23 @@ function cleanBismillah(ayahs, surahNumber) {
   // Surah 9 (At-Tawbah): No bismillah at all
   if (surahNumber === 9) return { showBismillah: false, ayahs };
 
-  // All other surahs: strip bismillah prefix from first ayah
-  const first = ayahs[0];
-  const text = first.text || '';
-  const stripped = text.replace(BISMILLAH_PREFIX, '').trim();
-  const cleaned = [{ ...first, text: stripped || text }, ...ayahs.slice(1)];
-  return { showBismillah: true, ayahs: cleaned };
+  // All other surahs: strip bismillah prefix from first ayah text
+  const modifiedAyahs = [...ayahs];
+  let firstText = modifiedAyahs[0]?.text || '';
+
+  for (const variant of BISMILLAH_VARIANTS) {
+    if (firstText.includes(variant)) {
+      firstText = firstText.replace(variant, '').trim();
+      break;
+    }
+  }
+
+  // Only modify if we actually stripped something and text remains
+  if (firstText.length > 0 && firstText !== (modifiedAyahs[0]?.text || '')) {
+    modifiedAyahs[0] = { ...modifiedAyahs[0], text: firstText };
+  }
+
+  return { showBismillah: true, ayahs: modifiedAyahs };
 }
 
 function getArabicFontSize(text) {
@@ -73,6 +89,8 @@ export default function SurahDetail() {
   const [audioError, setAudioError] = useState(false);
   const flatListRef = useRef(null);
   const currentIndexRef = useRef(-1);
+  const ayahsRef = useRef(null);
+  const playingRef = useRef(false);
 
   // Swipe navigation
   const [swipeHint, setSwipeHint] = useState(null);
@@ -133,6 +151,9 @@ export default function SurahDetail() {
   const translitAyahs = translitCleaned.ayahs;
   const arabicAyahs = arabicCleaned.ayahs;
 
+  // Keep ref in sync so onFinish callback always reads current ayahs
+  ayahsRef.current = ayahs;
+
   useEffect(() => {
     if (ayahs) { setLastRead(num, 1); setCached1(true); }
   }, [ayahs]);
@@ -171,38 +192,76 @@ export default function SurahDetail() {
     }
   }, []);
 
-  const startPlaybackFromIndex = useCallback(async (index) => {
-    if (!ayahs || index < 0 || index >= ayahs.length) return;
-    setAudioError(false);
-    currentIndexRef.current = index;
+  // onFinish reads from refs to avoid stale closure over ayahs
+  const playNextAyah = useCallback(async () => {
+    const currentAyahs = ayahsRef.current;
+    const nextIdx = currentIndexRef.current + 1;
 
+    if (!currentAyahs || nextIdx >= currentAyahs.length) {
+      // End of surah
+      setIsPlaying(false);
+      playingRef.current = false;
+      setCurrentPlayingAyah(-1);
+      currentIndexRef.current = -1;
+      setAudioLoading(false);
+      return;
+    }
+
+    currentIndexRef.current = nextIdx;
+    setCurrentPlayingAyah(nextIdx);
+    scrollToAyah(nextIdx);
+
+    const nextGlobalNum = currentAyahs[nextIdx].number;
+    console.log('[SurahDetail] Auto-advancing to ayah index', nextIdx, 'global:', nextGlobalNum);
+
+    if (!nextGlobalNum) {
+      console.error('[SurahDetail] Missing global number for ayah index', nextIdx);
+      setIsPlaying(false);
+      playingRef.current = false;
+      setCurrentPlayingAyah(-1);
+      currentIndexRef.current = -1;
+      setAudioError(true);
+      return;
+    }
+
+    try {
+      await AudioPlayer.playAyah(nextGlobalNum);
+    } catch (err) {
+      console.error('[SurahDetail] Error playing next ayah:', err);
+      // On error, try to skip to the next one
+      playNextAyah();
+    }
+  }, [scrollToAyah]);
+
+  // Set the onFinish callback once and keep it stable
+  useEffect(() => {
     AudioPlayer.setOnFinish(() => {
-      const nextIdx = currentIndexRef.current + 1;
-      if (ayahs && nextIdx < ayahs.length) {
-        currentIndexRef.current = nextIdx;
-        setCurrentPlayingAyah(nextIdx);
-        scrollToAyah(nextIdx);
-        const nextGlobalNum = ayahs[nextIdx].number;
-        AudioPlayer.playAyah(nextGlobalNum).catch(() => {
-          setIsPlaying(false);
-          setCurrentPlayingAyah(-1);
-          currentIndexRef.current = -1;
-          setAudioError(true);
-        });
-      } else {
-        setIsPlaying(false);
-        setCurrentPlayingAyah(-1);
-        currentIndexRef.current = -1;
+      if (playingRef.current) {
+        playNextAyah();
       }
     });
+    return () => {
+      AudioPlayer.stop();
+      AudioPlayer.setOnFinish(null);
+      playingRef.current = false;
+    };
+  }, [num, playNextAyah]);
+
+  const startPlaybackFromIndex = useCallback(async (index) => {
+    const currentAyahs = ayahsRef.current;
+    if (!currentAyahs || index < 0 || index >= currentAyahs.length) return;
+    setAudioError(false);
+    currentIndexRef.current = index;
 
     try {
       setAudioLoading(true);
       setCurrentPlayingAyah(index);
       setIsPlaying(true);
+      playingRef.current = true;
       scrollToAyah(index);
-      const globalNum = ayahs[index].number;
+      const globalNum = currentAyahs[index].number;
       if (!globalNum) throw new Error(`Ayah ${index + 1} hat keine globale Nummer.`);
+      console.log('[SurahDetail] Starting playback at index', index, 'global:', globalNum);
       await AudioPlayer.initAudioMode();
       await AudioPlayer.playAyah(globalNum);
       setAudioLoading(false);
@@ -210,39 +269,59 @@ export default function SurahDetail() {
       console.error('[SurahDetail] Audio error:', err);
       setAudioLoading(false);
       setIsPlaying(false);
+      playingRef.current = false;
       setCurrentPlayingAyah(-1);
       currentIndexRef.current = -1;
       setAudioError(true);
       Alert.alert('Audio-Fehler', err?.message || 'Unbekannter Fehler.');
     }
-  }, [ayahs, scrollToAyah]);
+  }, [scrollToAyah]);
 
   const toggleAudio = useCallback(async () => {
-    if (isPlaying) { await AudioPlayer.pause(); setIsPlaying(false); return; }
+    if (isPlaying) {
+      await AudioPlayer.pause();
+      setIsPlaying(false);
+      playingRef.current = false;
+      return;
+    }
     if (currentPlayingAyah >= 0) {
       const resumed = await AudioPlayer.resume();
-      if (resumed) { setIsPlaying(true); return; }
+      if (resumed) {
+        setIsPlaying(true);
+        playingRef.current = true;
+        return;
+      }
     }
     await startPlaybackFromIndex(currentPlayingAyah >= 0 ? currentPlayingAyah : 0);
   }, [isPlaying, currentPlayingAyah, startPlaybackFromIndex]);
 
   const playFromStart = useCallback(async () => {
-    if (isPlaying) { await AudioPlayer.pause(); setIsPlaying(false); return; }
+    if (isPlaying) {
+      await AudioPlayer.pause();
+      setIsPlaying(false);
+      playingRef.current = false;
+      return;
+    }
     if (currentPlayingAyah >= 0) {
       const resumed = await AudioPlayer.resume();
-      if (resumed) { setIsPlaying(true); return; }
+      if (resumed) {
+        setIsPlaying(true);
+        playingRef.current = true;
+        return;
+      }
     }
     await startPlaybackFromIndex(0);
   }, [isPlaying, currentPlayingAyah, startPlaybackFromIndex]);
 
   const playFromAyah = useCallback(async (index) => {
-    if (isPlaying && currentPlayingAyah === index) { await AudioPlayer.pause(); setIsPlaying(false); return; }
+    if (isPlaying && currentPlayingAyah === index) {
+      await AudioPlayer.pause();
+      setIsPlaying(false);
+      playingRef.current = false;
+      return;
+    }
     await startPlaybackFromIndex(index);
   }, [isPlaying, currentPlayingAyah, startPlaybackFromIndex]);
-
-  useEffect(() => {
-    return () => { AudioPlayer.stop(); AudioPlayer.setOnFinish(null); };
-  }, [num]);
 
   const scrollToCurrentAyah = useCallback(() => scrollToAyah(currentPlayingAyah), [currentPlayingAyah, scrollToAyah]);
 
@@ -404,7 +483,7 @@ export default function SurahDetail() {
       {showBismillah && (
         <View style={styles.bismillahWrap}>
           <Text style={[styles.bismillahText, { color: t.accentLight, fontFamily: ARABIC_FONT }]}>
-            {BISMILLAH_PREFIX}
+            {BISMILLAH_VARIANTS[0]}
           </Text>
         </View>
       )}
