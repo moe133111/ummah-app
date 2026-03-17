@@ -14,23 +14,87 @@ import { getStreakEmoji, getStreakMessage } from '../../features/streaks/streakM
 import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
 
 const DAILY_AYAHS = [
+  // --- Trost ---
   { arabic: 'إِنَّ مَعَ ٱلْعُسْرِ يُسْرًا', translation: 'Wahrlich, mit der Erschwernis kommt die Erleichterung.', ref: 'Ash-Sharh 94:6' },
+  { arabic: 'فَإِنَّ مَعَ ٱلْعُسْرِ يُسْرًا', translation: 'Denn wahrlich, mit der Erschwernis ist Erleichterung.', ref: 'Ash-Sharh 94:5' },
   { arabic: 'وَمَن يَتَوَكَّلْ عَلَى ٱللَّهِ فَهُوَ حَسْبُهُۥ', translation: 'Und wer auf Allah vertraut, dem genügt Er.', ref: 'At-Talaq 65:3' },
-  { arabic: 'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ', translation: 'So gedenkt Meiner, damit Ich eurer gedenke.', ref: 'Al-Baqarah 2:152' },
   { arabic: 'وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰٓ', translation: 'Und dein Herr wird dir bestimmt geben, und du wirst zufrieden sein.', ref: 'Ad-Duha 93:5' },
+  { arabic: 'لَا يُكَلِّفُ ٱللَّهُ نَفْسًا إِلَّا وُسْعَهَا', translation: 'Allah erlegt keiner Seele mehr auf, als sie zu leisten vermag.', ref: 'Al-Baqarah 2:286' },
+  { arabic: 'وَلَا تَهِنُوا۟ وَلَا تَحْزَنُوا۟ وَأَنتُمُ ٱلْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ', translation: 'Und werdet nicht schwach und seid nicht traurig, denn ihr seid die Obersten, wenn ihr gläubig seid.', ref: 'Aal-Imran 3:139' },
+  // --- Vertrauen auf Allah ---
+  { arabic: 'وَمَن يَتَّقِ ٱللَّهَ يَجْعَل لَّهُۥ مَخْرَجًا', translation: 'Und wer Allah fürchtet, dem schafft Er einen Ausweg.', ref: 'At-Talaq 65:2' },
+  { arabic: 'فَتَوَكَّلْ عَلَى ٱللَّهِ ۖ إِنَّ ٱللَّهَ يُحِبُّ ٱلْمُتَوَكِّلِينَ', translation: 'So vertraue auf Allah. Wahrlich, Allah liebt diejenigen, die auf Ihn vertrauen.', ref: 'Aal-Imran 3:159' },
+  { arabic: 'وَيَمْكُرُونَ وَيَمْكُرُ ٱللَّهُ ۖ وَٱللَّهُ خَيْرُ ٱلْمَـٰكِرِينَ', translation: 'Und sie planen, und Allah plant. Und Allah ist der beste Planer.', ref: 'Al-Anfal 8:30' },
+  { arabic: 'أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ', translation: 'Fürwahr, im Gedenken Allahs finden die Herzen Ruhe.', ref: 'Ar-Ra\'d 13:28' },
+  // --- Vergebung ---
+  { arabic: 'قُلْ يَـٰعِبَادِىَ ٱلَّذِينَ أَسْرَفُوا۟ عَلَىٰٓ أَنفُسِهِمْ لَا تَقْنَطُوا۟ مِن رَّحْمَةِ ٱللَّهِ ۚ إِنَّ ٱللَّهَ يَغْفِرُ ٱلذُّنُوبَ جَمِيعًا', translation: 'Sprich: O Meine Diener, die ihr gegen euch selbst maßlos gewesen seid, verzweifelt nicht an Allahs Barmherzigkeit. Allah vergibt alle Sünden.', ref: 'Az-Zumar 39:53' },
+  { arabic: 'وَمَن يَعْمَلْ سُوٓءًا أَوْ يَظْلِمْ نَفْسَهُۥ ثُمَّ يَسْتَغْفِرِ ٱللَّهَ يَجِدِ ٱللَّهَ غَفُورًا رَّحِيمًا', translation: 'Und wer Böses tut oder sich selbst Unrecht zufügt und dann Allah um Vergebung bittet, der wird Allah vergebend und barmherzig finden.', ref: 'An-Nisa 4:110' },
+  // --- Dankbarkeit ---
+  { arabic: 'لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ', translation: 'Wenn ihr dankbar seid, werde Ich euch bestimmt noch mehr geben.', ref: 'Ibrahim 14:7' },
+  { arabic: 'وَمَن يَشْكُرْ فَإِنَّمَا يَشْكُرُ لِنَفْسِهِۦ', translation: 'Und wer dankbar ist, der ist nur dankbar zu seinem eigenen Vorteil.', ref: 'Luqman 31:12' },
+  // --- Geduld ---
+  { arabic: 'فَٱذْكُرُونِىٓ أَذْكُرْكُمْ', translation: 'So gedenkt Meiner, damit Ich eurer gedenke.', ref: 'Al-Baqarah 2:152' },
+  { arabic: 'إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ', translation: 'Wahrlich, Allah ist mit den Geduldigen.', ref: 'Al-Baqarah 2:153' },
+  { arabic: 'يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱصْبِرُوا۟ وَصَابِرُوا۟ وَرَابِطُوا۟ وَٱتَّقُوا۟ ٱللَّهَ لَعَلَّكُمْ تُفْلِحُونَ', translation: 'O die ihr glaubt, seid geduldig, wetteifert in Geduld, seid standhaft und fürchtet Allah, auf dass es euch wohl ergehe.', ref: 'Aal-Imran 3:200' },
+  // --- Wissen ---
   { arabic: 'رَبِّ ٱشْرَحْ لِى صَدْرِى', translation: 'Mein Herr, weite mir meine Brust.', ref: 'Ta-Ha 20:25' },
   { arabic: 'وَقُل رَّبِّ زِدْنِى عِلْمًا', translation: 'Und sprich: Mein Herr, mehre mir mein Wissen.', ref: 'Ta-Ha 20:114' },
-  { arabic: 'إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ', translation: 'Wahrlich, Allah ist mit den Geduldigen.', ref: 'Al-Baqarah 2:153' },
+  { arabic: 'يَرْفَعِ ٱللَّهُ ٱلَّذِينَ ءَامَنُوا۟ مِنكُمْ وَٱلَّذِينَ أُوتُوا۟ ٱلْعِلْمَ دَرَجَـٰتٍ', translation: 'Allah erhöht diejenigen von euch, die glauben, und diejenigen, denen das Wissen gegeben wurde, um Rangstufen.', ref: 'Al-Mujadila 58:11' },
+  // --- Gebet & Dhikr ---
+  { arabic: 'يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُوا۟ ٱذْكُرُوا۟ ٱللَّهَ ذِكْرًا كَثِيرًا', translation: 'O die ihr glaubt, gedenkt Allahs in häufigem Gedenken.', ref: 'Al-Ahzab 33:41' },
+  { arabic: 'إِنَّ ٱلصَّلَوٰةَ تَنْهَىٰ عَنِ ٱلْفَحْشَآءِ وَٱلْمُنكَرِ', translation: 'Wahrlich, das Gebet hält ab von Schändlichkeit und Verwerflichem.', ref: 'Al-Ankabut 29:45' },
+  { arabic: 'وَإِذَا سَأَلَكَ عِبَادِى عَنِّى فَإِنِّى قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ ٱلدَّاعِ إِذَا دَعَانِ', translation: 'Und wenn Meine Diener dich nach Mir fragen, so bin Ich nahe. Ich erhöre den Ruf des Bittenden, wenn er Mich anruft.', ref: 'Al-Baqarah 2:186' },
+  // --- Barmherzigkeit ---
+  { arabic: 'وَرَحْمَتِى وَسِعَتْ كُلَّ شَىْءٍ', translation: 'Und Meine Barmherzigkeit umfasst alle Dinge.', ref: 'Al-A\'raf 7:156' },
+  { arabic: 'إِنَّ رَحْمَتَ ٱللَّهِ قَرِيبٌ مِّنَ ٱلْمُحْسِنِينَ', translation: 'Wahrlich, Allahs Barmherzigkeit ist denen nahe, die Gutes tun.', ref: 'Al-A\'raf 7:56' },
+  // --- Motivation & Stärke ---
+  { arabic: 'وَلَا تَيْـَٔسُوا۟ مِن رَّوْحِ ٱللَّهِ ۖ إِنَّهُۥ لَا يَيْـَٔسُ مِن رَّوْحِ ٱللَّهِ إِلَّا ٱلْقَوْمُ ٱلْكَـٰفِرُونَ', translation: 'Und gebt nicht die Hoffnung auf die Gnade Allahs auf. Wahrlich, die Hoffnung auf Allahs Gnade gibt nur das ungläubige Volk auf.', ref: 'Yusuf 12:87' },
+  { arabic: 'رَبَّنَآ ءَاتِنَا فِى ٱلدُّنْيَا حَسَنَةً وَفِى ٱلْـَٔاخِرَةِ حَسَنَةً وَقِنَا عَذَابَ ٱلنَّارِ', translation: 'Unser Herr, gib uns im Diesseits Gutes und im Jenseits Gutes und bewahre uns vor der Strafe des Feuers.', ref: 'Al-Baqarah 2:201' },
+  { arabic: 'وَنُنَزِّلُ مِنَ ٱلْقُرْءَانِ مَا هُوَ شِفَآءٌ وَرَحْمَةٌ لِّلْمُؤْمِنِينَ', translation: 'Und Wir senden vom Quran hinab, was Heilung und Barmherzigkeit ist für die Gläubigen.', ref: 'Al-Isra 17:82' },
+  { arabic: 'وَٱدْعُونِىٓ أَسْتَجِبْ لَكُمْ', translation: 'Und ruft Mich an, so erhöre Ich euch.', ref: 'Ghafir 40:60' },
+  { arabic: 'إِنَّا نَحْنُ نَزَّلْنَا ٱلذِّكْرَ وَإِنَّا لَهُۥ لَحَـٰفِظُونَ', translation: 'Wahrlich, Wir haben die Ermahnung hinabgesandt, und Wir werden sie ganz gewiss behüten.', ref: 'Al-Hijr 15:9' },
 ];
 
 const DAILY_HADITHS = [
-  { arabic: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ', translation: '"Wahrlich, die Taten sind nur entsprechend den Absichten."', source: 'Sahih al-Bukhari, Hadith 1' },
-  { arabic: 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', translation: '"Die Besten unter euch sind diejenigen, die den Quran lernen und lehren."', source: 'Sahih al-Bukhari, Hadith 5027' },
-  { arabic: 'تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ', translation: '"Dein Lächeln für deinen Bruder ist eine Sadaqah."', source: 'At-Tirmidhi, Hadith 1956' },
-  { arabic: 'لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبَّ لِنَفْسِهِ', translation: '"Keiner von euch glaubt wirklich, bis er für seinen Bruder liebt, was er für sich selbst liebt."', source: 'Sahih al-Bukhari, Hadith 13' },
-  { arabic: 'مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ طَرِيقًا إِلَى الْجَنَّةِ', translation: '"Wer einen Weg beschreitet, um Wissen zu erlangen, dem erleichtert Allah den Weg ins Paradies."', source: 'Sahih Muslim, Hadith 2699' },
-  { arabic: 'الدُّنْيَا سِجْنُ الْمُؤْمِنِ وَجَنَّةُ الْكَافِرِ', translation: '"Die Dunya ist das Gefängnis des Gläubigen und das Paradies des Ungläubigen."', source: 'Sahih Muslim, Hadith 2956' },
-  { arabic: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ', translation: '"Der Muslim ist derjenige, vor dessen Zunge und Hand die anderen Muslime sicher sind."', source: 'Sahih al-Bukhari, Hadith 10' },
+  // --- Absicht & Taten ---
+  { text: 'Wahrlich, die Taten sind nur entsprechend den Absichten, und jedem Menschen steht nur das zu, was er beabsichtigt hat.', source: 'Sahih al-Bukhari 1' },
+  // --- Quran ---
+  { text: 'Die Besten unter euch sind diejenigen, die den Quran lernen und ihn lehren.', source: 'Sahih al-Bukhari 5027' },
+  // --- Charakter & Freundlichkeit ---
+  { text: 'Keiner von euch glaubt wirklich, bis er für seinen Bruder liebt, was er für sich selbst liebt.', source: 'Sahih al-Bukhari 13' },
+  { text: 'Der Muslim ist derjenige, vor dessen Zunge und Hand die anderen Muslime sicher sind.', source: 'Sahih al-Bukhari 10' },
+  { text: 'Hüte dich vor den verbotenen Dingen, dann wirst du der frömmste der Menschen sein. Sei zufrieden mit dem, was Allah dir zugeteilt hat, dann wirst du der reichste der Menschen sein.', source: 'Sahih al-Bukhari 6018' },
+  { text: 'Wer an Allah und den Jüngsten Tag glaubt, der soll Gutes sprechen oder schweigen.', source: 'Sahih al-Bukhari 6018' },
+  { text: 'Die vollkommensten Gläubigen im Glauben sind diejenigen mit dem besten Charakter.', source: 'Sahih Muslim 1810' },
+  // --- Ibadah: Gebet ---
+  { text: 'Das erste, worüber der Mensch am Tag der Auferstehung befragt wird, ist das Gebet.', source: 'Sahih Muslim 82' },
+  { text: 'Zwischen einem Menschen und dem Unglauben liegt das Unterlassen des Gebets.', source: 'Sahih Muslim 82' },
+  { text: 'Bete so, als ob du Allah siehst. Denn wenn du Ihn auch nicht siehst, so sieht Er doch dich.', source: 'Sahih al-Bukhari 50' },
+  // --- Ibadah: Fasten & Dhikr ---
+  { text: 'Wer den Ramadan aus Glauben und in der Hoffnung auf Belohnung fastet, dem werden seine früheren Sünden vergeben.', source: 'Sahih al-Bukhari 38' },
+  { text: 'Allah der Erhabene sagt: Ich bin so, wie Mein Diener Mich vermutet. Und Ich bin bei ihm, wenn er Meiner gedenkt.', source: 'Sahih al-Bukhari 7405' },
+  { text: 'Es gibt zwei Segnungen, um die viele Menschen betrogen werden: Gesundheit und freie Zeit.', source: 'Sahih al-Bukhari 6412' },
+  // --- Gemeinschaft ---
+  { text: 'Wer einen Weg beschreitet, um Wissen zu erlangen, dem erleichtert Allah einen Weg ins Paradies.', source: 'Sahih Muslim 2699' },
+  { text: 'Erleichtert und erschwert nicht. Bringt frohe Botschaft und schreckt nicht ab.', source: 'Sahih al-Bukhari 69' },
+  { text: 'Der Starke ist nicht derjenige, der andere im Ringen besiegt, sondern der Starke ist derjenige, der sich bei Zorn beherrscht.', source: 'Sahih al-Bukhari 6114' },
+  { text: 'Wer an Allah und den Jüngsten Tag glaubt, der soll seinen Nachbarn gut behandeln.', source: 'Sahih al-Bukhari 6019' },
+  { text: 'Seid barmherzig zu denen auf der Erde, und der, Der im Himmel ist, wird barmherzig zu euch sein.', source: 'Sahih Muslim 2319' },
+  // --- Wissen & Lernen ---
+  { text: 'Wenn der Sohn Adams stirbt, hören seine Taten auf — außer drei: eine fortdauernde Spende, nützliches Wissen und ein rechtschaffenes Kind, das für ihn betet.', source: 'Sahih Muslim 1631' },
+  { text: 'Wem Allah Gutes will, dem gibt Er Verständnis in der Religion.', source: 'Sahih al-Bukhari 71' },
+  // --- Dankbarkeit & Zufriedenheit ---
+  { text: 'Schaut auf diejenigen, die unter euch stehen, und nicht auf diejenigen, die über euch stehen. So werdet ihr die Gunst Allahs nicht gering schätzen.', source: 'Sahih Muslim 2963' },
+  { text: 'Wie wunderbar ist die Angelegenheit des Gläubigen! All seine Angelegenheiten sind gut für ihn. Wenn ihm etwas Erfreuliches widerfährt, ist er dankbar — und das ist gut für ihn. Und wenn ihm Schaden widerfährt, ist er geduldig — und das ist gut für ihn.', source: 'Sahih Muslim 2999' },
+  { text: 'Wer nicht für das Geringe dankt, wird auch nicht für das Viele danken.', source: 'Sahih Muslim 2963' },
+  // --- Alltägliche Weisheiten ---
+  { text: 'Ein gutes Wort ist eine Sadaqah (mildtätige Gabe).', source: 'Sahih al-Bukhari 2989' },
+  { text: 'Lass deinen Zorn, und das Paradies gehört dir.', source: 'Sahih Muslim 2608' },
+  { text: 'Die Religion ist leicht. Wer die Religion zu übertreiben versucht, den wird sie überwältigen. So seid maßvoll, nähert euch dem Besten und seid froher Botschaft.', source: 'Sahih al-Bukhari 39' },
+  { text: 'Die Reinheit ist die Hälfte des Glaubens, und Alhamdulillah füllt die Waage.', source: 'Sahih Muslim 223' },
+  { text: 'Der beste Dhikr ist La ilaha illallah, und die beste Bittgebete ist Alhamdulillah.', source: 'Sahih Muslim 2137' },
+  { text: 'Wer zwei Dinge aus den Besitztümern Allahs am Morgen und am Abend spricht, tritt ins Paradies ein: Subhanallah wal-Hamdulillah je hundertmal.', source: 'Sahih Muslim 2692' },
+  { text: 'Die Welt ist das Gefängnis des Gläubigen und das Paradies des Ungläubigen.', source: 'Sahih Muslim 2956' },
 ];
 
 const DHIKR_MINI = [
@@ -331,8 +395,7 @@ export default function HomeScreen() {
         {/* Hadith des Tages */}
         <Card>
           <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Hadith des Tages</Text>
-          <Text style={{ fontSize: FontSize.arabic, color: t.accentLight, textAlign: 'right', lineHeight: 36, marginBottom: Spacing.md }}>{dailyHadith.arabic}</Text>
-          <Text style={{ fontSize: FontSize.md, color: t.text, fontStyle: 'italic', lineHeight: 24, marginBottom: Spacing.sm }}>{dailyHadith.translation}</Text>
+          <Text style={{ fontSize: FontSize.md, color: t.text, fontStyle: 'italic', lineHeight: 24, marginBottom: Spacing.sm }}>"{dailyHadith.text}"</Text>
           <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>— {dailyHadith.source}</Text>
         </Card>
 
