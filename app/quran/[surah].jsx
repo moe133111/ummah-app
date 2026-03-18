@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, SafeAreaView, ActivityIndicator, TouchableOpacity, Pressable, Platform, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Platform, Alert, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -513,12 +514,12 @@ export default function SurahDetail() {
 
       {/* Nav */}
       <View style={styles.headerNav}>
-        <TouchableOpacity onPress={() => goToSurah(num - 1)} disabled={!prevMeta} style={[styles.navTouch, { opacity: prevMeta ? 1 : 0.3 }]}>
+        <Pressable onPress={() => goToSurah(num - 1)} disabled={!prevMeta} style={[styles.navTouch, { opacity: prevMeta ? 1 : 0.3 }]}>
           <Text style={{ fontSize: FontSize.sm, color: t.accent }}>← {prevMeta?.englishName || ''}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => goToSurah(num + 1)} disabled={!nextMeta} style={[styles.navTouch, { opacity: nextMeta ? 1 : 0.3 }]}>
+        </Pressable>
+        <Pressable onPress={() => goToSurah(num + 1)} disabled={!nextMeta} style={[styles.navTouch, { opacity: nextMeta ? 1 : 0.3 }]}>
           <Text style={{ fontSize: FontSize.sm, color: t.accent }}>{nextMeta?.englishName || ''} →</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* Bismillah — shown decoratively when stripped from ayah 1 */}
@@ -534,14 +535,14 @@ export default function SurahDetail() {
 
   const Footer = () => (
     <View style={styles.footerNav}>
-      <TouchableOpacity onPress={() => goToSurah(num - 1)} disabled={!prevMeta}
+      <Pressable onPress={() => goToSurah(num - 1)} disabled={!prevMeta}
         style={[styles.navBtn, { borderColor: t.accent + '44' }, !prevMeta && { opacity: 0.3 }]}>
         <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent }}>← Vorherige Sure</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => goToSurah(num + 1)} disabled={!nextMeta}
+      </Pressable>
+      <Pressable onPress={() => goToSurah(num + 1)} disabled={!nextMeta}
         style={[styles.navBtn, { borderColor: t.accent + '44' }, !nextMeta && { opacity: 0.3 }]}>
         <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent }}>Nächste Sure →</Text>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 

@@ -1,4 +1,6 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Modal, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import * as Haptics from 'expo-haptics';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -141,7 +143,7 @@ export default function DhikrScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
       {/* Focus Mode Modal */}
       <Modal visible={focusMode} animationType="fade" statusBarTranslucent>
-        <StatusBar barStyle="light-content" backgroundColor="#000" />
+        <StatusBar style="light" backgroundColor="#000" />
         <Pressable onPress={handleCount} style={styles.focusContainer}>
           <Text style={styles.focusArabic}>{sel.arabic}</Text>
           <Text style={styles.focusCount}>{count}</Text>
