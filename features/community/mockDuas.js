@@ -1,0 +1,23 @@
+// TODO: Ersetze mockDuas mit Supabase Realtime Query
+export const MOCK_DUAS = [
+  { id: 'm1', text: 'Ya Allah, gib allen Kranken Heilung und Genesung.', timestamp: 'vor 2 Stunden', ameenCount: 127, heartCount: 34 },
+  { id: 'm2', text: 'اللهم اشف مرضانا ومرضى المسلمين', timestamp: 'vor 3 Stunden', ameenCount: 89, heartCount: 21 },
+  { id: 'm3', text: 'Möge Allah uns alle rechtleiten und auf dem geraden Weg festigen.', timestamp: 'vor 4 Stunden', ameenCount: 203, heartCount: 56 },
+  { id: 'm4', text: 'Ya Rabb, erleichtere allen Geschwistern ihre Prüfungen.', timestamp: 'vor 5 Stunden', ameenCount: 67, heartCount: 18 },
+  { id: 'm5', text: 'اللهم اغفر لنا ذنوبنا وإسرافنا في أمرنا', timestamp: 'vor 5 Stunden', ameenCount: 145, heartCount: 42 },
+  { id: 'm6', text: 'Allah, schenke der gesamten Ummah Einheit und Frieden.', timestamp: 'vor 6 Stunden', ameenCount: 312, heartCount: 87 },
+  { id: 'm7', text: 'Ya Allah, segne unsere Eltern und vergib ihnen.', timestamp: 'vor 7 Stunden', ameenCount: 256, heartCount: 73 },
+  { id: 'm8', text: 'ربنا آتنا في الدنيا حسنة وفي الآخرة حسنة وقنا عذاب النار', timestamp: 'vor 8 Stunden', ameenCount: 178, heartCount: 51 },
+  { id: 'm9', text: 'Möge Allah unsere Gebete annehmen und uns ins Paradies eintreten lassen.', timestamp: 'vor 9 Stunden', ameenCount: 94, heartCount: 28 },
+  { id: 'm10', text: 'Ya Allah, gib den Unterdrückten Gerechtigkeit.', timestamp: 'vor 10 Stunden', ameenCount: 189, heartCount: 62 },
+  { id: 'm11', text: 'اللهم ارزقنا حسن الخاتمة', timestamp: 'vor 11 Stunden', ameenCount: 134, heartCount: 39 },
+  { id: 'm12', text: 'Allah, stärke den Iman aller Muslime weltweit.', timestamp: 'vor 12 Stunden', ameenCount: 221, heartCount: 65 },
+  { id: 'm13', text: 'Ya Rabb, segne alle, die in diesem Ramadan fasten.', timestamp: 'vor 14 Stunden', ameenCount: 345, heartCount: 98 },
+  { id: 'm14', text: 'اللهم اجعل القرآن ربيع قلوبنا', timestamp: 'vor 15 Stunden', ameenCount: 112, heartCount: 33 },
+  { id: 'm15', text: 'Möge Allah uns vor dem Feuer der Hölle bewahren.', timestamp: 'vor 16 Stunden', ameenCount: 167, heartCount: 47 },
+  { id: 'm16', text: 'Ya Allah, schenke allen alleinstehenden Geschwistern einen guten Partner.', timestamp: 'vor 18 Stunden', ameenCount: 198, heartCount: 71 },
+  { id: 'm17', text: 'اللهم يسر أمورنا واشرح صدورنا', timestamp: 'vor 20 Stunden', ameenCount: 88, heartCount: 24 },
+  { id: 'm18', text: 'Allah, beschütze unsere Kinder und führe sie zum Guten.', timestamp: 'vor 22 Stunden', ameenCount: 276, heartCount: 82 },
+  { id: 'm19', text: 'Ya Rabb, nimm unser Fasten, unser Gebet und unsere Duas an.', timestamp: 'vor 1 Tag', ameenCount: 154, heartCount: 44 },
+  { id: 'm20', text: 'اللهم إنك عفو تحب العفو فاعف عنا', timestamp: 'vor 1 Tag', ameenCount: 231, heartCount: 69 },
+];

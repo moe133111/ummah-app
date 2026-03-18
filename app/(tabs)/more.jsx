@@ -217,23 +217,29 @@ export default function MoreScreen() {
             </Card>
 
             <Card>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.sm }}>
-                <Text style={{ fontSize: 32 }}>🤲</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>Live Dua Wall</Text>
-                  <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Anonyme Duas teilen & Ameen sagen</Text>
+              <Pressable onPress={() => router.push('/duawall')}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.sm }}>
+                  <Text style={{ fontSize: 32 }}>🤲</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>Live Dua Wall</Text>
+                    <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Anonyme Duas teilen & Ameen sagen</Text>
+                  </View>
                 </View>
-              </View>
-              <View style={[styles.duaWallPreview, { backgroundColor: t.surface, borderColor: t.border }]}>
-                <Text style={{ fontSize: FontSize.sm, color: t.textDim, fontStyle: 'italic' }}>"Ya Allah, heile alle Kranken..."</Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, marginTop: Spacing.xs }}>
-                  <Text style={{ fontSize: 14 }}>🤲</Text>
-                  <Text style={{ fontSize: FontSize.xs, color: t.accent }}>Ameen · 127</Text>
+                <View style={[styles.duaWallPreview, { backgroundColor: t.surface, borderColor: t.border }]}>
+                  <Text style={{ fontSize: FontSize.sm, color: t.textDim, fontStyle: 'italic' }}>"Ya Allah, heile alle Kranken..."</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, marginTop: Spacing.xs }}>
+                    <Text style={{ fontSize: 14 }}>🤲</Text>
+                    <Text style={{ fontSize: FontSize.xs, color: t.accent }}>Ameen · 127</Text>
+                  </View>
                 </View>
-              </View>
-              <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
-                <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Phase 3</Text>
-              </View>
+                <Pressable
+                  onPress={() => router.push('/duawall')}
+                  style={[styles.calendarBtn, { backgroundColor: t.accent + '10', borderColor: t.accent + '20' }]}
+                >
+                  <Text style={{ fontSize: 20, marginRight: Spacing.sm }}>🤲</Text>
+                  <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: t.accent }}>Dua Wall öffnen</Text>
+                </Pressable>
+              </Pressable>
             </Card>
 
             <FeaturePreview
