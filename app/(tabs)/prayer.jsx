@@ -109,27 +109,22 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
   const toggleNotification = useAppStore((s) => s.toggleNotification);
   const settings = getNotifSettings(notifications, prayerKey);
   const meta = PRAYER_META[prayerKey];
-  const [previewSound, setPreviewSound] = useState(null);
+  const previewSoundRef = useRef(null);
   const [previewPlaying, setPreviewPlaying] = useState(null);
+  const [previewError, setPreviewError] = useState(null);
 
   const handleToggleEnabled = () => toggleNotification(prayerKey);
   const handleToggleAdhan = () => updateNotificationSetting(prayerKey, { adhan: !settings.adhan });
   const handleSetSound = (id) => updateNotificationSetting(prayerKey, { sound: id });
   const handleSetMinutes = (min) => updateNotificationSetting(prayerKey, { minutesBefore: min });
 
-  const stopPreview = useCallback(async () => {
-    if (previewSound) {
-      try { await previewSound.stopAsync(); await previewSound.unloadAsync(); } catch {}
-      setPreviewSound(null);
-    }
-    setPreviewPlaying(null);
-  }, [previewSound]);
-
   const previewAdhan = useCallback(async (sound) => {
+    setPreviewError(null);
+
     // Stop current preview
-    if (previewSound) {
-      try { await previewSound.stopAsync(); await previewSound.unloadAsync(); } catch {}
-      setPreviewSound(null);
+    if (previewSoundRef.current) {
+      try { await previewSoundRef.current.unloadAsync(); } catch {}
+      previewSoundRef.current = null;
     }
 
     // Toggle off if same sound
@@ -146,50 +141,69 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
     }
 
     try {
-      const { sound: audioObj } = await Audio.Sound.createAsync(
-        { uri: sound.uri },
-        { shouldPlay: true }
-      );
-      setPreviewSound(audioObj);
       setPreviewPlaying(sound.id);
 
-      // Auto-stop after 5 seconds
+      const { sound: audioObj } = await Audio.Sound.createAsync(
+        { uri: sound.uri },
+        { shouldPlay: true },
+        (status) => {
+          if (status.didJustFinish || status.error) {
+            setPreviewPlaying(null);
+          }
+        }
+      );
+      previewSoundRef.current = audioObj;
+
+      // Auto-stop after 8 seconds
       setTimeout(async () => {
-        try { await audioObj.stopAsync(); await audioObj.unloadAsync(); } catch {}
-        setPreviewSound(null);
-        setPreviewPlaying(null);
-      }, 5000);
+        if (previewSoundRef.current === audioObj) {
+          try { await audioObj.stopAsync(); await audioObj.unloadAsync(); } catch {}
+          previewSoundRef.current = null;
+          setPreviewPlaying(null);
+        }
+      }, 8000);
     } catch (error) {
-      console.error('Preview error:', error);
+      console.error('Adhan preview error:', error);
+      setPreviewPlaying(null);
+      setPreviewError(sound.id);
+    }
+  }, [previewPlaying]);
+
+  const handleClose = useCallback(() => {
+    if (previewSoundRef.current) {
+      previewSoundRef.current.unloadAsync().catch(() => {});
+      previewSoundRef.current = null;
       setPreviewPlaying(null);
     }
-  }, [previewSound, previewPlaying]);
-
-  const handleClose = useCallback(async () => {
-    await stopPreview();
     onClose();
-  }, [stopPreview, onClose]);
+  }, [onClose]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (previewSound) { previewSound.unloadAsync().catch(() => {}); }
+      if (previewSoundRef.current) {
+        previewSoundRef.current.unloadAsync().catch(() => {});
+        previewSoundRef.current = null;
+      }
     };
-  }, [previewSound]);
+  }, []);
 
   if (!meta) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}>
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={handleClose}>
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+        <Pressable style={{ flex: 1 }} onPress={handleClose} />
         <View style={{ backgroundColor: t.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, paddingBottom: 40 }}>
-          {/* Header */}
+          {/* Drag handle */}
+          <View style={{ alignItems: 'center', marginBottom: 16 }}>
+            <View style={{ width: 36, height: 4, borderRadius: 2, backgroundColor: t.textDim + '40' }} />
+          </View>
+
+          {/* Title */}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
             <Text style={{ fontSize: 28, marginRight: 12 }}>{meta.emoji}</Text>
             <Text style={{ fontSize: 18, fontWeight: '700', color: t.text, flex: 1 }}>{meta.name} Benachrichtigung</Text>
-            <Pressable onPress={handleClose} hitSlop={12}>
-              <Text style={{ fontSize: 20, color: t.textDim }}>✕</Text>
-            </Pressable>
           </View>
 
           {/* Toggle: enabled */}
@@ -200,21 +214,24 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
             </View>
           </Pressable>
 
-          {/* Toggle: adhan */}
-          <Pressable onPress={handleToggleAdhan} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: t.border }}>
-            <Text style={{ fontSize: 15, color: t.text }}>Adhan abspielen</Text>
-            <View style={{ width: 48, height: 28, borderRadius: 14, backgroundColor: settings.adhan ? t.accent : t.border, justifyContent: 'center', paddingHorizontal: 2 }}>
-              <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#fff', alignSelf: settings.adhan ? 'flex-end' : 'flex-start' }} />
-            </View>
-          </Pressable>
+          {/* Toggle: adhan (only if notification enabled) */}
+          {settings.enabled && (
+            <Pressable onPress={handleToggleAdhan} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: t.border }}>
+              <Text style={{ fontSize: 15, color: t.text }}>Adhan abspielen</Text>
+              <View style={{ width: 48, height: 28, borderRadius: 14, backgroundColor: settings.adhan ? t.accent : t.border, justifyContent: 'center', paddingHorizontal: 2 }}>
+                <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#fff', alignSelf: settings.adhan ? 'flex-end' : 'flex-start' }} />
+              </View>
+            </Pressable>
+          )}
 
           {/* Sound selection (only if adhan enabled) */}
-          {settings.adhan && (
-            <View style={{ marginTop: 14, marginBottom: 10 }}>
-              <Text style={{ fontSize: 13, fontWeight: '600', color: t.textDim, marginBottom: 10 }}>Adhan-Sound</Text>
+          {settings.enabled && settings.adhan && (
+            <View style={{ marginTop: 14, marginBottom: 6 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: t.textDim, marginBottom: 8 }}>Adhan-Sound</Text>
               {ADHAN_SOUNDS.map((s) => {
                 const isActive = settings.sound === s.id;
                 const isPlaying = previewPlaying === s.id;
+                const hasError = previewError === s.id;
                 return (
                   <Pressable
                     key={s.id}
@@ -241,38 +258,31 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
                     {/* Name + description */}
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 15, fontWeight: '500', color: t.text }}>{s.name}</Text>
-                      <Text style={{ fontSize: 12, color: t.textDim }}>{s.description}</Text>
+                      <Text style={{ fontSize: 12, color: hasError ? '#E57373' : t.textDim }}>
+                        {hasError ? 'Audio nicht verfügbar' : s.description}
+                      </Text>
                     </View>
 
                     {/* Play/Pause button */}
-                    <Pressable
-                      onPress={() => previewAdhan(s)}
-                      hitSlop={8}
-                      style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
-                    >
-                      <Text style={{ fontSize: 18, color: isPlaying ? t.accent : t.textDim }}>
-                        {isPlaying ? '⏸' : '▶'}
-                      </Text>
-                    </Pressable>
+                    {s.uri !== null && (
+                      <Pressable
+                        onPress={() => previewAdhan(s)}
+                        hitSlop={8}
+                        style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <Text style={{ fontSize: 18, color: isPlaying ? t.accent : t.textDim }}>
+                          {isPlaying ? '⏸' : '▶'}
+                        </Text>
+                      </Pressable>
+                    )}
                   </Pressable>
                 );
               })}
-
-              {/* Test selected sound button */}
-              <Pressable
-                onPress={() => previewAdhan(ADHAN_SOUNDS.find((s) => s.id === settings.sound) || ADHAN_SOUNDS[0])}
-                style={{ flexDirection: 'row', alignSelf: 'flex-start', alignItems: 'center', gap: 6, marginTop: 10, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, backgroundColor: t.accent + '15' }}
-              >
-                <Text style={{ fontSize: 14 }}>{previewPlaying === settings.sound ? '⏹' : '🔊'}</Text>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: t.accent }}>
-                  {previewPlaying === settings.sound ? 'Stopp' : 'Sound testen'}
-                </Text>
-              </Pressable>
             </View>
           )}
 
           {/* Minutes before */}
-          <View style={{ marginTop: 14 }}>
+          <View style={{ marginTop: 12 }}>
             <Text style={{ fontSize: 13, fontWeight: '600', color: t.textDim, marginBottom: 10 }}>Minuten vorher erinnern</Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               {MINUTES_BEFORE_OPTIONS.map((min) => (

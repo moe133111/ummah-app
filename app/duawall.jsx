@@ -188,8 +188,6 @@ export default function DuaWallScreen() {
   ), [t, ameenSet, heartSet, toggleAmeen, toggleHeart]);
 
   const totalActive = userDuas.length + MOCK_DUAS.length;
-  const hasOwnDuas = userDuas.length > 0;
-
   const header = (
     <View style={{ marginBottom: 16 }}>
       {/* Header */}
