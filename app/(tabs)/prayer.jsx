@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Platform, ActivityIndicator, Modal } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Audio } from 'expo-av';
+import { Audio } from 'expo-av'; // TODO: Migration zu expo-audio vor SDK 55
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';

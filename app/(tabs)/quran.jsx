@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput, SafeAreaView, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, TextInput, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useAppStore } from '../../hooks/useAppStore';

@@ -1,4 +1,4 @@
-import { Audio } from 'expo-av';
+import { Audio } from 'expo-av'; // TODO: Migration zu expo-audio vor SDK 55
 
 let sound = null;
 let onFinishCallback = null;

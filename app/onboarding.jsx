@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
-  TouchableOpacity,
+  Pressable,
   Switch,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import { useAppStore } from '../hooks/useAppStore';
 import { Colors, DarkTheme, Spacing, FontSize, BorderRadius } from '../constants/theme';
@@ -116,7 +116,7 @@ export default function Onboarding() {
               <Text style={styles.sectionTitle}>Sprache wählen</Text>
               <View style={styles.langGrid}>
                 {LANGUAGES.map((l) => (
-                  <TouchableOpacity
+                  <Pressable
                     key={l.code}
                     style={[
                       styles.langBtn,
@@ -133,14 +133,14 @@ export default function Onboarding() {
                     >
                       {l.label}
                     </Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 ))}
               </View>
             </View>
 
-            <TouchableOpacity style={styles.primaryBtn} onPress={() => goTo(1)}>
+            <Pressable style={styles.primaryBtn} onPress={() => goTo(1)}>
               <Text style={styles.primaryBtnText}>Weiter</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
 
@@ -169,16 +169,16 @@ export default function Onboarding() {
                 <Text style={styles.successText}>Standort erlaubt</Text>
               </View>
             ) : (
-              <TouchableOpacity style={styles.primaryBtn} onPress={requestLocation}>
+              <Pressable style={styles.primaryBtn} onPress={requestLocation}>
                 <Text style={styles.primaryBtnText}>Standort erlauben</Text>
-              </TouchableOpacity>
+              </Pressable>
             )}
 
-            <TouchableOpacity style={styles.skipBtn} onPress={skipLocation}>
+            <Pressable style={styles.skipBtn} onPress={skipLocation}>
               <Text style={styles.skipBtnText}>
                 {locationGranted ? 'Weiter' : 'Überspringen (Berlin als Fallback)'}
               </Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
 
@@ -191,7 +191,7 @@ export default function Onboarding() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Berechnungsmethode</Text>
               {METHODS.map((m) => (
-                <TouchableOpacity
+                <Pressable
                   key={m.key}
                   style={[
                     styles.radioRow,
@@ -211,7 +211,7 @@ export default function Onboarding() {
                     <Text style={styles.radioLabel}>{m.label}</Text>
                     <Text style={styles.radioDesc}>{m.desc}</Text>
                   </View>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 
@@ -228,9 +228,9 @@ export default function Onboarding() {
               />
             </View>
 
-            <TouchableOpacity style={styles.finishBtn} onPress={finish}>
+            <Pressable style={styles.finishBtn} onPress={finish}>
               <Text style={styles.finishBtnText}>Los geht's</Text>
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
       </ScrollView>
