@@ -192,24 +192,14 @@ export default function DuaWallScreen() {
 
   const header = (
     <View style={{ marginBottom: 16 }}>
-      {/* Spiritual header */}
-      <View style={{ alignItems: 'center', paddingVertical: 24, marginBottom: 16 }}>
-        <Text style={{ fontSize: 32, fontFamily: 'ScheherazadeNew', color: t.accent, marginBottom: 4 }}>
+      {/* Header */}
+      <View style={{ alignItems: 'center', paddingVertical: 16 }}>
+        <Text style={{ fontSize: 30, fontFamily: 'ScheherazadeNew', color: t.accent }}>
           بِسْمِ ٱللَّٰهِ
         </Text>
-        <Text style={{ fontSize: 28, marginBottom: 8 }}>🤲</Text>
-        <Text style={{ fontSize: 22, fontWeight: '700', color: t.text, marginBottom: 4 }}>Dua Wall</Text>
-        <Text style={{ fontSize: 13, color: t.textDim }}>Anonyme Bittgebete der Ummah</Text>
+        <Text style={{ fontSize: 24, marginTop: 4 }}>🤲</Text>
+        <Text style={{ fontSize: 20, fontWeight: '700', color: t.text, marginTop: 4 }}>Dua Wall</Text>
       </View>
-
-      {/* Invite hint when no own duas */}
-      {!hasOwnDuas && (
-        <View style={{ paddingHorizontal: 16, paddingBottom: 12, alignItems: 'center' }}>
-          <Text style={{ fontSize: 13, color: t.textDim, textAlign: 'center', lineHeight: 20 }}>
-            Teile dein Bittgebet mit der Ummah.{'\n'}Deine Dua wird anonym gepostet. Andere können mit Ameen reagieren.
-          </Text>
-        </View>
-      )}
 
       {/* Post area */}
       <View style={{
@@ -256,11 +246,7 @@ export default function DuaWallScreen() {
         </Pressable>
 
         <Text style={{ fontSize: 11, color: t.textDim, marginTop: 8 }}>
-          Anonym — dein Name wird nicht angezeigt
-        </Text>
-
-        <Text style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
-          Bitte nur respektvolle Bittgebete. Keine Beleidigungen oder persönliche Angriffe.
+          Anonym · Respektvoll
         </Text>
       </View>
 
