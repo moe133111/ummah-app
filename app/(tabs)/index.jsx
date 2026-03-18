@@ -148,7 +148,13 @@ function getPrayerProgress(times) {
   return Math.min(1, Math.max(0, (cur - currentTime) / totalSpan));
 }
 
-function DailyGoalsRing({ goals, progress, t }) {
+const GOAL_META = {
+  dhikr: { emoji: '📿', label: 'Dhikr' },
+  quran: { emoji: '📖', label: 'Quran' },
+  dua: { emoji: '🤲', label: 'Duas' },
+};
+
+function DailyGoalsRing({ goals, progress, t, expanded, onToggle }) {
   const enabled = Object.entries(goals).filter(([, v]) => v.enabled);
   const completed = enabled.filter(([key]) => (progress[key] || 0) >= goals[key].target).length;
   const total = enabled.length;
@@ -162,23 +168,60 @@ function DailyGoalsRing({ goals, progress, t }) {
   const strokeDashoffset = circumference * (1 - ratio);
 
   return (
-    <Card centered>
-      <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-        <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
-          <Circle cx={size / 2} cy={size / 2} r={radius} stroke={t.border} strokeWidth={strokeWidth} fill="none" />
-          <Circle
-            cx={size / 2} cy={size / 2} r={radius}
-            stroke={allDone ? '#D4A843' : t.accent}
-            strokeWidth={strokeWidth} fill="none"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            strokeLinecap="round"
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          />
-        </Svg>
-        <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: allDone ? '#D4A843' : t.accent }}>{completed}/{total}</Text>
-      </View>
-      <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Tagesziele</Text>
+    <Pressable onPress={onToggle}>
+      <Card centered>
+        <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+          <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
+            <Circle cx={size / 2} cy={size / 2} r={radius} stroke={t.border} strokeWidth={strokeWidth} fill="none" />
+            <Circle
+              cx={size / 2} cy={size / 2} r={radius}
+              stroke={allDone ? '#D4A843' : t.accent}
+              strokeWidth={strokeWidth} fill="none"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              transform={`rotate(-90 ${size / 2} ${size / 2})`}
+            />
+          </Svg>
+          <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: allDone ? '#D4A843' : t.accent }}>{completed}/{total}</Text>
+        </View>
+        <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Tagesziele</Text>
+      </Card>
+    </Pressable>
+  );
+}
+
+function DailyGoalsDetail({ goals, progress, t }) {
+  const enabled = Object.entries(goals).filter(([, v]) => v.enabled);
+  if (enabled.length === 0) return null;
+
+  return (
+    <Card>
+      <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Tagesziele Detail</Text>
+      {enabled.map(([key, goal]) => {
+        const meta = GOAL_META[key];
+        const current = progress[key] || 0;
+        const target = goal.target;
+        const done = current >= target;
+        const pct = Math.min(100, (current / target) * 100);
+        return (
+          <View key={key} style={{ marginBottom: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={{ fontSize: 16 }}>{meta.emoji}</Text>
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: done ? '#D4A843' : t.text }}>{meta.label}</Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: done ? '#D4A843' : t.accent }}>{current}/{target}</Text>
+                {done && <Text style={{ fontSize: 14 }}>✅</Text>}
+              </View>
+            </View>
+            <View style={{ height: 4, borderRadius: 2, backgroundColor: t.border, overflow: 'hidden' }}>
+              <View style={{ height: '100%', borderRadius: 2, width: `${pct}%`, backgroundColor: done ? '#D4A843' : t.accent }} />
+            </View>
+          </View>
+        );
+      })}
     </Card>
   );
 }
@@ -201,6 +244,7 @@ export default function HomeScreen() {
   const [miniSel, setMiniSel] = useState(0);
   const [countdown, setCountdown] = useState('');
   const [progress, setProgress] = useState(0);
+  const [goalsExpanded, setGoalsExpanded] = useState(false);
 
   const dateString = new Date().toISOString().slice(0, 10);
   const { data: prayerData } = useQuery({
@@ -329,9 +373,11 @@ export default function HomeScreen() {
             </Card>
           </View>
           <View style={{ flex: 1 }}>
-            <DailyGoalsRing goals={dailyGoals} progress={dailyProgress} t={t} />
+            <DailyGoalsRing goals={dailyGoals} progress={dailyProgress} t={t} expanded={goalsExpanded} onToggle={() => setGoalsExpanded((v) => !v)} />
           </View>
         </View>
+
+        {goalsExpanded && <DailyGoalsDetail goals={dailyGoals} progress={dailyProgress} t={t} />}
 
         {/* Ayah des Tages */}
         <Card>
