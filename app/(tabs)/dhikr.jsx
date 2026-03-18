@@ -171,7 +171,7 @@ export default function DhikrScreen() {
         </Pressable>
       </Modal>
 
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 120 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 90 }}>
         <HeaderBar title="Dhikr & Duas" t={t} />
 
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
