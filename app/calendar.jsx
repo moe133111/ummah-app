@@ -1,18 +1,9 @@
 import { useState, useMemo } from 'react';
-import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
-import { getHijriForDate } from '../features/calendar/hijriCalendar';
-import { ISLAMIC_EVENTS, getEventsForHijriDate } from '../features/calendar/islamicEvents';
+import { View, Text, Pressable, ScrollView } from 'react-native';
+import { getEventsForHijriDate } from '../features/calendar/islamicEvents';
 import { useAppStore } from '../hooks/useAppStore';
 import { DarkTheme, LightTheme, FontSize, Spacing, BorderRadius } from '../constants/theme';
 import Card from '../components/ui/Card';
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_PADDING = 16;
-const CARD_PADDING = 16;
-const GAP = 4;
-const CELL_SIZE = Math.floor((SCREEN_WIDTH - SCREEN_PADDING * 2 - CARD_PADDING * 2 - GAP * 6) / 7);
-
-const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 
 const HIJRI_MONTH_NAMES = [
   '', 'Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani',
@@ -27,21 +18,46 @@ const DE_MONTHS = [
 
 const DE_WEEKDAYS_LONG = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
-// ── Helpers ──
+// ── Pure helper functions ──
 
-function generateMonthDays(year, month) {
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const totalDays = lastDay.getDate();
+// Convert JS getDay() (0=Sun..6=Sat) to Monday-based (0=Mon..6=Sun)
+function dayToMondayBased(jsDay) {
+  return jsDay === 0 ? 6 : jsDay - 1;
+}
 
-  // getDay(): 0=Sonntag … 6=Samstag → convert to Monday-start: 0=Mo … 6=So
-  let startOffset = firstDay.getDay() - 1;
-  if (startOffset < 0) startOffset = 6; // Sonntag → 6
+function generateCalendarGrid(year, month) {
+  const firstOfMonth = new Date(year, month, 1);
+  const lastOfMonth = new Date(year, month + 1, 0);
+  const totalDays = lastOfMonth.getDate();
 
-  const days = [];
-  for (let i = 0; i < startOffset; i++) days.push(null);
-  for (let d = 1; d <= totalDays; d++) days.push(new Date(year, month, d));
-  return days;
+  const startOffset = dayToMondayBased(firstOfMonth.getDay());
+
+  const grid = [];
+
+  // Empty cells before the 1st
+  for (let i = 0; i < startOffset; i++) {
+    grid.push({ key: `empty-${i}`, date: null });
+  }
+
+  // All days of the month
+  for (let d = 1; d <= totalDays; d++) {
+    const date = new Date(year, month, d);
+    grid.push({ key: `day-${d}`, date, day: d });
+  }
+
+  return grid;
+}
+
+function splitIntoWeeks(grid) {
+  const weeks = [];
+  for (let i = 0; i < grid.length; i += 7) {
+    const week = grid.slice(i, i + 7);
+    while (week.length < 7) {
+      week.push({ key: `pad-${i}-${week.length}`, date: null });
+    }
+    weeks.push(week);
+  }
+  return weeks;
 }
 
 function getHijriDay(date) {
@@ -77,22 +93,17 @@ function getHijriFull(date) {
   }
 }
 
-function isSameDay(a, b) {
-  if (!a || !b) return false;
-  return a.getDate() === b.getDate() && a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear();
-}
-
-function isFeastDay(date) {
-  const hijri = getHijriFull(date);
-  if (!hijri) return false;
-  const events = getEventsForHijriDate(hijri.month, hijri.day);
-  return events.some((e) => !e.endDay || e.startDay === hijri.day);
-}
-
 function getEventsForDate(date) {
   const hijri = getHijriFull(date);
   if (!hijri) return [];
   return getEventsForHijriDate(hijri.month, hijri.day);
+}
+
+function hasFeastDot(date) {
+  const hijri = getHijriFull(date);
+  if (!hijri) return false;
+  const events = getEventsForHijriDate(hijri.month, hijri.day);
+  return events.some((e) => !e.endDay || e.startDay === hijri.day);
 }
 
 // ── Component ──
@@ -106,6 +117,15 @@ export default function CalendarScreen() {
   const [currentYear, setCurrentYear] = useState(now.getFullYear());
   const [selectedDay, setSelectedDay] = useState(null);
 
+  function isToday(date) {
+    return date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }
+
+  function isSelected(date) {
+    if (!selectedDay) return false;
+    return date.getDate() === selectedDay.getDate() && date.getMonth() === selectedDay.getMonth() && date.getFullYear() === selectedDay.getFullYear();
+  }
+
   function changeMonth(delta) {
     let newMonth = currentMonth + delta;
     let newYear = currentYear;
@@ -116,14 +136,17 @@ export default function CalendarScreen() {
     setSelectedDay(null);
   }
 
-  const days = useMemo(() => generateMonthDays(currentYear, currentMonth), [currentYear, currentMonth]);
-
-  const hijriLabel = useMemo(() => {
-    return getHijriMonthYear(new Date(currentYear, currentMonth, 15));
+  const weeks = useMemo(() => {
+    const grid = generateCalendarGrid(currentYear, currentMonth);
+    return splitIntoWeeks(grid);
   }, [currentYear, currentMonth]);
 
   const gregLabel = useMemo(() => {
     return new Date(currentYear, currentMonth).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+  }, [currentYear, currentMonth]);
+
+  const hijriLabel = useMemo(() => {
+    return getHijriMonthYear(new Date(currentYear, currentMonth, 15));
   }, [currentYear, currentMonth]);
 
   // Upcoming events (scan next 400 days)
@@ -162,7 +185,7 @@ export default function CalendarScreen() {
   const selectedEvents = selectedDay ? getEventsForDate(selectedDay) : [];
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: SCREEN_PADDING, paddingBottom: 120 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
       {/* Month Navigation */}
       <Card>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -178,75 +201,72 @@ export default function CalendarScreen() {
           </Pressable>
         </View>
 
-        {/* Weekday headers */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-          {WEEKDAYS.map((day) => (
-            <View key={day} style={{ width: CELL_SIZE, alignItems: 'center' }}>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: day === 'Fr' ? t.accent : t.textDim }}>{day}</Text>
+        {/* Weekday headers — flex:1 per cell, same as grid rows */}
+        <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+          {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((name) => (
+            <View key={name} style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: name === 'Fr' ? t.accent : t.textDim }}>{name}</Text>
             </View>
           ))}
         </View>
 
-        {/* Day Grid */}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: GAP }}>
-          {days.map((day, index) => {
-            const colIdx = index % 7;
-            const isFriday = colIdx === 4;
-            const today = day ? isSameDay(day, now) : false;
-            const selected = day ? isSameDay(day, selectedDay) : false;
-            const feast = day ? isFeastDay(day) : false;
+        {/* Week rows — each row is its own flexDirection:'row' View */}
+        {weeks.map((week, weekIndex) => (
+          <View key={weekIndex} style={{ flexDirection: 'row', marginBottom: 4 }}>
+            {week.map((cell, cellIndex) => {
+              const isFriday = cellIndex === 4;
 
-            return (
-              <View
-                key={index}
-                style={{
-                  width: CELL_SIZE,
-                  height: CELL_SIZE + 8,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: isFriday ? 'rgba(184,134,11,0.05)' : 'transparent',
-                  borderRadius: 4,
-                }}
-              >
-                {day ? (
-                  <Pressable
-                    onPress={() => setSelectedDay(selected ? null : day)}
-                    style={{
-                      width: CELL_SIZE - 4,
-                      height: CELL_SIZE + 4,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: 8,
-                      backgroundColor: selected
-                        ? t.accent + '30'
-                        : today
-                          ? t.accent + '25'
-                          : 'transparent',
-                      borderWidth: today ? 1 : 0,
-                      borderColor: t.accent,
-                    }}
-                  >
-                    <Text style={{
-                      fontSize: 14,
-                      fontWeight: today ? '700' : '400',
-                      color: today ? t.accent : feast ? t.accent : t.text,
-                    }}>
-                      {day.getDate()}
-                    </Text>
-                    <Text style={{ fontSize: 8, color: t.textDim, marginTop: 1 }}>
-                      {getHijriDay(day)}
-                    </Text>
-                    {feast && (
-                      <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: t.accent, marginTop: 2 }} />
-                    )}
-                  </Pressable>
-                ) : (
-                  <View />
-                )}
-              </View>
-            );
-          })}
-        </View>
+              return (
+                <View
+                  key={cell.key}
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    paddingVertical: 4,
+                    backgroundColor: isFriday ? 'rgba(184,134,11,0.05)' : 'transparent',
+                    borderRadius: 4,
+                  }}
+                >
+                  {cell.date ? (
+                    <Pressable
+                      onPress={() => setSelectedDay(isSelected(cell.date) ? null : cell.date)}
+                      style={{
+                        width: 40,
+                        height: 48,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: 8,
+                        backgroundColor: isSelected(cell.date)
+                          ? t.accent + '20'
+                          : isToday(cell.date)
+                            ? t.accent + '25'
+                            : 'transparent',
+                        borderWidth: isToday(cell.date) ? 1 : 0,
+                        borderColor: t.accent,
+                      }}
+                    >
+                      <Text style={{
+                        fontSize: 15,
+                        fontWeight: isToday(cell.date) ? '700' : '400',
+                        color: isToday(cell.date) ? t.accent : hasFeastDot(cell.date) ? t.accent : t.text,
+                      }}>
+                        {cell.day}
+                      </Text>
+                      <Text style={{ fontSize: 8, color: t.textDim, marginTop: 1 }}>
+                        {getHijriDay(cell.date)}
+                      </Text>
+                      {hasFeastDot(cell.date) && (
+                        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: t.accent, marginTop: 2 }} />
+                      )}
+                    </Pressable>
+                  ) : (
+                    <View style={{ width: 40, height: 48 }} />
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        ))}
       </Card>
 
       {/* Selected day detail */}
