@@ -9,6 +9,7 @@ import { getSurah, saveSurah, isSurahCached } from '../../lib/database';
 import * as AudioPlayer from '../../features/quran/audioPlayer';
 import AyahOrnament from '../../components/ui/AyahOrnament';
 import SurahBanner from '../../components/ui/SurahBanner';
+import ShareButton from '../../components/ui/ShareButton';
 
 
 const ARABIC_FONT = 'ScheherazadeNew';
@@ -370,19 +371,28 @@ export default function SurahDetail() {
     return (
       <Pressable onPress={() => playFromAyah(index)}>
         <View style={[styles.ayahContainer, isActive && { backgroundColor: highlightBg }]}>
-          {/* Aya label chip + play button row */}
+          {/* Aya label chip + share/play button row */}
           <View style={styles.ayahTopRow}>
             <View style={[styles.ayaChip, { backgroundColor: t.text + '10' }]}>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Aya {num}:{item.numberInSurah}</Text>
             </View>
-            <View style={[styles.ayahPlayBtn, { borderColor: isActive ? t.accent + '66' : t.border + '44' }]}>
-              {isLoadingThis ? (
-                <ActivityIndicator size={12} color={t.accent} />
-              ) : (
-                <Text style={{ fontSize: 13, color: isActive ? t.accent : t.textDim }}>
-                  {isActive && isPlaying ? '⏸' : '▶'}
-                </Text>
-              )}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ShareButton
+                type="ayah"
+                arabic={arabicText || ''}
+                translation={!isAr ? item.text : ''}
+                reference={`Quran ${num}:${item.numberInSurah}`}
+                t={t}
+              />
+              <Pressable onPress={() => playFromAyah(index)} style={[styles.ayahPlayBtn, { borderColor: isActive ? t.accent + '66' : t.border + '44' }]}>
+                {isLoadingThis ? (
+                  <ActivityIndicator size={12} color={t.accent} />
+                ) : (
+                  <Text style={{ fontSize: 13, color: isActive ? t.accent : t.textDim }}>
+                    {isActive && isPlaying ? '⏸' : '▶'}
+                  </Text>
+                )}
+              </Pressable>
             </View>
           </View>
 

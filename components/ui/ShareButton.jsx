@@ -26,10 +26,12 @@ export default function ShareButton({ type, arabic, translation, reference, tran
         hitSlop={8}
         style={({ pressed }) => [
           styles.button,
-          { borderColor: t.border, opacity: pressed ? 0.6 : 1 },
+          { opacity: pressed ? 0.7 : 1 },
         ]}
       >
-        <Text style={{ fontSize: 14 }}>📤</Text>
+        {({ pressed }) => (
+          <Text style={{ fontSize: 14, color: pressed ? t.accent : t.textDim }}>📤</Text>
+        )}
       </Pressable>
 
       <Modal
@@ -82,7 +84,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
