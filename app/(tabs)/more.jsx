@@ -6,9 +6,16 @@ import { useLocation } from '../../hooks/useLocation';
 import { getAvailableMethods, METHOD_RECOMMENDATIONS } from '../../features/prayer/prayerCalculation';
 import { getWeekTotal, getTrend } from '../../features/stats/statsCalculator';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
+import { getCurrentHijriDate } from '../../features/calendar/hijriCalendar';
 import Card from '../../components/ui/Card';
 import FeaturePreview from '../../components/ui/FeaturePreview';
 import HeaderBar from '../../components/ui/HeaderBar';
+
+const HIJRI_MONTH_NAMES = [
+  '', 'Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani',
+  'Jumada al-Ula', 'Jumada al-Thani', 'Rajab', "Sha'ban",
+  'Ramadan', 'Shawwal', "Dhul Qi'dah", 'Dhul Hijja',
+];
 
 const GOAL_LIMITS = {
   dhikr: { min: 50, max: 500, step: 50, emoji: '📿', label: 'Dhikr' },
@@ -31,6 +38,10 @@ export default function MoreScreen() {
   const { location } = useLocation();
   const router = useRouter();
   const [sec, setSec] = useState('tools');
+  const hijriToday = getCurrentHijriDate();
+  const hijriTodayStr = hijriToday
+    ? `${hijriToday.day}. ${HIJRI_MONTH_NAMES[hijriToday.month]} ${hijriToday.year} AH`
+    : '';
 
   const prayerWeekTotal = getWeekTotal(weeklyPrayers);
   const dhikrWeekTotal = getWeekTotal(weeklyDhikr);
@@ -73,7 +84,9 @@ export default function MoreScreen() {
               <Text style={{ fontSize: 32 }}>📅</Text>
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>Islamischer Kalender</Text>
-                <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Hijri-Datum, Feiertage & Gebetszeiten</Text>
+                <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>
+                  {hijriTodayStr || 'Hijri-Datum, Feiertage & Gebetszeiten'}
+                </Text>
               </View>
               <Text style={{ fontSize: 20, color: t.accent }}>→</Text>
             </Pressable>

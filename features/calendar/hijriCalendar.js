@@ -1,71 +1,21 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+const HIJRI_MONTH_NAMES_EN = [
+  '', 'Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani',
+  'Jumada al-Ula', 'Jumada al-Thani', 'Rajab', "Sha'ban",
+  'Ramadan', 'Shawwal', "Dhul Qi'dah", 'Dhul Hijja',
+];
 
-const CACHE_PREFIX = 'hijri_cal_';
-
-/**
- * Fetch a Gregorian month's calendar data with Hijri dates from Aladhan API.
- * Returns array of day objects with gregorian and hijri info.
- */
-export async function fetchGregorianMonth(year, month) {
-  const cacheKey = `${CACHE_PREFIX}${year}_${month}`;
-
-  // Try cache
-  try {
-    const cached = await AsyncStorage.getItem(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch {
-    // ignore
-  }
-
-  try {
-    const url = `https://api.aladhan.com/v1/gpiCalendar/${month}/${year}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = await res.json();
-
-    if (json.code !== 200 || !json.data) throw new Error('Invalid response');
-
-    const days = json.data.map((day) => ({
-      gregorian: {
-        date: day.gregorian.date, // DD-MM-YYYY
-        day: parseInt(day.gregorian.day, 10),
-        month: parseInt(day.gregorian.month.number, 10),
-        year: parseInt(day.gregorian.year, 10),
-        weekday: day.gregorian.weekday.en,
-      },
-      hijri: {
-        day: parseInt(day.hijri.day, 10),
-        month: parseInt(day.hijri.month.number, 10),
-        monthName: day.hijri.month.ar,
-        monthNameEn: day.hijri.month.en,
-        year: parseInt(day.hijri.year, 10),
-      },
-    }));
-
-    // Cache for this month
-    try {
-      await AsyncStorage.setItem(cacheKey, JSON.stringify(days));
-    } catch {
-      // ignore
-    }
-
-    return days;
-  } catch {
-    return null;
-  }
-}
+const WEEKDAY_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 /**
- * Get the current Hijri date using Intl (fast, no API needed).
+ * Get Hijri date for any gregorian Date using Intl (offline, no API).
  */
-export function getCurrentHijriDate() {
+export function getHijriForDate(date) {
   try {
-    const now = new Date();
-    const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+    const parts = new Intl.DateTimeFormat('en-US-u-ca-islamic-civil', {
       day: 'numeric',
       month: 'numeric',
       year: 'numeric',
-    }).formatToParts(now);
+    }).formatToParts(date);
 
     let day, month, year;
     for (const p of parts) {
@@ -73,8 +23,44 @@ export function getCurrentHijriDate() {
       if (p.type === 'month') month = parseInt(p.value, 10);
       if (p.type === 'year') year = parseInt(p.value, 10);
     }
-    return { day, month, year };
+    return {
+      day,
+      month,
+      monthNameEn: HIJRI_MONTH_NAMES_EN[month] || '',
+      year,
+    };
   } catch {
     return null;
   }
+}
+
+/**
+ * Build a full month of day objects with gregorian + hijri data (offline).
+ */
+export function buildMonthGrid(year, month) {
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const days = [];
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month - 1, d);
+    const hijri = getHijriForDate(date);
+    days.push({
+      gregorian: {
+        day: d,
+        month,
+        year,
+        weekday: WEEKDAY_EN[date.getDay()],
+      },
+      hijri: hijri || { day: d, month: 1, monthNameEn: '', year: 1400 },
+    });
+  }
+
+  return days;
+}
+
+/**
+ * Get the current Hijri date using Intl (fast, no API needed).
+ */
+export function getCurrentHijriDate() {
+  return getHijriForDate(new Date());
 }
