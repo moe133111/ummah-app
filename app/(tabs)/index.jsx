@@ -291,8 +291,8 @@ export default function HomeScreen() {
   const dailyDua = DUAS[getDailyIndex(DUAS)];
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.content}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]}>
+      <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={styles.content}>
         {/* Header */}
         <HeaderBar titleAr="بِسْمِ ٱللَّهِ" title="Dein täglicher Begleiter" t={t} />
 
@@ -464,7 +464,7 @@ export default function HomeScreen() {
               </View>
               <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.accent }}>{Math.round((lastReadSurah / 114) * 100)}%</Text>
             </View>
-            <View style={[styles.progressBar, { marginTop: Spacing.sm }]}>
+            <View style={[styles.progressBar, { marginTop: Spacing.sm, backgroundColor: t.border }]}>
               <View style={[styles.progressFill, { width: `${(lastReadSurah / 114) * 100}%`, backgroundColor: t.accent }]} />
             </View>
           </Card>
@@ -485,6 +485,6 @@ const styles = StyleSheet.create({
   prayerCountdownCard: { borderRadius: BorderRadius.md, overflow: 'hidden', borderWidth: 1, marginBottom: Spacing.md },
   prayerProgressBar: { width: '100%', height: Spacing.sm, borderRadius: Spacing.xs, overflow: 'hidden' },
   prayerProgressFill: { height: '100%', borderRadius: Spacing.xs },
-  progressBar: { height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', overflow: 'hidden' },
+  progressBar: { height: 6, borderRadius: 3, overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
 });

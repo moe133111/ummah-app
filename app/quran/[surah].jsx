@@ -586,7 +586,7 @@ export default function SurahDetail() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
       <View
-        style={{ flex: 1 }}
+        style={{ flex: 1, backgroundColor: t.bg }}
         onTouchStart={(e) => {
           swipeStartX.current = e.nativeEvent.pageX;
           swipeStartY.current = e.nativeEvent.pageY;
@@ -624,6 +624,7 @@ export default function SurahDetail() {
           maxToRenderPerBatch={5}
           windowSize={5}
           removeClippedSubviews={true}
+          style={{ backgroundColor: t.bg }}
           contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayerBar ? 110 : 100 }}
           onScrollToIndexFailed={handleScrollFail}
         />
