@@ -153,6 +153,15 @@ export const useAppStore = create(
         }
       },
 
+      // Dua Wall — user-posted duas (persisted locally)
+      userDuas: [],
+      addUserDua: (text) => set((s) => ({
+        userDuas: [
+          { id: `u${Date.now()}`, text, timestamp: new Date().toISOString(), ameenCount: 0, heartCount: 0 },
+          ...s.userDuas,
+        ],
+      })),
+
       // Daily Goals
       dailyGoals: {
         dhikr: { target: 100, enabled: true },
@@ -287,6 +296,7 @@ export const useAppStore = create(
         weeklyPrayers: state.weeklyPrayers,
         weeklyDhikr: state.weeklyDhikr,
         weeklyQuranMinutes: state.weeklyQuranMinutes,
+        userDuas: state.userDuas,
       }),
       // Migrate old lastPrayerDate → lastStreakDate
       migrate: (persisted) => {
