@@ -13,6 +13,6 @@ export default function Card({ children, style, centered }) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: BorderRadius.lg, borderWidth: 1, padding: Spacing.lg, marginBottom: Spacing.md },
+  card: { borderRadius: BorderRadius.lg, borderWidth: 1, padding: 20, marginBottom: 16 },
   centered: { alignItems: 'center' },
 });
