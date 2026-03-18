@@ -1,27 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { forwardRef } from 'react';
 
-function DiamondPattern() {
-  const rows = 3;
-  const cols = 9;
-  const diamonds = [];
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const offset = r % 2 === 1 ? 20 : 0;
-      diamonds.push(
-        <View
-          key={`${r}-${c}`}
-          style={[
-            styles.diamond,
-            { top: r * 18, left: c * 40 + offset },
-          ]}
-        />,
-      );
-    }
-  }
-  return <View style={styles.patternContainer}>{diamonds}</View>;
-}
-
 const ShareCard = forwardRef(function ShareCard(
   { type, arabic, translation, reference, transliteration },
   ref,
@@ -31,15 +10,15 @@ const ShareCard = forwardRef(function ShareCard(
 
   return (
     <View ref={ref} style={styles.card} collapsable={false}>
-      {/* Background gradient layers */}
+      {/* Background layers */}
       <View style={styles.bgBase} />
       <View style={styles.bgOverlay} />
 
-      {/* Geometric pattern */}
-      <DiamondPattern />
-
       {/* Content */}
       <View style={styles.content}>
+        {/* Top gold line */}
+        <View style={styles.topLine} />
+
         {/* Type label */}
         <Text style={styles.typeLabel}>{typeLabel}</Text>
 
@@ -73,8 +52,6 @@ const ShareCard = forwardRef(function ShareCard(
 
 export default ShareCard;
 
-const GOLD = '#E8D48B';
-
 const styles = StyleSheet.create({
   card: {
     width: 360,
@@ -89,30 +66,19 @@ const styles = StyleSheet.create({
   },
   bgOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#152238',
-    opacity: 0.6,
-  },
-  patternContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 70,
-    overflow: 'hidden',
-  },
-  diamond: {
-    position: 'absolute',
-    width: 12,
-    height: 12,
-    backgroundColor: GOLD,
-    opacity: 0.05,
-    transform: [{ rotate: '45deg' }],
+    backgroundColor: 'rgba(184,134,11,0.03)',
   },
   content: {
     padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 400,
+  },
+  topLine: {
+    width: '40%',
+    height: 2,
+    backgroundColor: '#B8860B44',
+    marginBottom: 20,
   },
   typeLabel: {
     fontSize: 10,
@@ -123,21 +89,22 @@ const styles = StyleSheet.create({
   },
   arabic: {
     fontSize: 24,
-    color: GOLD,
+    color: '#E8D48B',
     textAlign: 'center',
-    lineHeight: 46,
+    lineHeight: 48,
+    paddingHorizontal: 24,
     marginBottom: 16,
   },
   divider: {
-    width: 60,
+    width: 50,
     height: 1,
-    backgroundColor: GOLD,
+    backgroundColor: '#B8860B',
     opacity: 0.4,
-    marginBottom: 16,
+    marginVertical: 16,
   },
   transliteration: {
     fontSize: 12,
-    color: 'rgba(255,255,255,0.5)',
+    color: 'rgba(255,255,255,0.4)',
     fontStyle: 'italic',
     textAlign: 'center',
     marginBottom: 12,
@@ -147,17 +114,19 @@ const styles = StyleSheet.create({
     color: '#E8E0D4',
     textAlign: 'center',
     lineHeight: 24,
+    paddingHorizontal: 24,
     marginBottom: 16,
   },
   reference: {
     fontSize: 11,
-    color: GOLD,
+    color: '#B8860B',
     textAlign: 'center',
     marginBottom: 20,
   },
   branding: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.3)',
+    fontSize: 9,
+    color: 'rgba(255,255,255,0.2)',
     textAlign: 'center',
+    marginTop: 8,
   },
 });
