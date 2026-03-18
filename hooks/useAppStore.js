@@ -13,12 +13,12 @@ export const useAppStore = create(
       calculationMethod: 'MWL',
       setCalculationMethod: (method) => set({ calculationMethod: method }),
       notifications: {
-        fajr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
-        sunrise: { enabled: false, adhan: false, sound: 'standard', minutesBefore: 0 },
-        dhuhr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
-        asr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
-        maghrib: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
-        isha: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
+        fajr: { enabled: true, adhan: false, minutesBefore: 0 },
+        sunrise: { enabled: false, adhan: false, minutesBefore: 0 },
+        dhuhr: { enabled: true, adhan: false, minutesBefore: 0 },
+        asr: { enabled: true, adhan: false, minutesBefore: 0 },
+        maghrib: { enabled: true, adhan: false, minutesBefore: 0 },
+        isha: { enabled: true, adhan: false, minutesBefore: 0 },
       },
       toggleNotification: (prayer) => set((s) => {
         const current = s.notifications[prayer];
@@ -26,13 +26,13 @@ export const useAppStore = create(
         return {
           notifications: {
             ...s.notifications,
-            [prayer]: { ...(typeof current === 'object' ? current : { adhan: false, sound: 'standard', minutesBefore: 0 }), enabled: !wasEnabled },
+            [prayer]: { ...(typeof current === 'object' ? current : { adhan: false, minutesBefore: 0 }), enabled: !wasEnabled },
           },
         };
       }),
       updateNotificationSetting: (prayer, settings) => set((s) => {
         const current = s.notifications[prayer];
-        const base = typeof current === 'object' ? current : { enabled: !!current, adhan: false, sound: 'standard', minutesBefore: 0 };
+        const base = typeof current === 'object' ? current : { enabled: !!current, adhan: false, minutesBefore: 0 };
         return {
           notifications: {
             ...s.notifications,
