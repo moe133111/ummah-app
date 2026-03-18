@@ -7,6 +7,7 @@ import { DUAS } from '../../features/duas/duaData';
 import { MORNING_ADHKAR, EVENING_ADHKAR } from '../../features/dhikr/adhkarData';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
+import ShareButton from '../../components/ui/ShareButton';
 
 const DHIKR = [
   { id: 1, arabic: 'سُبْحَانَ اللَّهِ', text: 'SubhanAllah', target: 33 },
@@ -127,6 +128,9 @@ export default function DhikrScreen() {
             </View>
             <Text style={{ fontSize: FontSize.sm, color: t.accent, marginBottom: Spacing.sm }}>{dua.transliteration}</Text>
             <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, lineHeight: 22 }}>{dua.translation}</Text>
+            <View style={{ alignItems: 'flex-end', marginTop: Spacing.md }}>
+              <ShareButton type="dua" arabic={dua.arabic} translation={dua.translation} transliteration={dua.transliteration} reference={dua.source || 'Hisn al-Muslim'} t={t} />
+            </View>
           </View>
         )}
       </Card>

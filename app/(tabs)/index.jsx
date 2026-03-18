@@ -364,7 +364,7 @@ export default function HomeScreen() {
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg }}>
             <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Dua des Tages</Text>
-            <ShareButton type="dua" arabic={dailyDua.arabic} translation={dailyDua.translation} reference={dailyDua.title} transliteration={dailyDua.transliteration} t={t} />
+            <ShareButton type="dua" arabic={dailyDua.arabic} translation={dailyDua.translation} reference="Hisn al-Muslim" transliteration={dailyDua.transliteration} t={t} />
           </View>
           <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
             <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight }}>{dailyDua.arabic}</Text>
