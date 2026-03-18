@@ -266,6 +266,13 @@ export default function DuaWallScreen() {
         keyExtractor={(item) => item.id}
         renderItem={renderDua}
         ListHeaderComponent={header}
+        ListEmptyComponent={
+          <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+            <Text style={{ fontSize: 48, marginBottom: 12 }}>🤲</Text>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: t.text, textAlign: 'center' }}>Sei der Erste der eine Dua teilt</Text>
+            <Text style={{ fontSize: 13, color: t.textDim, marginTop: 8, textAlign: 'center' }}>Teile dein Bittgebet mit der Ummah</Text>
+          </View>
+        }
         contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
       />
     </KeyboardAvoidingView>

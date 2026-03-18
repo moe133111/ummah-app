@@ -165,7 +165,7 @@ export default function SurahDetail() {
     if (ed2) isSurahCached(num, ed2).then(setCached2);
   }, [num, ed, ed2]);
 
-  const { data: result1, isLoading, error } = useQuery({
+  const { data: result1, isLoading, error, refetch } = useQuery({
     queryKey: ['surah', num, ed],
     queryFn: () => fetchSurahWithCache(num, ed),
   });
@@ -550,10 +550,10 @@ export default function SurahDetail() {
   if (isLoading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 }}>
           <ActivityIndicator size="large" color={t.accent} />
-          <Text style={{ marginTop: Spacing.md, color: t.textDim }}>
-            {cached1 ? 'Wird aus Cache geladen...' : 'Wird heruntergeladen...'}
+          <Text style={{ marginTop: Spacing.md, color: t.textDim, textAlign: 'center' }}>
+            {cached1 ? 'Wird aus Cache geladen...' : 'Sure wird geladen...'}
           </Text>
         </View>
       </SafeAreaView>
@@ -563,9 +563,20 @@ export default function SurahDetail() {
   if (error) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 36, marginBottom: Spacing.md }}>⚠️</Text>
-          <Text style={{ color: t.textDim }}>Fehler beim Laden. Prüfe deine Internetverbindung.</Text>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📖</Text>
+          <Text style={{ fontSize: 18, fontWeight: '700', color: t.text, textAlign: 'center', marginBottom: 8 }}>
+            Sure konnte nicht geladen werden
+          </Text>
+          <Text style={{ fontSize: 14, color: t.textDim, textAlign: 'center', marginBottom: 24, lineHeight: 22 }}>
+            Bitte prüfe deine Internetverbindung und versuche es erneut.
+          </Text>
+          <Pressable
+            onPress={() => refetch()}
+            style={{ backgroundColor: t.accent, paddingVertical: 14, paddingHorizontal: 32, borderRadius: 12 }}
+          >
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0A1628' }}>Erneut versuchen</Text>
+          </Pressable>
         </View>
       </SafeAreaView>
     );
@@ -664,6 +675,13 @@ export default function SurahDetail() {
             </View>
           </View>
         </Modal>
+      )}
+
+      {/* Audio error toast */}
+      {audioError && !isPlaying && (
+        <View style={{ position: 'absolute', bottom: showPlayerBar ? 80 : 16, left: 16, right: 16, backgroundColor: '#E6510020', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E6510040' }}>
+          <Text style={{ fontSize: 13, color: '#E65100', textAlign: 'center' }}>Audio nicht verfügbar — Quran-Text bleibt nutzbar</Text>
+        </View>
       )}
 
       {/* Floating Audio Player Bar */}
