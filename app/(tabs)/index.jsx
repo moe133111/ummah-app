@@ -322,9 +322,10 @@ export default function HomeScreen() {
         <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
           <View style={{ flex: 1 }}>
             <Card centered>
-              <Text style={{ fontSize: 24 }}>{getStreakEmoji(currentStreak) || '🔥'}</Text>
-              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent }}>{currentStreak}</Text>
+              <Text style={{ fontSize: 24, opacity: currentStreak === 0 ? 0.3 : 1 }}>{getStreakEmoji(currentStreak)}</Text>
+              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: currentStreak > 0 ? t.accent : t.textDim }}>{currentStreak}</Text>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Tage Streak</Text>
+              <Text style={{ fontSize: 10, color: t.accent, marginTop: 2 }}>{getStreakMessage(currentStreak)}</Text>
             </Card>
           </View>
           <View style={{ flex: 1 }}>
