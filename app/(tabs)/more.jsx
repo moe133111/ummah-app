@@ -8,7 +8,6 @@ import { getWeekTotal, getTrend } from '../../features/stats/statsCalculator';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import Card from '../../components/ui/Card';
 import FeaturePreview from '../../components/ui/FeaturePreview';
-import HijriCalendar from '../../components/ui/HijriCalendar';
 import HeaderBar from '../../components/ui/HeaderBar';
 
 const GOAL_LIMITS = {
@@ -67,7 +66,17 @@ export default function MoreScreen() {
 
         {sec === 'tools' && (
           <>
-            <HijriCalendar t={t} />
+            <Pressable
+              style={[styles.calendarBtn, { backgroundColor: t.accent + '10', borderColor: t.accent + '30' }]}
+              onPress={() => router.push('/calendar')}
+            >
+              <Text style={{ fontSize: 32 }}>📅</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>Islamischer Kalender</Text>
+                <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Hijri-Datum, Feiertage & Gebetszeiten</Text>
+              </View>
+              <Text style={{ fontSize: 20, color: t.accent }}>→</Text>
+            </Pressable>
 
             <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text, marginBottom: Spacing.sm, marginTop: Spacing.sm }}>Ibadah-Statistik</Text>
             <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm }}>
@@ -325,6 +334,7 @@ const styles = StyleSheet.create({
   quizChip: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1 },
   duaWallPreview: { padding: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1 },
   goalBtn: { width: 44, height: 44, borderRadius: 22, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  calendarBtn: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
   detailBtn: { alignSelf: 'center', paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: BorderRadius.full, borderWidth: 1, marginBottom: Spacing.md, minHeight: 44, justifyContent: 'center' },
   phaseBadge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, alignSelf: 'center', marginTop: Spacing.md },
 });
