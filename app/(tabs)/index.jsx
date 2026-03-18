@@ -12,6 +12,7 @@ import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 import { getStreakEmoji, getStreakMessage } from '../../features/streaks/streakManager';
 import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
+import ShareButton from '../../components/ui/ShareButton';
 
 const DAILY_AYAHS = [
   // --- Trost ---
@@ -333,7 +334,10 @@ export default function HomeScreen() {
 
         {/* Ayah des Tages */}
         <Card>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.lg }}>Ayah des Tages</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg }}>
+            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Ayah des Tages</Text>
+            <ShareButton type="ayah" arabic={dailyAyah.arabic} translation={dailyAyah.translation} reference={dailyAyah.ref} t={t} />
+          </View>
           <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
             <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight }}>{dailyAyah.arabic}</Text>
           </View>
@@ -343,7 +347,10 @@ export default function HomeScreen() {
 
         {/* Hadith des Tages */}
         <Card>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.lg }}>Hadith des Tages</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg }}>
+            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Hadith des Tages</Text>
+            <ShareButton type="hadith" arabic={dailyHadith.arabic} translation={dailyHadith.text} reference={dailyHadith.source} t={t} />
+          </View>
           {dailyHadith.arabic ? (
             <View style={{ padding: 14, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 10 }}>
               <Text style={{ fontSize: 22, lineHeight: 40, textAlign: 'right', color: t.accentLight }}>{dailyHadith.arabic}</Text>
@@ -355,7 +362,10 @@ export default function HomeScreen() {
 
         {/* Dua des Tages */}
         <Card>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.lg }}>Dua des Tages</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg }}>
+            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Dua des Tages</Text>
+            <ShareButton type="dua" arabic={dailyDua.arabic} translation={dailyDua.translation} reference={dailyDua.title} transliteration={dailyDua.transliteration} t={t} />
+          </View>
           <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
             <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight }}>{dailyDua.arabic}</Text>
           </View>
