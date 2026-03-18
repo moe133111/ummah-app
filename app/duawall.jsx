@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback } from 'react';
 import { View, Text, TextInput, Pressable, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
 import { useAppStore } from '../hooks/useAppStore';
-import { DarkTheme, LightTheme, FontSize, Spacing, BorderRadius } from '../constants/theme';
+import { DarkTheme, LightTheme } from '../constants/theme';
 import { MOCK_DUAS } from '../features/community/mockDuas';
-import Card from '../components/ui/Card';
+import ShareButton from '../components/ui/ShareButton';
 
 function timeAgo(iso) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -16,6 +16,10 @@ function timeAgo(iso) {
   return `vor ${days} Tag${days > 1 ? 'en' : ''}`;
 }
 
+function isArabic(text) {
+  return /[\u0600-\u06FF]/.test(text);
+}
+
 // TODO: Ersetze lokale Reaktionen mit Supabase RPC
 function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
   const hasAmeen = ameenSet.has(item.id);
@@ -23,55 +27,76 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
   const ameenCount = item.ameenCount + (hasAmeen ? 1 : 0);
   const heartCount = item.heartCount + (hasHeart ? 1 : 0);
   const timestamp = item.timestamp.includes('T') ? timeAgo(item.timestamp) : item.timestamp;
+  const arabic = isArabic(item.text);
 
   return (
     <View style={{
       backgroundColor: t.surface,
-      borderRadius: BorderRadius.lg,
-      padding: Spacing.lg,
-      marginBottom: Spacing.sm,
+      borderRadius: 16,
+      padding: 20,
+      marginBottom: 14,
       borderWidth: 1,
       borderColor: isOwn ? t.accent + '30' : t.border,
     }}>
-      {isOwn && (
-        <View style={{
-          backgroundColor: t.accent + '15',
-          paddingHorizontal: 8,
-          paddingVertical: 2,
-          borderRadius: 6,
-          alignSelf: 'flex-start',
-          marginBottom: Spacing.sm,
-        }}>
-          <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent }}>Deine Dua</Text>
-        </View>
-      )}
+      {/* Own badge + Share button row */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: isOwn ? 10 : 0 }}>
+        {isOwn ? (
+          <View style={{
+            backgroundColor: t.accent + '15',
+            paddingHorizontal: 8,
+            paddingVertical: 2,
+            borderRadius: 10,
+          }}>
+            <Text style={{ fontSize: 10, fontWeight: '600', color: t.accent }}>Deine Dua</Text>
+          </View>
+        ) : (
+          <View />
+        )}
+        <ShareButton
+          type="dua"
+          arabic={arabic ? item.text : ''}
+          translation={arabic ? '' : item.text}
+          reference={isOwn ? 'Bittgebet — Ummah App' : 'Dua Wall — Ummah App'}
+          transliteration=""
+          t={t}
+        />
+      </View>
 
-      <Text style={{ fontSize: 15, lineHeight: 24, color: t.text, marginBottom: Spacing.sm }}>
+      {/* Dua text */}
+      <Text style={{
+        fontSize: 16,
+        lineHeight: 26,
+        color: t.text,
+        marginBottom: 12,
+        textAlign: arabic ? 'right' : 'left',
+        fontFamily: arabic ? 'ScheherazadeNew' : undefined,
+      }}>
         {item.text}
       </Text>
 
-      <Text style={{ fontSize: 11, color: t.textDim, marginBottom: Spacing.md }}>
+      {/* Timestamp */}
+      <Text style={{ fontSize: 11, color: t.textDim, marginBottom: 12 }}>
         {timestamp}
       </Text>
 
-      <View style={{ flexDirection: 'row', gap: Spacing.lg }}>
+      {/* Reactions row */}
+      <View style={{ flexDirection: 'row', gap: 20 }}>
         <Pressable
           onPress={() => onAmeen(item.id)}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 16,
+            gap: 6,
+            paddingVertical: 8,
+            paddingHorizontal: 14,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: hasAmeen ? t.accent : t.border,
             backgroundColor: hasAmeen ? t.accent + '15' : 'transparent',
           }}
         >
-          <Text style={{ fontSize: 16, marginRight: 6 }}>🤲</Text>
-          <Text style={{
-            fontSize: FontSize.xs,
-            fontWeight: hasAmeen ? '700' : '500',
-            color: hasAmeen ? t.accent : t.textDim,
-          }}>
+          <Text style={{ fontSize: 16 }}>🤲</Text>
+          <Text style={{ fontSize: 13, fontWeight: '500', color: hasAmeen ? t.accent : t.textDim }}>
             Ameen · {ameenCount}
           </Text>
         </Pressable>
@@ -81,18 +106,17 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 16,
+            gap: 6,
+            paddingVertical: 8,
+            paddingHorizontal: 14,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: hasHeart ? t.accent : t.border,
             backgroundColor: hasHeart ? t.accent + '15' : 'transparent',
           }}
         >
-          <Text style={{ fontSize: 16, marginRight: 6 }}>❤️</Text>
-          <Text style={{
-            fontSize: FontSize.xs,
-            fontWeight: hasHeart ? '700' : '500',
-            color: hasHeart ? t.accent : t.textDim,
-          }}>
+          <Text style={{ fontSize: 16 }}>❤️</Text>
+          <Text style={{ fontSize: 13, fontWeight: '500', color: hasHeart ? t.accent : t.textDim }}>
             {heartCount}
           </Text>
         </Pressable>
@@ -157,22 +181,32 @@ export default function DuaWallScreen() {
   ), [t, ameenSet, heartSet, toggleAmeen, toggleHeart]);
 
   const totalActive = userDuas.length + MOCK_DUAS.length;
+  const hasOwnDuas = userDuas.length > 0;
 
   const header = (
-    <View style={{ marginBottom: Spacing.md }}>
+    <View style={{ marginBottom: 16 }}>
       {/* Subtitle */}
-      <Text style={{ fontSize: FontSize.sm, color: t.textDim, textAlign: 'center', marginBottom: Spacing.lg }}>
+      <Text style={{ fontSize: 13, color: t.textDim, textAlign: 'center', marginBottom: 16 }}>
         Anonyme Bittgebete der Ummah
       </Text>
+
+      {/* Invite hint when no own duas */}
+      {!hasOwnDuas && (
+        <View style={{ padding: 16, marginBottom: 14, alignItems: 'center' }}>
+          <Text style={{ fontSize: 13, color: t.textDim, textAlign: 'center', lineHeight: 20 }}>
+            Teile dein Bittgebet mit der Ummah.{'\n'}Deine Dua wird anonym gepostet. Andere können mit Ameen reagieren.
+          </Text>
+        </View>
+      )}
 
       {/* Post area */}
       <View style={{
         backgroundColor: t.surface,
-        borderRadius: BorderRadius.lg,
-        padding: Spacing.lg,
+        borderRadius: 16,
+        padding: 20,
         borderWidth: 1,
         borderColor: t.border,
-        marginBottom: Spacing.sm,
+        marginBottom: 14,
       }}>
         <TextInput
           value={text}
@@ -186,35 +220,40 @@ export default function DuaWallScreen() {
             lineHeight: 22,
             color: t.text,
             minHeight: 80,
+            padding: 14,
+            borderRadius: 12,
+            backgroundColor: t.bg,
+            borderWidth: 1,
+            borderColor: t.border,
             textAlignVertical: 'top',
-            marginBottom: Spacing.md,
+            marginBottom: 12,
           }}
         />
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, flex: 1 }}>
-            Anonym — dein Name wird nicht angezeigt
-          </Text>
-          <Pressable
-            onPress={handlePost}
-            style={{
-              backgroundColor: text.trim() ? t.accent : t.accent + '40',
-              paddingHorizontal: 20,
-              paddingVertical: 10,
-              borderRadius: BorderRadius.md,
-            }}
-          >
-            <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: '#fff' }}>Posten</Text>
-          </Pressable>
-        </View>
+        <Pressable
+          onPress={handlePost}
+          style={{
+            alignSelf: 'flex-end',
+            backgroundColor: text.trim() ? t.accent : t.accent + '40',
+            paddingVertical: 10,
+            paddingHorizontal: 24,
+            borderRadius: 12,
+          }}
+        >
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#0A1628' }}>Posten</Text>
+        </Pressable>
 
-        <Text style={{ fontSize: 10, color: t.textDim, marginTop: Spacing.sm }}>
+        <Text style={{ fontSize: 11, color: t.textDim, marginTop: 8 }}>
+          Anonym — dein Name wird nicht angezeigt
+        </Text>
+
+        <Text style={{ fontSize: 10, color: t.textDim, marginTop: 4 }}>
           Bitte nur respektvolle Bittgebete. Keine Beleidigungen oder persönliche Angriffe.
         </Text>
       </View>
 
       {/* Feed header */}
-      <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text, marginTop: Spacing.md, marginBottom: Spacing.sm }}>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: t.text, marginTop: 4, marginBottom: 4 }}>
         {totalActive} Bittgebete aktiv
       </Text>
     </View>
