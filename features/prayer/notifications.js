@@ -22,16 +22,30 @@ export async function schedulePrayerNotifications(times, settings) {
   const granted = await requestNotificationPermission();
   if (!granted) return;
 
-  for (const [key, enabled] of Object.entries(settings)) {
+  for (const [key, config] of Object.entries(settings)) {
+    // Support both old boolean format and new object format
+    const enabled = typeof config === 'boolean' ? config : config?.enabled;
     if (!enabled || !times[key]) continue;
 
-    const [hour, minute] = times[key].split(':').map(Number);
+    const minutesBefore = (typeof config === 'object' ? config.minutesBefore : 0) || 0;
+    const [rawHour, rawMinute] = times[key].split(':').map(Number);
     const name = PRAYER_LABELS[key] || key;
 
+    // Calculate adjusted time (subtract minutesBefore)
+    let totalMinutes = rawHour * 60 + rawMinute - minutesBefore;
+    if (totalMinutes < 0) totalMinutes += 1440; // wrap around midnight
+    const hour = Math.floor(totalMinutes / 60);
+    const minute = totalMinutes % 60;
+
+    const body = minutesBefore > 0
+      ? `${name}-Gebet in ${minutesBefore} Minuten`
+      : `Es ist Zeit für das ${name}-Gebet`;
+
+    // TODO: Use adhan sound when config.adhan is true and config.sound !== 'standard'
     await Notifications.scheduleNotificationAsync({
       content: {
         title: name,
-        body: `Es ist Zeit für das ${name}-Gebet`,
+        body,
         sound: 'default',
       },
       trigger: {
