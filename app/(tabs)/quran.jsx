@@ -145,7 +145,7 @@ export default function QuranScreen() {
             renderItem={renderSurah}
             ListHeaderComponent={ListHeader}
             style={{ backgroundColor: t.bg }}
-            contentContainerStyle={{ paddingHorizontal: Spacing.lg, paddingBottom: 100 }}
+            contentContainerStyle={{ paddingHorizontal: Spacing.lg, paddingBottom: 90 }}
           />
         )}
 
