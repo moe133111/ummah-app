@@ -12,8 +12,35 @@ export const useAppStore = create(
       toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
       calculationMethod: 'MWL',
       setCalculationMethod: (method) => set({ calculationMethod: method }),
-      notifications: { fajr: true, sunrise: false, dhuhr: true, asr: true, maghrib: true, isha: true },
-      toggleNotification: (prayer) => set((s) => ({ notifications: { ...s.notifications, [prayer]: !s.notifications[prayer] } })),
+      notifications: {
+        fajr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
+        sunrise: { enabled: false, adhan: false, sound: 'standard', minutesBefore: 0 },
+        dhuhr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
+        asr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
+        maghrib: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
+        isha: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
+      },
+      toggleNotification: (prayer) => set((s) => {
+        const current = s.notifications[prayer];
+        // Support both old boolean format and new object format
+        const wasEnabled = typeof current === 'boolean' ? current : current?.enabled;
+        return {
+          notifications: {
+            ...s.notifications,
+            [prayer]: { ...(typeof current === 'object' ? current : { adhan: false, sound: 'standard', minutesBefore: 0 }), enabled: !wasEnabled },
+          },
+        };
+      }),
+      updateNotificationSetting: (prayer, settings) => set((s) => {
+        const current = s.notifications[prayer];
+        const base = typeof current === 'object' ? current : { enabled: !!current, adhan: false, sound: 'standard', minutesBefore: 0 };
+        return {
+          notifications: {
+            ...s.notifications,
+            [prayer]: { ...base, ...settings },
+          },
+        };
+      }),
       quranLanguage: 'ar',
       quranSecondLanguage: '',
       lastReadSurah: 1,
@@ -157,7 +184,7 @@ export const useAppStore = create(
       userDuas: [],
       addUserDua: (text) => set((s) => ({
         userDuas: [
-          { id: `u${Date.now()}`, text, timestamp: new Date().toISOString(), ameenCount: 0, heartCount: 0 },
+          { id: `u${Date.now()}`, text, timestamp: Date.now(), ameenCount: 0, heartCount: 0 },
           ...s.userDuas,
         ],
       })),

@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform, ActivityIndicator, Modal } from 'react-native';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Audio } from 'expo-av';
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -9,6 +10,7 @@ import { schedulePrayerNotifications } from '../../features/prayer/notifications
 import { useCompass, requestIOSPermission } from '../../features/qibla/useCompass';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
+import { ADHAN_SOUNDS, MINUTES_BEFORE_OPTIONS } from '../../features/prayer/adhanSounds';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 import QiblaMap from '../../components/ui/QiblaMap';
@@ -92,6 +94,135 @@ function NightStars({ t }) {
   );
 }
 
+// Helper to read notification settings (supports old boolean and new object format)
+function getNotifSettings(notifications, key) {
+  const val = notifications[key];
+  if (typeof val === 'boolean') return { enabled: val, adhan: false, sound: 'standard', minutesBefore: 0 };
+  if (typeof val === 'object' && val !== null) return val;
+  return { enabled: false, adhan: false, sound: 'standard', minutesBefore: 0 };
+}
+
+function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
+  const notifications = useAppStore((s) => s.notifications);
+  const updateNotificationSetting = useAppStore((s) => s.updateNotificationSetting);
+  const toggleNotification = useAppStore((s) => s.toggleNotification);
+  const settings = getNotifSettings(notifications, prayerKey);
+  const meta = PRAYER_META[prayerKey];
+  const soundRef = useRef(null);
+
+  const handleToggleEnabled = () => toggleNotification(prayerKey);
+  const handleToggleAdhan = () => updateNotificationSetting(prayerKey, { adhan: !settings.adhan });
+  const handleSetSound = (id) => updateNotificationSetting(prayerKey, { sound: id });
+  const handleSetMinutes = (min) => updateNotificationSetting(prayerKey, { minutesBefore: min });
+
+  const handleTest = async () => {
+    const chosen = ADHAN_SOUNDS.find((s) => s.id === settings.sound);
+    if (!chosen?.uri) return; // Standard-Sound can't be previewed
+    try {
+      if (soundRef.current) { await soundRef.current.unloadAsync(); soundRef.current = null; }
+      const { sound } = await Audio.Sound.createAsync({ uri: chosen.uri });
+      soundRef.current = sound;
+      await sound.playAsync();
+      setTimeout(async () => {
+        try { await sound.stopAsync(); await sound.unloadAsync(); } catch {}
+        soundRef.current = null;
+      }, 3000);
+    } catch {}
+  };
+
+  useEffect(() => {
+    return () => { if (soundRef.current) { soundRef.current.unloadAsync().catch(() => {}); } };
+  }, []);
+
+  if (!meta) return null;
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}>
+        <View style={{ backgroundColor: t.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24, paddingBottom: 40 }}>
+          {/* Header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
+            <Text style={{ fontSize: 28, marginRight: 12 }}>{meta.emoji}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: t.text, flex: 1 }}>{meta.name} Benachrichtigung</Text>
+            <Pressable onPress={onClose} hitSlop={12}>
+              <Text style={{ fontSize: 20, color: t.textDim }}>✕</Text>
+            </Pressable>
+          </View>
+
+          {/* Toggle: enabled */}
+          <Pressable onPress={handleToggleEnabled} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: t.border }}>
+            <Text style={{ fontSize: 15, color: t.text }}>Benachrichtigung aktiv</Text>
+            <View style={{ width: 48, height: 28, borderRadius: 14, backgroundColor: settings.enabled ? t.accent : t.border, justifyContent: 'center', paddingHorizontal: 2 }}>
+              <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#fff', alignSelf: settings.enabled ? 'flex-end' : 'flex-start' }} />
+            </View>
+          </Pressable>
+
+          {/* Toggle: adhan */}
+          <Pressable onPress={handleToggleAdhan} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: t.border }}>
+            <Text style={{ fontSize: 15, color: t.text }}>Adhan abspielen</Text>
+            <View style={{ width: 48, height: 28, borderRadius: 14, backgroundColor: settings.adhan ? t.accent : t.border, justifyContent: 'center', paddingHorizontal: 2 }}>
+              <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: '#fff', alignSelf: settings.adhan ? 'flex-end' : 'flex-start' }} />
+            </View>
+          </Pressable>
+
+          {/* Sound selection (only if adhan enabled) */}
+          {settings.adhan && (
+            <View style={{ marginTop: 14, marginBottom: 10 }}>
+              <Text style={{ fontSize: 13, fontWeight: '600', color: t.textDim, marginBottom: 10 }}>Adhan-Sound</Text>
+              {ADHAN_SOUNDS.map((s) => (
+                <Pressable
+                  key={s.id}
+                  onPress={() => handleSetSound(s.id)}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, gap: 12 }}
+                >
+                  <View style={{
+                    width: 20, height: 20, borderRadius: 10, borderWidth: 2,
+                    borderColor: settings.sound === s.id ? t.accent : t.border,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {settings.sound === s.id && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: t.accent }} />}
+                  </View>
+                  <Text style={{ fontSize: 14, color: t.text }}>{s.name}</Text>
+                </Pressable>
+              ))}
+              <Pressable onPress={handleTest} style={{ alignSelf: 'flex-start', marginTop: 8, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 8, backgroundColor: t.accent + '15' }}>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: t.accent }}>Testen</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {/* Minutes before */}
+          <View style={{ marginTop: 14 }}>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: t.textDim, marginBottom: 10 }}>Minuten vorher erinnern</Text>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {MINUTES_BEFORE_OPTIONS.map((min) => (
+                <Pressable
+                  key={min}
+                  onPress={() => handleSetMinutes(min)}
+                  style={{
+                    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, borderWidth: 1,
+                    borderColor: settings.minutesBefore === min ? t.accent : t.border,
+                    backgroundColor: settings.minutesBefore === min ? t.accent + '15' : 'transparent',
+                  }}
+                >
+                  <Text style={{ fontSize: 13, fontWeight: '500', color: settings.minutesBefore === min ? t.accent : t.text }}>
+                    {min === 0 ? 'Pünktlich' : `${min} Min`}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          {/* Save button */}
+          <Pressable onPress={onClose} style={{ marginTop: 24, backgroundColor: t.accent, paddingVertical: 14, borderRadius: 12, alignItems: 'center' }}>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0A1628' }}>Speichern</Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export default function PrayerScreen() {
   const { location, loading } = useLocation();
   const isDark = useAppStore((s) => s.theme === 'dark');
@@ -103,6 +234,7 @@ export default function PrayerScreen() {
   const t = isDark ? DarkTheme : LightTheme;
   const [tab, setTab] = useState('times');
   const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [settingsModal, setSettingsModal] = useState(null); // prayer key or null
 
   const today = useMemo(() => new Date(), []);
   const isToday = isSameDay(selectedDate, today);
@@ -143,14 +275,15 @@ export default function PrayerScreen() {
   const prayerSource = prayerData?.source || null;
   const nextPrayer = useMemo(() => (isToday && times ? getNextPrayer(times) : null), [times, isToday]);
   const completedCount = Object.values(todayPrayers).filter(Boolean).length;
-  const activeNotifCount = TRACKABLE_KEYS.filter((k) => notifications[k]).length;
+  const activeNotifCount = TRACKABLE_KEYS.filter((k) => getNotifSettings(notifications, k).enabled).length;
   const allNotifsOn = activeNotifCount === TRACKABLE_KEYS.length;
   const nightMode = times ? isNightTime(times) : false;
 
   const toggleAllNotifications = () => {
     const targetState = !allNotifsOn;
     TRACKABLE_KEYS.forEach((k) => {
-      if (notifications[k] !== targetState) toggleNotification(k);
+      const current = getNotifSettings(notifications, k);
+      if (current.enabled !== targetState) toggleNotification(k);
     });
   };
 
@@ -258,6 +391,7 @@ export default function PrayerScreen() {
             ) : (
               Object.entries(PRAYER_META).map(([key, meta]) => {
                 const isNext = nextPrayer?.key === key;
+                const notifS = getNotifSettings(notifications, key);
                 return (
                   <View key={key} style={[styles.prayerCard, { backgroundColor: t.card, borderColor: isNext ? meta.color + '44' : t.border }]}>
                     <View style={[styles.prayerAccentBar, { backgroundColor: meta.color }]} />
@@ -269,14 +403,19 @@ export default function PrayerScreen() {
                           <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{meta.description}</Text>
                         </View>
                       </View>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
                         <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: isNext ? meta.color : t.text }}>{times[key]}</Text>
                         {meta.trackable && (
-                          <Pressable onPress={() => toggleNotification(key)} hitSlop={Spacing.sm} style={styles.notifTouch}>
-                            <Text style={{ fontSize: 18, color: notifications[key] ? meta.color : t.textDim }}>
-                              {notifications[key] ? '🔔' : '🔕'}
-                            </Text>
-                          </Pressable>
+                          <>
+                            <Pressable onPress={() => toggleNotification(key)} hitSlop={Spacing.sm} style={styles.notifTouch}>
+                              <Text style={{ fontSize: 18, color: notifS.enabled ? meta.color : t.textDim }}>
+                                {notifS.enabled ? '🔔' : '🔕'}
+                              </Text>
+                            </Pressable>
+                            <Pressable onPress={() => setSettingsModal(key)} hitSlop={Spacing.sm} style={{ minWidth: 32, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}>
+                              <Text style={{ fontSize: 14, color: t.textDim }}>⚙️</Text>
+                            </Pressable>
+                          </>
                         )}
                       </View>
                     </View>
@@ -353,6 +492,16 @@ export default function PrayerScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Notification settings modal */}
+      {settingsModal && (
+        <NotificationSettingsModal
+          visible={!!settingsModal}
+          onClose={() => setSettingsModal(null)}
+          prayerKey={settingsModal}
+          t={t}
+        />
+      )}
     </SafeAreaView>
   );
 }

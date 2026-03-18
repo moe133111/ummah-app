@@ -5,15 +5,23 @@ import { DarkTheme, LightTheme } from '../constants/theme';
 import { MOCK_DUAS } from '../features/community/mockDuas';
 import ShareButton from '../components/ui/ShareButton';
 
-function timeAgo(iso) {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'gerade eben';
-  if (mins < 60) return `vor ${mins} Min.`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `vor ${hrs} Stunde${hrs > 1 ? 'n' : ''}`;
-  const days = Math.floor(hrs / 24);
-  return `vor ${days} Tag${days > 1 ? 'en' : ''}`;
+function formatTimeAgo(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+
+  if (isNaN(diff) || diff < 0) return 'gerade eben';
+
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return 'gerade eben';
+  if (minutes < 60) return `vor ${minutes} Min`;
+  if (hours < 24) return `vor ${hours} Std`;
+  if (days === 1) return 'gestern';
+  if (days < 7) return `vor ${days} Tagen`;
+  if (days < 30) return `vor ${Math.floor(days / 7)} Wochen`;
+  return `vor ${Math.floor(days / 30)} Monaten`;
 }
 
 function isArabic(text) {
@@ -26,7 +34,6 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
   const hasHeart = heartSet.has(item.id);
   const ameenCount = item.ameenCount + (hasAmeen ? 1 : 0);
   const heartCount = item.heartCount + (hasHeart ? 1 : 0);
-  const timestamp = item.timestamp.includes('T') ? timeAgo(item.timestamp) : item.timestamp;
   const arabic = isArabic(item.text);
 
   return (
@@ -38,8 +45,8 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
       borderWidth: 1,
       borderColor: isOwn ? t.accent + '30' : t.border,
     }}>
-      {/* Own badge + Share button row */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: isOwn ? 10 : 0 }}>
+      {/* Top row: own badge + share */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         {isOwn ? (
           <View style={{
             backgroundColor: t.accent + '15',
@@ -76,7 +83,7 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
 
       {/* Timestamp */}
       <Text style={{ fontSize: 11, color: t.textDim, marginBottom: 12 }}>
-        {timestamp}
+        {formatTimeAgo(item.timestamp)}
       </Text>
 
       {/* Reactions row */}
@@ -185,14 +192,19 @@ export default function DuaWallScreen() {
 
   const header = (
     <View style={{ marginBottom: 16 }}>
-      {/* Subtitle */}
-      <Text style={{ fontSize: 13, color: t.textDim, textAlign: 'center', marginBottom: 16 }}>
-        Anonyme Bittgebete der Ummah
-      </Text>
+      {/* Spiritual header */}
+      <View style={{ alignItems: 'center', paddingVertical: 24, marginBottom: 16 }}>
+        <Text style={{ fontSize: 32, fontFamily: 'ScheherazadeNew', color: t.accent, marginBottom: 4 }}>
+          بِسْمِ ٱللَّٰهِ
+        </Text>
+        <Text style={{ fontSize: 28, marginBottom: 8 }}>🤲</Text>
+        <Text style={{ fontSize: 22, fontWeight: '700', color: t.text, marginBottom: 4 }}>Dua Wall</Text>
+        <Text style={{ fontSize: 13, color: t.textDim }}>Anonyme Bittgebete der Ummah</Text>
+      </View>
 
       {/* Invite hint when no own duas */}
       {!hasOwnDuas && (
-        <View style={{ padding: 16, marginBottom: 14, alignItems: 'center' }}>
+        <View style={{ paddingHorizontal: 16, paddingBottom: 12, alignItems: 'center' }}>
           <Text style={{ fontSize: 13, color: t.textDim, textAlign: 'center', lineHeight: 20 }}>
             Teile dein Bittgebet mit der Ummah.{'\n'}Deine Dua wird anonym gepostet. Andere können mit Ameen reagieren.
           </Text>
