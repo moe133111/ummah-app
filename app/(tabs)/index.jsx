@@ -56,45 +56,36 @@ const DAILY_AYAHS = [
 ];
 
 const DAILY_HADITHS = [
-  // --- Absicht & Taten ---
-  { text: 'Wahrlich, die Taten sind nur entsprechend den Absichten, und jedem Menschen steht nur das zu, was er beabsichtigt hat.', source: 'Sahih al-Bukhari 1' },
-  // --- Quran ---
-  { text: 'Die Besten unter euch sind diejenigen, die den Quran lernen und ihn lehren.', source: 'Sahih al-Bukhari 5027' },
-  // --- Charakter & Freundlichkeit ---
-  { text: 'Keiner von euch glaubt wirklich, bis er für seinen Bruder liebt, was er für sich selbst liebt.', source: 'Sahih al-Bukhari 13' },
-  { text: 'Der Muslim ist derjenige, vor dessen Zunge und Hand die anderen Muslime sicher sind.', source: 'Sahih al-Bukhari 10' },
-  { text: 'Hüte dich vor den verbotenen Dingen, dann wirst du der frömmste der Menschen sein. Sei zufrieden mit dem, was Allah dir zugeteilt hat, dann wirst du der reichste der Menschen sein.', source: 'Sahih al-Bukhari 6018' },
-  { text: 'Wer an Allah und den Jüngsten Tag glaubt, der soll Gutes sprechen oder schweigen.', source: 'Sahih al-Bukhari 6018' },
-  { text: 'Die vollkommensten Gläubigen im Glauben sind diejenigen mit dem besten Charakter.', source: 'Sahih Muslim 1810' },
-  // --- Ibadah: Gebet ---
-  { text: 'Das erste, worüber der Mensch am Tag der Auferstehung befragt wird, ist das Gebet.', source: 'Sahih Muslim 82' },
-  { text: 'Zwischen einem Menschen und dem Unglauben liegt das Unterlassen des Gebets.', source: 'Sahih Muslim 82' },
-  { text: 'Bete so, als ob du Allah siehst. Denn wenn du Ihn auch nicht siehst, so sieht Er doch dich.', source: 'Sahih al-Bukhari 50' },
-  // --- Ibadah: Fasten & Dhikr ---
-  { text: 'Wer den Ramadan aus Glauben und in der Hoffnung auf Belohnung fastet, dem werden seine früheren Sünden vergeben.', source: 'Sahih al-Bukhari 38' },
-  { text: 'Allah der Erhabene sagt: Ich bin so, wie Mein Diener Mich vermutet. Und Ich bin bei ihm, wenn er Meiner gedenkt.', source: 'Sahih al-Bukhari 7405' },
-  { text: 'Es gibt zwei Segnungen, um die viele Menschen betrogen werden: Gesundheit und freie Zeit.', source: 'Sahih al-Bukhari 6412' },
-  // --- Gemeinschaft ---
-  { text: 'Wer einen Weg beschreitet, um Wissen zu erlangen, dem erleichtert Allah einen Weg ins Paradies.', source: 'Sahih Muslim 2699' },
-  { text: 'Erleichtert und erschwert nicht. Bringt frohe Botschaft und schreckt nicht ab.', source: 'Sahih al-Bukhari 69' },
-  { text: 'Der Starke ist nicht derjenige, der andere im Ringen besiegt, sondern der Starke ist derjenige, der sich bei Zorn beherrscht.', source: 'Sahih al-Bukhari 6114' },
-  { text: 'Wer an Allah und den Jüngsten Tag glaubt, der soll seinen Nachbarn gut behandeln.', source: 'Sahih al-Bukhari 6019' },
-  { text: 'Seid barmherzig zu denen auf der Erde, und der, Der im Himmel ist, wird barmherzig zu euch sein.', source: 'Sahih Muslim 2319' },
-  // --- Wissen & Lernen ---
-  { text: 'Wenn der Sohn Adams stirbt, hören seine Taten auf — außer drei: eine fortdauernde Spende, nützliches Wissen und ein rechtschaffenes Kind, das für ihn betet.', source: 'Sahih Muslim 1631' },
-  { text: 'Wem Allah Gutes will, dem gibt Er Verständnis in der Religion.', source: 'Sahih al-Bukhari 71' },
-  // --- Dankbarkeit & Zufriedenheit ---
-  { text: 'Schaut auf diejenigen, die unter euch stehen, und nicht auf diejenigen, die über euch stehen. So werdet ihr die Gunst Allahs nicht gering schätzen.', source: 'Sahih Muslim 2963' },
-  { text: 'Wie wunderbar ist die Angelegenheit des Gläubigen! All seine Angelegenheiten sind gut für ihn. Wenn ihm etwas Erfreuliches widerfährt, ist er dankbar — und das ist gut für ihn. Und wenn ihm Schaden widerfährt, ist er geduldig — und das ist gut für ihn.', source: 'Sahih Muslim 2999' },
-  { text: 'Wer nicht für das Geringe dankt, wird auch nicht für das Viele danken.', source: 'Sahih Muslim 2963' },
-  // --- Alltägliche Weisheiten ---
-  { text: 'Ein gutes Wort ist eine Sadaqah (mildtätige Gabe).', source: 'Sahih al-Bukhari 2989' },
-  { text: 'Lass deinen Zorn, und das Paradies gehört dir.', source: 'Sahih Muslim 2608' },
-  { text: 'Die Religion ist leicht. Wer die Religion zu übertreiben versucht, den wird sie überwältigen. So seid maßvoll, nähert euch dem Besten und seid froher Botschaft.', source: 'Sahih al-Bukhari 39' },
-  { text: 'Die Reinheit ist die Hälfte des Glaubens, und Alhamdulillah füllt die Waage.', source: 'Sahih Muslim 223' },
-  { text: 'Der beste Dhikr ist La ilaha illallah, und die beste Bittgebete ist Alhamdulillah.', source: 'Sahih Muslim 2137' },
-  { text: 'Wer zwei Dinge aus den Besitztümern Allahs am Morgen und am Abend spricht, tritt ins Paradies ein: Subhanallah wal-Hamdulillah je hundertmal.', source: 'Sahih Muslim 2692' },
-  { text: 'Die Welt ist das Gefängnis des Gläubigen und das Paradies des Ungläubigen.', source: 'Sahih Muslim 2956' },
+  { arabic: 'إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى', text: 'Wahrlich, die Taten sind nur entsprechend den Absichten, und jedem Menschen steht nur das zu, was er beabsichtigt hat.', source: 'Sahih al-Bukhari 1' },
+  { arabic: 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', text: 'Die Besten unter euch sind diejenigen, die den Quran lernen und ihn lehren.', source: 'Sahih al-Bukhari 5027' },
+  { arabic: 'لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ', text: 'Keiner von euch glaubt wirklich, bis er für seinen Bruder liebt, was er für sich selbst liebt.', source: 'Sahih al-Bukhari 13' },
+  { arabic: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ', text: 'Der Muslim ist derjenige, vor dessen Zunge und Hand die anderen Muslime sicher sind.', source: 'Sahih al-Bukhari 10' },
+  { arabic: '', text: 'Hüte dich vor den verbotenen Dingen, dann wirst du der frömmste der Menschen sein. Sei zufrieden mit dem, was Allah dir zugeteilt hat, dann wirst du der reichste der Menschen sein.', source: 'Sahih al-Bukhari 6018' },
+  { arabic: 'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ', text: 'Wer an Allah und den Jüngsten Tag glaubt, der soll Gutes sprechen oder schweigen.', source: 'Sahih al-Bukhari 6018' },
+  { arabic: 'أَكْمَلُ الْمُؤْمِنِينَ إِيمَانًا أَحْسَنُهُمْ خُلُقًا', text: 'Die vollkommensten Gläubigen im Glauben sind diejenigen mit dem besten Charakter.', source: 'Sahih Muslim 1810' },
+  { arabic: 'إِنَّ أَوَّلَ مَا يُحَاسَبُ بِهِ الْعَبْدُ يَوْمَ الْقِيَامَةِ مِنْ عَمَلِهِ صَلَاتُهُ', text: 'Das erste, worüber der Mensch am Tag der Auferstehung befragt wird, ist das Gebet.', source: 'Sahih Muslim 82' },
+  { arabic: 'بَيْنَ الرَّجُلِ وَبَيْنَ الشِّرْكِ وَالْكُفْرِ تَرْكُ الصَّلَاةِ', text: 'Zwischen einem Menschen und dem Unglauben liegt das Unterlassen des Gebets.', source: 'Sahih Muslim 82' },
+  { arabic: 'أَنْ تَعْبُدَ اللَّهَ كَأَنَّكَ تَرَاهُ فَإِنْ لَمْ تَكُنْ تَرَاهُ فَإِنَّهُ يَرَاكَ', text: 'Bete so, als ob du Allah siehst. Denn wenn du Ihn auch nicht siehst, so sieht Er doch dich.', source: 'Sahih al-Bukhari 50' },
+  { arabic: 'مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ', text: 'Wer den Ramadan aus Glauben und in der Hoffnung auf Belohnung fastet, dem werden seine früheren Sünden vergeben.', source: 'Sahih al-Bukhari 38' },
+  { arabic: 'أَنَا عِنْدَ ظَنِّ عَبْدِي بِي وَأَنَا مَعَهُ إِذَا ذَكَرَنِي', text: 'Allah der Erhabene sagt: Ich bin so, wie Mein Diener Mich vermutet. Und Ich bin bei ihm, wenn er Meiner gedenkt.', source: 'Sahih al-Bukhari 7405' },
+  { arabic: 'نِعْمَتَانِ مَغْبُونٌ فِيهِمَا كَثِيرٌ مِنَ النَّاسِ الصِّحَّةُ وَالْفَرَاغُ', text: 'Es gibt zwei Segnungen, um die viele Menschen betrogen werden: Gesundheit und freie Zeit.', source: 'Sahih al-Bukhari 6412' },
+  { arabic: 'مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ', text: 'Wer einen Weg beschreitet, um Wissen zu erlangen, dem erleichtert Allah einen Weg ins Paradies.', source: 'Sahih Muslim 2699' },
+  { arabic: 'يَسِّرُوا وَلَا تُعَسِّرُوا وَبَشِّرُوا وَلَا تُنَفِّرُوا', text: 'Erleichtert und erschwert nicht. Bringt frohe Botschaft und schreckt nicht ab.', source: 'Sahih al-Bukhari 69' },
+  { arabic: 'لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ عِنْدَ الْغَضَبِ', text: 'Der Starke ist nicht derjenige, der andere im Ringen besiegt, sondern der Starke ist derjenige, der sich bei Zorn beherrscht.', source: 'Sahih al-Bukhari 6114' },
+  { arabic: 'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيُكْرِمْ جَارَهُ', text: 'Wer an Allah und den Jüngsten Tag glaubt, der soll seinen Nachbarn gut behandeln.', source: 'Sahih al-Bukhari 6019' },
+  { arabic: 'ارْحَمُوا مَنْ فِي الْأَرْضِ يَرْحَمْكُمْ مَنْ فِي السَّمَاءِ', text: 'Seid barmherzig zu denen auf der Erde, und der, Der im Himmel ist, wird barmherzig zu euch sein.', source: 'Sahih Muslim 2319' },
+  { arabic: 'إِذَا مَاتَ الْإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ إِلَّا مِنْ صَدَقَةٍ جَارِيَةٍ أَوْ عِلْمٍ يُنْتَفَعُ بِهِ أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ', text: 'Wenn der Sohn Adams stirbt, hören seine Taten auf — außer drei: eine fortdauernde Spende, nützliches Wissen und ein rechtschaffenes Kind, das für ihn betet.', source: 'Sahih Muslim 1631' },
+  { arabic: 'مَنْ يُرِدِ اللَّهُ بِهِ خَيْرًا يُفَقِّهْهُ فِي الدِّينِ', text: 'Wem Allah Gutes will, dem gibt Er Verständnis in der Religion.', source: 'Sahih al-Bukhari 71' },
+  { arabic: '', text: 'Schaut auf diejenigen, die unter euch stehen, und nicht auf diejenigen, die über euch stehen. So werdet ihr die Gunst Allahs nicht gering schätzen.', source: 'Sahih Muslim 2963' },
+  { arabic: 'عَجَبًا لِأَمْرِ الْمُؤْمِنِ إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ', text: 'Wie wunderbar ist die Angelegenheit des Gläubigen! All seine Angelegenheiten sind gut für ihn.', source: 'Sahih Muslim 2999' },
+  { arabic: '', text: 'Wer nicht für das Geringe dankt, wird auch nicht für das Viele danken.', source: 'Sahih Muslim 2963' },
+  { arabic: 'الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ', text: 'Ein gutes Wort ist eine Sadaqah (mildtätige Gabe).', source: 'Sahih al-Bukhari 2989' },
+  { arabic: '', text: 'Lass deinen Zorn, und das Paradies gehört dir.', source: 'Sahih Muslim 2608' },
+  { arabic: 'إِنَّ الدِّينَ يُسْرٌ وَلَنْ يُشَادَّ الدِّينَ أَحَدٌ إِلَّا غَلَبَهُ', text: 'Die Religion ist leicht. Wer die Religion zu übertreiben versucht, den wird sie überwältigen.', source: 'Sahih al-Bukhari 39' },
+  { arabic: 'الطُّهُورُ شَطْرُ الْإِيمَانِ وَالْحَمْدُ لِلَّهِ تَمْلَأُ الْمِيزَانَ', text: 'Die Reinheit ist die Hälfte des Glaubens, und Alhamdulillah füllt die Waage.', source: 'Sahih Muslim 223' },
+  { arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ', text: 'Der beste Dhikr ist La ilaha illallah, und die beste Bittgebete ist Alhamdulillah.', source: 'Sahih Muslim 2137' },
+  { arabic: '', text: 'Wer zwei Dinge aus den Besitztümern Allahs am Morgen und am Abend spricht, tritt ins Paradies ein: Subhanallah wal-Hamdulillah je hundertmal.', source: 'Sahih Muslim 2692' },
+  { arabic: 'الدُّنْيَا سِجْنُ الْمُؤْمِنِ وَجَنَّةُ الْكَافِرِ', text: 'Die Welt ist das Gefängnis des Gläubigen und das Paradies des Ungläubigen.', source: 'Sahih Muslim 2956' },
 ];
 
 const DHIKR_MINI = [
@@ -156,12 +147,6 @@ function getPrayerProgress(times) {
   return Math.min(1, Math.max(0, (cur - currentTime) / totalSpan));
 }
 
-const GOAL_META = {
-  dhikr: { emoji: '📿', label: 'Dhikr' },
-  quran: { emoji: '📖', label: 'Quran Verse' },
-  dua: { emoji: '🤲', label: 'Duas gelesen' },
-};
-
 function DailyGoalsRing({ goals, progress, t }) {
   const enabled = Object.entries(goals).filter(([, v]) => v.enabled);
   const completed = enabled.filter(([key]) => (progress[key] || 0) >= goals[key].target).length;
@@ -193,40 +178,6 @@ function DailyGoalsRing({ goals, progress, t }) {
         <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: allDone ? '#D4A843' : t.accent }}>{completed}/{total}</Text>
       </View>
       <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Tagesziele</Text>
-    </Card>
-  );
-}
-
-function DailyGoalsDetail({ goals, progress, t }) {
-  const entries = Object.entries(goals).filter(([, v]) => v.enabled);
-  if (entries.length === 0) return null;
-
-  return (
-    <Card>
-      <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Tagesziele</Text>
-      {entries.map(([key, goal]) => {
-        const current = Math.min(progress[key] || 0, goal.target);
-        const done = current >= goal.target;
-        const pct = goal.target > 0 ? (current / goal.target) * 100 : 0;
-        const meta = GOAL_META[key] || { emoji: '🎯', label: key };
-        return (
-          <View key={key} style={{ marginBottom: key !== entries[entries.length - 1]?.[0] ? Spacing.md : 0 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.xs }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
-                <Text style={{ fontSize: 18 }}>{meta.emoji}</Text>
-                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>{meta.label}</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
-                <Text style={{ fontSize: FontSize.sm, color: done ? '#D4A843' : t.textDim }}>{current}/{goal.target}</Text>
-                {done && <Text style={{ fontSize: 14 }}>✅</Text>}
-              </View>
-            </View>
-            <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${Math.min(pct, 100)}%`, backgroundColor: done ? '#D4A843' : t.accent }]} />
-            </View>
-          </View>
-        );
-      })}
     </Card>
   );
 }
@@ -367,13 +318,12 @@ export default function HomeScreen() {
         })()}
 
         {/* Streak & Daily Goals side by side */}
-        <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+        <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
           <View style={{ flex: 1 }}>
             <Card centered>
-              <Text style={{ fontSize: 28 }}>{getStreakEmoji(currentStreak) || '🔥'}</Text>
-              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>{currentStreak}</Text>
+              <Text style={{ fontSize: 24 }}>{getStreakEmoji(currentStreak) || '🔥'}</Text>
+              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent }}>{currentStreak}</Text>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Tage Streak</Text>
-              <Text style={{ fontSize: FontSize.xs, color: t.accent, marginTop: Spacing.xs }}>{getStreakMessage(currentStreak)}</Text>
             </Card>
           </View>
           <View style={{ flex: 1 }}>
@@ -381,87 +331,76 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Daily Goals Detail */}
-        <DailyGoalsDetail goals={dailyGoals} progress={dailyProgress} t={t} />
-
         {/* Ayah des Tages */}
         <Card>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Ayah des Tages</Text>
-          <Text style={{ fontSize: FontSize.arabicLarge, color: t.accentLight, textAlign: 'right', lineHeight: 44, marginBottom: Spacing.md }}>{dailyAyah.arabic}</Text>
-          <Text style={{ fontSize: FontSize.md, color: t.text, fontStyle: 'italic', lineHeight: 24, marginBottom: Spacing.sm }}>{dailyAyah.translation}</Text>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>— {dailyAyah.ref}</Text>
+          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.lg }}>Ayah des Tages</Text>
+          <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
+            <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight }}>{dailyAyah.arabic}</Text>
+          </View>
+          <Text style={{ fontSize: 14, color: t.text, marginTop: 8, lineHeight: 22 }}>{dailyAyah.translation}</Text>
+          <Text style={{ fontSize: 11, color: t.textDim, marginTop: 8 }}>— {dailyAyah.ref}</Text>
         </Card>
 
         {/* Hadith des Tages */}
         <Card>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Hadith des Tages</Text>
-          <Text style={{ fontSize: FontSize.md, color: t.text, fontStyle: 'italic', lineHeight: 24, marginBottom: Spacing.sm }}>"{dailyHadith.text}"</Text>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>— {dailyHadith.source}</Text>
+          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.lg }}>Hadith des Tages</Text>
+          {dailyHadith.arabic ? (
+            <View style={{ padding: 14, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 10 }}>
+              <Text style={{ fontSize: 22, lineHeight: 40, textAlign: 'right', color: t.accentLight }}>{dailyHadith.arabic}</Text>
+            </View>
+          ) : null}
+          <Text style={{ fontSize: 14, fontStyle: 'italic', color: t.text, lineHeight: 22 }}>"{dailyHadith.text}"</Text>
+          <Text style={{ fontSize: 11, color: t.textDim, marginTop: 6 }}>— {dailyHadith.source}</Text>
         </Card>
 
         {/* Dua des Tages */}
         <Card>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Dua des Tages</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.md }}>
-            <Text style={{ fontSize: 24 }}>{dailyDua.emoji || '🤲'}</Text>
-            <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>{dailyDua.title}</Text>
+          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.lg }}>Dua des Tages</Text>
+          <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
+            <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight }}>{dailyDua.arabic}</Text>
           </View>
-          <View style={{ padding: Spacing.md, borderRadius: BorderRadius.md, backgroundColor: t.accent + '08', borderWidth: 1, borderColor: t.accent + '15', marginBottom: Spacing.sm }}>
-            <Text style={{ fontSize: FontSize.arabic, lineHeight: 36, textAlign: 'right', color: t.accentLight }}>{dailyDua.arabic}</Text>
-          </View>
-          <Text style={{ fontSize: FontSize.sm, fontStyle: 'italic', color: t.textDim, lineHeight: 22 }}>{dailyDua.translation}</Text>
+          {dailyDua.transliteration ? (
+            <Text style={{ fontSize: 13, color: t.accent, fontStyle: 'italic', marginTop: 8 }}>{dailyDua.transliteration}</Text>
+          ) : null}
+          <Text style={{ fontSize: 14, color: t.text, lineHeight: 22, marginTop: 6 }}>{dailyDua.translation}</Text>
         </Card>
 
         {/* Mini Dhikr Counter */}
-        <Card centered>
+        <Card>
           <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Schneller Dhikr</Text>
-          <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md }}>
-            {DHIKR_MINI.map((d, i) => (
-              <Pressable
-                key={i}
-                style={[styles.miniChip, { borderColor: t.border }, miniSel === i && { borderColor: t.accent, backgroundColor: t.accent + '15' }]}
-                onPress={() => { setMiniSel(i); setMiniCount(0); }}
-              >
-                <Text style={{ fontSize: FontSize.xs, color: miniSel === i ? t.accent : t.textDim }}>{d.text}</Text>
-              </Pressable>
-            ))}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
+            <View style={{ flexDirection: 'row', gap: Spacing.xs, flex: 1 }}>
+              {DHIKR_MINI.map((d, i) => (
+                <Pressable
+                  key={i}
+                  style={[styles.miniChip, { borderColor: t.border }, miniSel === i && { borderColor: t.accent, backgroundColor: t.accent + '15' }]}
+                  onPress={() => { setMiniSel(i); setMiniCount(0); }}
+                >
+                  <Text style={{ fontSize: FontSize.xs, color: miniSel === i ? t.accent : t.textDim }}>{d.text}</Text>
+                </Pressable>
+              ))}
+            </View>
+            <Pressable onPress={() => { setMiniCount((c) => c + 1); incrementDhikr(); }} style={[styles.miniCounter, { borderColor: t.accent + '44' }]}>
+              <Text style={{ fontSize: 24, fontWeight: '700', color: t.accent }}>{miniCount}</Text>
+            </Pressable>
           </View>
-          <Pressable onPress={() => { setMiniCount((c) => c + 1); incrementDhikr(); }} style={[styles.miniCounter, { borderColor: t.accent + '44' }]}>
-            <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent }}>{miniCount}</Text>
-          </Pressable>
-          <Pressable onPress={() => setMiniCount(0)} style={styles.resetTouch}>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Zurücksetzen</Text>
-          </Pressable>
         </Card>
 
         {/* Quran Fortschritt */}
         <Pressable onPress={() => router.push(`/quran/${lastReadSurah}`)}>
           <Card>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Quran-Fortschritt</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>
-                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Weiterlesen</Text>
-                <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Sure {lastReadSurah} von 114</Text>
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>Quran weiterlesen</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Sure {lastReadSurah}/114</Text>
               </View>
-              <View style={{ alignItems: 'center' }}>
-                <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent }}>{Math.round((lastReadSurah / 114) * 100)}%</Text>
-              </View>
+              <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.accent }}>{Math.round((lastReadSurah / 114) * 100)}%</Text>
             </View>
-            <View style={[styles.progressBar, { marginTop: Spacing.md }]}>
+            <View style={[styles.progressBar, { marginTop: Spacing.sm }]}>
               <View style={[styles.progressFill, { width: `${(lastReadSurah / 114) * 100}%`, backgroundColor: t.accent }]} />
             </View>
           </Card>
         </Pressable>
-
-        {/* Global Dhikr Placeholder */}
-        <Card centered>
-          <Text style={{ fontSize: 32 }}>🌍</Text>
-          <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginTop: Spacing.sm }}>Globaler Tasbih heute</Text>
-          <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>--</Text>
-          <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
-            <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Kommt in Phase 3</Text>
-          </View>
-        </Card>
       </ScrollView>
     </SafeAreaView>
   );
@@ -472,13 +411,11 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg, paddingBottom: 100 },
   badge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: BorderRadius.xl, marginTop: Spacing.sm },
   miniDot: { width: 10, height: 10, borderRadius: 5 },
-  miniChip: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, borderWidth: 1 },
-  miniCounter: { width: 100, height: 100, borderRadius: 50, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  resetTouch: { marginTop: Spacing.sm, minHeight: 44, justifyContent: 'center' },
+  miniChip: { paddingHorizontal: Spacing.sm, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, borderWidth: 1 },
+  miniCounter: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   prayerCountdownCard: { borderRadius: BorderRadius.md, overflow: 'hidden', borderWidth: 1, marginBottom: Spacing.md },
   prayerProgressBar: { width: '100%', height: Spacing.sm, borderRadius: Spacing.xs, overflow: 'hidden' },
   prayerProgressFill: { height: '100%', borderRadius: Spacing.xs },
   progressBar: { height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.1)', overflow: 'hidden' },
   progressFill: { height: '100%', borderRadius: 3 },
-  phaseBadge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, marginTop: Spacing.sm },
 });
