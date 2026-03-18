@@ -41,7 +41,7 @@ export async function schedulePrayerNotifications(times, settings) {
       ? `${name}-Gebet in ${minutesBefore} Minuten`
       : `Es ist Zeit für das ${name}-Gebet`;
 
-    // TODO: Use adhan sound when config.adhan is true and config.sound !== 'standard'
+    // TODO: Use adhan sound (assets/audio/adhan.mp3) when config.adhan is true
     await Notifications.scheduleNotificationAsync({
       content: {
         title: name,
