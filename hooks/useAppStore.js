@@ -1,18 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { checkAndUpdateStreak } from '../features/streaks/streakManager';
-
-function todayString() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
-
-function yesterdayString() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
+import { calculateStreak, getTodayString, getYesterdayString } from '../features/streaks/streakManager';
 
 export const useAppStore = create(
   persist(
@@ -33,8 +22,8 @@ export const useAppStore = create(
       setQuranSecondLanguage: (lang) => set({ quranSecondLanguage: lang }),
       setLastRead: (surah, ayah) => {
         const state = get();
-        const today = todayString();
-        const result = checkAndUpdateStreak(state.lastQuranDate, state.quranStreak);
+        const today = getTodayString();
+        const result = calculateStreak(state.lastQuranDate, state.quranStreak);
         set({
           lastReadSurah: surah,
           lastReadAyah: ayah,
@@ -43,11 +32,10 @@ export const useAppStore = create(
           lastQuranDate: result.date,
           weeklyQuranMinutes: { ...(state.weeklyQuranMinutes || {}), [today]: ((state.weeklyQuranMinutes || {})[today] || 0) + 1 },
         });
-        // Track daily quran progress
         get().incrementDailyProgress('quran', 1);
       },
       todayPrayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
-      lastTrackerDate: todayString(),
+      lastTrackerDate: getTodayString(),
       togglePrayerDone: (prayer) => {
         const state = get();
         const wasOff = !state.todayPrayers[prayer];
@@ -60,21 +48,21 @@ export const useAppStore = create(
         // Check if all 5 prayers are now done
         const allDone = Object.values(newPrayers).filter(Boolean).length === 5;
         if (allDone) {
-          const result = checkAndUpdateStreak(state.lastPrayerDate, state.currentStreak);
+          const result = calculateStreak(state.lastStreakDate, state.currentStreak);
           updates.currentStreak = result.streak;
-          updates.lastPrayerDate = result.date;
+          updates.lastStreakDate = result.date;
           updates.longestStreak = Math.max(state.longestStreak || 0, result.streak);
         }
 
         // Track Fajr streak separately
         if (prayer === 'fajr' && wasOff) {
-          const fajrResult = checkAndUpdateStreak(state.lastFajrDate, state.fajrStreak);
+          const fajrResult = calculateStreak(state.lastFajrDate, state.fajrStreak);
           updates.fajrStreak = fajrResult.streak;
           updates.lastFajrDate = fajrResult.date;
         }
 
         // Track weekly prayers
-        const today = todayString();
+        const today = getTodayString();
         const prayerCount = Object.values(newPrayers).filter(Boolean).length;
         updates.weeklyPrayers = { ...(state.weeklyPrayers || {}), [today]: prayerCount };
 
@@ -84,7 +72,7 @@ export const useAppStore = create(
       // Streak fields
       currentStreak: 0,
       longestStreak: 0,
-      lastPrayerDate: null,
+      lastStreakDate: null,
       fajrStreak: 0,
       lastFajrDate: null,
       quranStreak: 0,
@@ -92,8 +80,6 @@ export const useAppStore = create(
       dhikrStreak: 0,
       lastDhikrDate: null,
       dailyDhikrGoal: 100,
-
-      streak: 0, // legacy, kept for compat
 
       onboardingComplete: false,
       setOnboardingComplete: () => set({ onboardingComplete: true }),
@@ -120,24 +106,22 @@ export const useAppStore = create(
       incrementDhikr: () => {
         const state = get();
         const newTotal = (state.totalDhikr || 0) + 1;
+        const today = getTodayString();
         const updates = { totalDhikr: newTotal };
 
         // Check if daily dhikr goal reached
         const todayCount = (state.todayDhikrCount || 0) + 1;
         updates.todayDhikrCount = todayCount;
         if (todayCount >= (state.dailyDhikrGoal || 100)) {
-          const result = checkAndUpdateStreak(state.lastDhikrDate, state.dhikrStreak);
+          const result = calculateStreak(state.lastDhikrDate, state.dhikrStreak);
           updates.dhikrStreak = result.streak;
           updates.lastDhikrDate = result.date;
         }
 
         // Track weekly dhikr
-        const today = todayString();
         updates.weeklyDhikr = { ...(state.weeklyDhikr || {}), [today]: ((state.weeklyDhikr || {})[today] || 0) + 1 };
 
         set(updates);
-
-        // Also increment daily progress for dhikr
         get().incrementDailyProgress('dhikr', 1);
       },
 
@@ -147,7 +131,7 @@ export const useAppStore = create(
       adhkarCounts: { morning: {}, evening: {} },
       lastAdhkarDate: null,
       incrementAdhkar: (period, adhkarId) => {
-        const today = todayString();
+        const today = getTodayString();
         set((s) => {
           const counts = s.lastAdhkarDate === today ? s.adhkarCounts : { morning: {}, evening: {} };
           return {
@@ -160,7 +144,7 @@ export const useAppStore = create(
         });
       },
       resetAdhkarIfNewDay: () => {
-        const today = todayString();
+        const today = getTodayString();
         const { lastAdhkarDate } = get();
         if (lastAdhkarDate && lastAdhkarDate !== today) {
           set({ adhkarCounts: { morning: {}, evening: {} }, lastAdhkarDate: today });
@@ -184,14 +168,14 @@ export const useAppStore = create(
         dailyGoals: { ...s.dailyGoals, [type]: { ...s.dailyGoals[type], enabled: !s.dailyGoals[type].enabled } },
       })),
       incrementDailyProgress: (type, amount) => {
-        const today = todayString();
+        const today = getTodayString();
         set((s) => {
           const dp = s.dailyProgress.date === today ? s.dailyProgress : { dhikr: 0, quran: 0, dua: 0, date: today };
           return { dailyProgress: { ...dp, [type]: dp[type] + (amount || 1), date: today } };
         });
       },
       resetDailyProgressIfNewDay: () => {
-        const today = todayString();
+        const today = getTodayString();
         const { dailyProgress } = get();
         if (dailyProgress.date && dailyProgress.date !== today) {
           set({ dailyProgress: { dhikr: 0, quran: 0, dua: 0, date: today } });
@@ -202,49 +186,49 @@ export const useAppStore = create(
 
       // Called on app start to reset daily tracker if needed
       checkDailyReset: () => {
-        const today = todayString();
+        const today = getTodayString();
+        const yesterday = getYesterdayString();
         const state = get();
         const { lastTrackerDate, todayPrayers } = state;
-        if (lastTrackerDate !== today) {
-          // Check yesterday's prayer completion for streak
+
+        if (lastTrackerDate === today) {
+          // Already reset today, just ensure memberSince
+          if (!state.memberSince) set({ memberSince: today });
+          return;
+        }
+
+        const updates = {
+          todayPrayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
+          lastTrackerDate: today,
+          todayDhikrCount: 0,
+          memberSince: state.memberSince || today,
+        };
+
+        // Only process yesterday's prayer data if lastTrackerDate was yesterday.
+        // If >1 day gap, todayPrayers is stale and should NOT be used.
+        if (lastTrackerDate === yesterday) {
           const allDone = Object.values(todayPrayers).filter(Boolean).length === 5;
           const fajrDone = todayPrayers.fajr;
-          const yesterday = yesterdayString();
 
-          const updates = {
-            todayPrayers: { fajr: false, dhuhr: false, asr: false, maghrib: false, isha: false },
-            lastTrackerDate: today,
-            todayDhikrCount: 0,
-            memberSince: state.memberSince || today,
-          };
-
-          // If yesterday all prayers were done and we haven't already recorded it
-          if (allDone && state.lastPrayerDate !== yesterday && state.lastPrayerDate !== today) {
-            const result = checkAndUpdateStreak(state.lastPrayerDate, state.currentStreak);
+          // If all prayers were done yesterday and not yet recorded via togglePrayerDone
+          if (allDone && state.lastStreakDate !== yesterday) {
+            const result = calculateStreak(state.lastStreakDate, state.currentStreak);
             updates.currentStreak = result.streak;
-            updates.lastPrayerDate = result.date;
+            updates.lastStreakDate = result.date;
             updates.longestStreak = Math.max(state.longestStreak || 0, result.streak);
-          } else if (!allDone && state.lastPrayerDate && state.lastPrayerDate < yesterday) {
-            // Streak is broken - but don't reset to 0 until they complete again
-            // The streak value stays, checkAndUpdateStreak will reset when next triggered
           }
 
-          // Fajr streak check
-          if (fajrDone && state.lastFajrDate !== yesterday && state.lastFajrDate !== today) {
-            const fajrResult = checkAndUpdateStreak(state.lastFajrDate, state.fajrStreak);
+          // Fajr streak check for yesterday
+          if (fajrDone && state.lastFajrDate !== yesterday) {
+            const fajrResult = calculateStreak(state.lastFajrDate, state.fajrStreak);
             updates.fajrStreak = fajrResult.streak;
             updates.lastFajrDate = fajrResult.date;
           }
-
-          // Sync legacy streak field
-          updates.streak = updates.currentStreak ?? state.currentStreak;
-
-          set(updates);
         }
-        // Set memberSince if not yet set
-        if (!get().memberSince) {
-          set({ memberSince: today });
-        }
+        // If lastTrackerDate < yesterday: todayPrayers is stale data from >1 day ago.
+        // Streaks will naturally break on next trigger (calculateStreak handles the gap).
+
+        set(updates);
 
         // Cleanup entries older than 60 days
         const cutoff = new Date();
@@ -277,19 +261,18 @@ export const useAppStore = create(
         lastReadAyah: state.lastReadAyah,
         todayPrayers: state.todayPrayers,
         lastTrackerDate: state.lastTrackerDate,
-        streak: state.streak,
         onboardingComplete: state.onboardingComplete,
         appLanguage: state.appLanguage,
         favorites: state.favorites,
         totalPrayers: state.totalPrayers,
         totalDhikr: state.totalDhikr,
         surahsRead: state.surahsRead,
-        longestStreak: state.longestStreak,
-        fajrStreak: state.fajrStreak,
         memberSince: state.memberSince,
-        // New streak fields
+        // Streak fields
         currentStreak: state.currentStreak,
-        lastPrayerDate: state.lastPrayerDate,
+        longestStreak: state.longestStreak,
+        lastStreakDate: state.lastStreakDate,
+        fajrStreak: state.fajrStreak,
         lastFajrDate: state.lastFajrDate,
         quranStreak: state.quranStreak,
         lastQuranDate: state.lastQuranDate,
@@ -305,6 +288,17 @@ export const useAppStore = create(
         weeklyDhikr: state.weeklyDhikr,
         weeklyQuranMinutes: state.weeklyQuranMinutes,
       }),
+      // Migrate old lastPrayerDate → lastStreakDate
+      migrate: (persisted) => {
+        if (persisted.lastPrayerDate && !persisted.lastStreakDate) {
+          persisted.lastStreakDate = persisted.lastPrayerDate;
+          delete persisted.lastPrayerDate;
+        }
+        // Remove legacy streak field
+        delete persisted.streak;
+        return persisted;
+      },
+      version: 1,
     }
   )
 );
