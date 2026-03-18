@@ -98,9 +98,13 @@ function NightStars({ t }) {
 // Helper to read notification settings (supports old boolean and new object format)
 function getNotifSettings(notifications, key) {
   const val = notifications[key];
-  if (typeof val === 'boolean') return { enabled: val, adhan: false, sound: 'standard', minutesBefore: 0 };
-  if (typeof val === 'object' && val !== null) return val;
-  return { enabled: false, adhan: false, sound: 'standard', minutesBefore: 0 };
+  let result;
+  if (typeof val === 'boolean') result = { enabled: val, adhan: false, sound: 'standard', minutesBefore: 5 };
+  else if (typeof val === 'object' && val !== null) result = val;
+  else result = { enabled: false, adhan: false, sound: 'standard', minutesBefore: 5 };
+  // Clamp legacy values
+  if (result.minutesBefore === 0 || result.minutesBefore === 30) result = { ...result, minutesBefore: 5 };
+  return result;
 }
 
 function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
@@ -283,23 +287,27 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
 
           {/* Minutes before */}
           <View style={{ marginTop: 12 }}>
-            <Text style={{ fontSize: 13, fontWeight: '600', color: t.textDim, marginBottom: 10 }}>Minuten vorher erinnern</Text>
+            <Text style={{ fontSize: 13, color: t.textDim, marginBottom: 8 }}>Erinnerung vorher</Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              {MINUTES_BEFORE_OPTIONS.map((min) => (
-                <Pressable
-                  key={min}
-                  onPress={() => handleSetMinutes(min)}
-                  style={{
-                    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, borderWidth: 1,
-                    borderColor: settings.minutesBefore === min ? t.accent : t.border,
-                    backgroundColor: settings.minutesBefore === min ? t.accent + '15' : 'transparent',
-                  }}
-                >
-                  <Text style={{ fontSize: 13, fontWeight: '500', color: settings.minutesBefore === min ? t.accent : t.text }}>
-                    {min === 0 ? 'Pünktlich' : `${min} Min`}
-                  </Text>
-                </Pressable>
-              ))}
+              {MINUTES_BEFORE_OPTIONS.map((min) => {
+                const active = settings.minutesBefore === min;
+                return (
+                  <Pressable
+                    key={min}
+                    onPress={() => handleSetMinutes(min)}
+                    style={{
+                      flex: 1, alignItems: 'center',
+                      paddingVertical: 10, borderRadius: 10, borderWidth: 1,
+                      borderColor: active ? t.accent : t.border,
+                      backgroundColor: active ? t.accent + '15' : 'transparent',
+                    }}
+                  >
+                    <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? t.accent : t.textDim }}>
+                      {min} Min
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
 
