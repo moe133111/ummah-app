@@ -13,27 +13,26 @@ export const useAppStore = create(
       calculationMethod: 'MWL',
       setCalculationMethod: (method) => set({ calculationMethod: method }),
       notifications: {
-        fajr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
-        sunrise: { enabled: false, adhan: false, sound: 'standard', minutesBefore: 0 },
-        dhuhr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
-        asr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
-        maghrib: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
-        isha: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 0 },
+        fajr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 5 },
+        sunrise: { enabled: false, adhan: false, sound: 'standard', minutesBefore: 5 },
+        dhuhr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 5 },
+        asr: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 5 },
+        maghrib: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 5 },
+        isha: { enabled: true, adhan: false, sound: 'standard', minutesBefore: 5 },
       },
       toggleNotification: (prayer) => set((s) => {
         const current = s.notifications[prayer];
-        // Support both old boolean format and new object format
         const wasEnabled = typeof current === 'boolean' ? current : current?.enabled;
         return {
           notifications: {
             ...s.notifications,
-            [prayer]: { ...(typeof current === 'object' ? current : { adhan: false, sound: 'standard', minutesBefore: 0 }), enabled: !wasEnabled },
+            [prayer]: { ...(typeof current === 'object' ? current : { adhan: false, sound: 'standard', minutesBefore: 5 }), enabled: !wasEnabled },
           },
         };
       }),
       updateNotificationSetting: (prayer, settings) => set((s) => {
         const current = s.notifications[prayer];
-        const base = typeof current === 'object' ? current : { enabled: !!current, adhan: false, sound: 'standard', minutesBefore: 0 };
+        const base = typeof current === 'object' ? current : { enabled: !!current, adhan: false, sound: 'standard', minutesBefore: 5 };
         return {
           notifications: {
             ...s.notifications,
@@ -331,8 +330,18 @@ export const useAppStore = create(
           persisted.lastStreakDate = persisted.lastPrayerDate;
           delete persisted.lastPrayerDate;
         }
-        // Remove legacy streak field
         delete persisted.streak;
+        // Migrate notification minutesBefore: clamp 0 and 30 to 5
+        if (persisted.notifications && typeof persisted.notifications === 'object') {
+          for (const key of Object.keys(persisted.notifications)) {
+            const val = persisted.notifications[key];
+            if (typeof val === 'object' && val !== null) {
+              if (val.minutesBefore === 0 || val.minutesBefore === 30) {
+                val.minutesBefore = 5;
+              }
+            }
+          }
+        }
         return persisted;
       },
       version: 1,
