@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform, ActivityIndicator, Modal, Alert } from 'react-native';
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Audio } from 'expo-av';
@@ -11,7 +11,7 @@ import { schedulePrayerNotifications } from '../../features/prayer/notifications
 import { useCompass, requestIOSPermission } from '../../features/qibla/useCompass';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
-import { ADHAN_SOUNDS, MINUTES_BEFORE_OPTIONS } from '../../features/prayer/adhanSounds';
+import { ADHAN_SOUNDS, REMINDER_OPTIONS } from '../../features/prayer/adhanSounds';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 import QiblaMap from '../../components/ui/QiblaMap';
@@ -98,13 +98,9 @@ function NightStars({ t }) {
 // Helper to read notification settings (supports old boolean and new object format)
 function getNotifSettings(notifications, key) {
   const val = notifications[key];
-  let result;
-  if (typeof val === 'boolean') result = { enabled: val, adhan: false, sound: 'standard', minutesBefore: 5 };
-  else if (typeof val === 'object' && val !== null) result = val;
-  else result = { enabled: false, adhan: false, sound: 'standard', minutesBefore: 5 };
-  // Clamp legacy values
-  if (result.minutesBefore === 0 || result.minutesBefore === 30) result = { ...result, minutesBefore: 5 };
-  return result;
+  if (typeof val === 'boolean') return { enabled: val, adhan: false, sound: 'standard', minutesBefore: 0 };
+  if (typeof val === 'object' && val !== null) return val;
+  return { enabled: false, adhan: false, sound: 'standard', minutesBefore: 0 };
 }
 
 function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
@@ -122,6 +118,16 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
   const handleSetSound = (id) => updateNotificationSetting(prayerKey, { sound: id });
   const handleSetMinutes = (min) => updateNotificationSetting(prayerKey, { minutesBefore: min });
 
+  // Initialize audio mode
+  useEffect(() => {
+    Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+    }).catch(() => {});
+  }, []);
+
   const previewAdhan = useCallback(async (sound) => {
     setPreviewError(null);
 
@@ -137,39 +143,53 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
       return;
     }
 
-    // Standard: haptic feedback
+    // Standard: haptic feedback + brief visual
     if (!sound.uri) {
       try { await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch {}
-      setPreviewPlaying(null);
+      setPreviewPlaying(sound.id);
+      setTimeout(() => setPreviewPlaying(null), 1000);
       return;
     }
 
     try {
       setPreviewPlaying(sound.id);
+      console.log('Loading adhan audio:', sound.uri);
 
       const { sound: audioObj } = await Audio.Sound.createAsync(
         { uri: sound.uri },
-        { shouldPlay: true },
-        (status) => {
-          if (status.didJustFinish || status.error) {
-            setPreviewPlaying(null);
-          }
-        }
+        { shouldPlay: true }
       );
+
       previewSoundRef.current = audioObj;
 
-      // Auto-stop after 8 seconds
+      audioObj.setOnPlaybackStatusUpdate((status) => {
+        if (status.didJustFinish) {
+          setPreviewPlaying(null);
+          audioObj.unloadAsync().catch(() => {});
+          if (previewSoundRef.current === audioObj) previewSoundRef.current = null;
+        }
+        if (status.error) {
+          console.error('Playback error:', status.error);
+          setPreviewPlaying(null);
+          setPreviewError(sound.id);
+          audioObj.unloadAsync().catch(() => {});
+          if (previewSoundRef.current === audioObj) previewSoundRef.current = null;
+        }
+      });
+
+      // Auto-stop after 10 seconds
       setTimeout(async () => {
         if (previewSoundRef.current === audioObj) {
           try { await audioObj.stopAsync(); await audioObj.unloadAsync(); } catch {}
           previewSoundRef.current = null;
           setPreviewPlaying(null);
         }
-      }, 8000);
+      }, 10000);
     } catch (error) {
       console.error('Adhan preview error:', error);
       setPreviewPlaying(null);
       setPreviewError(sound.id);
+      Alert.alert('Audio-Fehler', 'Der Adhan-Sound konnte nicht abgespielt werden. Bitte prüfe deine Internetverbindung.');
     }
   }, [previewPlaying]);
 
@@ -289,12 +309,12 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
           <View style={{ marginTop: 12 }}>
             <Text style={{ fontSize: 13, color: t.textDim, marginBottom: 8 }}>Erinnerung vorher</Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              {MINUTES_BEFORE_OPTIONS.map((min) => {
-                const active = settings.minutesBefore === min;
+              {REMINDER_OPTIONS.map((opt) => {
+                const active = settings.minutesBefore === opt.value;
                 return (
                   <Pressable
-                    key={min}
-                    onPress={() => handleSetMinutes(min)}
+                    key={opt.value}
+                    onPress={() => handleSetMinutes(opt.value)}
                     style={{
                       flex: 1, alignItems: 'center',
                       paddingVertical: 10, borderRadius: 10, borderWidth: 1,
@@ -303,7 +323,7 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
                     }}
                   >
                     <Text style={{ fontSize: 13, fontWeight: active ? '600' : '400', color: active ? t.accent : t.textDim }}>
-                      {min} Min
+                      {opt.label}
                     </Text>
                   </Pressable>
                 );
