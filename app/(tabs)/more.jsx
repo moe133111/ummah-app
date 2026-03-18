@@ -1,12 +1,13 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Switch, SafeAreaView } from 'react-native';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useAppStore } from '../../hooks/useAppStore';
 import { useLocation } from '../../hooks/useLocation';
 import { getAvailableMethods, METHOD_RECOMMENDATIONS } from '../../features/prayer/prayerCalculation';
 import { getWeekTotal, getTrend } from '../../features/stats/statsCalculator';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
-import { getCurrentHijriDate } from '../../features/calendar/hijriCalendar';
+import { getCurrentHijriDate, getHijriForDate } from '../../features/calendar/hijriCalendar';
+import { ISLAMIC_EVENTS, getEventsForHijriDate } from '../../features/calendar/islamicEvents';
 import Card from '../../components/ui/Card';
 import FeaturePreview from '../../components/ui/FeaturePreview';
 import HeaderBar from '../../components/ui/HeaderBar';
@@ -42,6 +43,30 @@ export default function MoreScreen() {
   const hijriTodayStr = hijriToday
     ? `${hijriToday.day}. ${HIJRI_MONTH_NAMES[hijriToday.month]} ${hijriToday.year} AH`
     : '';
+
+  // Next upcoming holiday
+  const nextHoliday = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (let offset = 0; offset <= 400; offset++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() + offset);
+      const hijri = getHijriForDate(date);
+      if (!hijri) continue;
+      const events = getEventsForHijriDate(hijri.month, hijri.day);
+      for (const ev of events) {
+        if (ev.endDay && hijri.day !== ev.startDay) continue;
+        if (ev.type === 'period' && ev.name === 'Erste 10 Tage Dhul Hijja') continue;
+        const DE_M = ['', 'Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+        return {
+          ...ev,
+          daysUntil: offset,
+          gregStr: `${date.getDate()}. ${DE_M[date.getMonth() + 1]}`,
+        };
+      }
+    }
+    return null;
+  }, []);
 
   const prayerWeekTotal = getWeekTotal(weeklyPrayers);
   const dhikrWeekTotal = getWeekTotal(weeklyDhikr);
@@ -90,6 +115,21 @@ export default function MoreScreen() {
               </View>
               <Text style={{ fontSize: 20, color: t.accent }}>→</Text>
             </Pressable>
+
+            {nextHoliday && (
+              <View style={[styles.nextHoliday, { backgroundColor: t.accent + '08', borderColor: t.accent + '20' }]}>
+                <Text style={{ fontSize: 24 }}>{nextHoliday.emoji}</Text>
+                <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                  <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>{nextHoliday.name}</Text>
+                  <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>{nextHoliday.gregStr}</Text>
+                </View>
+                <View style={[styles.countdownBadge, { backgroundColor: t.accent + '15' }]}>
+                  <Text style={{ fontSize: FontSize.xs, fontWeight: '700', color: t.accent }}>
+                    {nextHoliday.daysUntil === 0 ? 'Heute' : nextHoliday.daysUntil === 1 ? 'Morgen' : `in ${nextHoliday.daysUntil}d`}
+                  </Text>
+                </View>
+              </View>
+            )}
 
             <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text, marginBottom: Spacing.sm, marginTop: Spacing.sm }}>Ibadah-Statistik</Text>
             <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm }}>
@@ -348,6 +388,8 @@ const styles = StyleSheet.create({
   duaWallPreview: { padding: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1 },
   goalBtn: { width: 44, height: 44, borderRadius: 22, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   calendarBtn: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
+  nextHoliday: { flexDirection: 'row', alignItems: 'center', padding: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
+  countdownBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
   detailBtn: { alignSelf: 'center', paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: BorderRadius.full, borderWidth: 1, marginBottom: Spacing.md, minHeight: 44, justifyContent: 'center' },
   phaseBadge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, alignSelf: 'center', marginTop: Spacing.md },
 });
