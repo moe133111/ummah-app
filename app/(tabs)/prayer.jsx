@@ -280,7 +280,7 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
 }
 
 export default function PrayerScreen() {
-  const { location, loading } = useLocation();
+  const { location, loading, error: locationError } = useLocation();
   const isDark = useAppStore((s) => s.theme === 'dark');
   const method = useAppStore((s) => s.calculationMethod);
   const todayPrayers = useAppStore((s) => s.todayPrayers);
@@ -431,9 +431,16 @@ export default function PrayerScreen() {
             )}
             {/* Source indicator */}
             {prayerSource && (
-              <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginBottom: Spacing.sm }}>
-                {prayerSource === 'aladhan' ? 'via Aladhan API' : prayerSource === 'cache' ? 'via Aladhan (Cache)' : 'Offline-Berechnung'}
-              </Text>
+              <View style={{ alignItems: 'center', marginBottom: Spacing.sm }}>
+                <Text style={{ fontSize: FontSize.xs, color: prayerSource === 'local' ? '#E6A700' : t.textDim, textAlign: 'center' }}>
+                  {prayerSource === 'aladhan' ? 'via Aladhan API' : prayerSource === 'cache' ? 'via Aladhan (Cache)' : '⚠️ Offline-Berechnung — Zeiten können leicht abweichen'}
+                </Text>
+              </View>
+            )}
+            {locationError && (
+              <View style={{ alignItems: 'center', marginBottom: Spacing.sm, backgroundColor: '#E6510015', padding: Spacing.sm, borderRadius: BorderRadius.sm }}>
+                <Text style={{ fontSize: FontSize.xs, color: '#E65100', textAlign: 'center' }}>📍 {locationError} — Fallback auf Berlin</Text>
+              </View>
             )}
 
             {/* Prayer time cards */}

@@ -227,7 +227,7 @@ function DailyGoalsDetail({ goals, progress, t }) {
 }
 
 export default function HomeScreen() {
-  const { location, loading } = useLocation();
+  const { location, loading, error: locationError } = useLocation();
   const isDark = useAppStore((s) => s.theme === 'dark');
   const method = useAppStore((s) => s.calculationMethod);
   const todayPrayers = useAppStore((s) => s.todayPrayers);
@@ -303,6 +303,9 @@ export default function HomeScreen() {
             <View style={[styles.badge, { backgroundColor: t.accent + '18' }]}>
               <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent }}>📍 {location.name}</Text>
             </View>
+          ) : null}
+          {locationError ? (
+            <Text style={{ fontSize: 11, color: '#E65100', marginTop: 4 }}>📍 {locationError}</Text>
           ) : null}
         </Card>
 
