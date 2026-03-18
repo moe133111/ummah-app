@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
+
 import { getEventsForHijriDate } from '../features/calendar/islamicEvents';
 import { useAppStore } from '../hooks/useAppStore';
 import { DarkTheme, LightTheme, FontSize, Spacing, BorderRadius } from '../constants/theme';
@@ -185,6 +186,7 @@ export default function CalendarScreen() {
   const selectedEvents = selectedDay ? getEventsForDate(selectedDay) : [];
 
   return (
+    <View style={{ flex: 1, backgroundColor: t.bg }}>
     <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
       {/* Month Navigation */}
       <Card>
@@ -348,5 +350,6 @@ export default function CalendarScreen() {
         )}
       </Card>
     </ScrollView>
+    </View>
   );
 }

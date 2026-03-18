@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -26,6 +25,7 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30
 
 export default function RootLayout() {
   const theme = useAppStore((s) => s.theme);
+  const isDark = theme === 'dark';
   const onboardingComplete = useAppStore((s) => s.onboardingComplete);
   const checkDailyReset = useAppStore((s) => s.checkDailyReset);
   const resetDailyProgressIfNewDay = useAppStore((s) => s.resetDailyProgressIfNewDay);
@@ -62,18 +62,23 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <ErrorBoundary>
-          <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-          <View style={{ flex: 1 }}>
-            <OfflineBanner />
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="quran/[surah]" options={{ headerShown: true, headerTitle: 'Quran', headerBackTitle: 'Quran', animation: 'none', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
-              <Stack.Screen name="profile" options={{ headerShown: true, title: 'Profil', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
-              <Stack.Screen name="stats" options={{ headerShown: true, title: 'Statistiken', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
-              <Stack.Screen name="calendar" options={{ headerShown: true, title: 'Islamischer Kalender', headerBackTitle: 'Zurück', animation: 'slide_from_right', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
-              <Stack.Screen name="duawall" options={{ headerShown: true, title: 'Dua Wall', headerBackTitle: 'Zurück', animation: 'slide_from_right', headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
+          <StatusBar style={isDark ? 'light' : 'dark'} />
+          <OfflineBanner />
+            <Stack screenOptions={{
+              headerShown: false,
+              headerStyle: { backgroundColor: isDark ? '#0A1628' : '#F8F6F0' },
+              headerTintColor: isDark ? '#E8E0D4' : '#1A1A2E',
+              headerTitleStyle: { fontWeight: '600' },
+              contentStyle: { backgroundColor: isDark ? '#0A1628' : '#F8F6F0' },
+            }}>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="quran/[surah]" options={{ headerShown: true, headerBackTitle: 'Quran', title: '' }} />
+              <Stack.Screen name="profile" options={{ headerShown: true, headerBackTitle: 'Zurück', title: 'Profil' }} />
+              <Stack.Screen name="stats" options={{ headerShown: true, headerBackTitle: 'Zurück', title: 'Statistiken' }} />
+              <Stack.Screen name="calendar" options={{ headerShown: true, headerBackTitle: 'Zurück', title: 'Islamischer Kalender', animation: 'slide_from_right' }} />
+              <Stack.Screen name="duawall" options={{ headerShown: true, headerBackTitle: 'Zurück', title: 'Dua Wall', animation: 'slide_from_right' }} />
+              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
             </Stack>
-          </View>
         </ErrorBoundary>
       </QueryClientProvider>
     </SafeAreaProvider>

@@ -144,6 +144,7 @@ export default function QuranScreen() {
             keyExtractor={i => String(i.number)}
             renderItem={renderSurah}
             ListHeaderComponent={ListHeader}
+            style={{ backgroundColor: t.bg }}
             contentContainerStyle={{ paddingHorizontal: Spacing.lg, paddingBottom: 100 }}
           />
         )}
