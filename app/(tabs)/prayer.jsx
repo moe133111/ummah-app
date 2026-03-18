@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, SafeAreaView, Platform, ActivityIndicator } from 'react-native';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { useLocation } from '../../hooks/useLocation';
@@ -21,6 +21,51 @@ const OUTER_R = 134;
 const INNER_R = 110;
 const TICK_R = OUTER_R - 2;
 const LABEL_R = 95;
+
+const DE_WEEKDAYS = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+const DE_MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+function toDateString(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function isSameDay(a, b) {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+function formatGregorianDE(d) {
+  return `${DE_WEEKDAYS[d.getDay()]}, ${d.getDate()}. ${DE_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function gregorianToHijri(date) {
+  const y = date.getFullYear();
+  const m = date.getMonth() + 1;
+  const d = date.getDate();
+
+  let jd = Math.floor((11 * y + 3) / 30) + 354 * y + 30 * m - Math.floor((m - 1) / 2) + d + 1948440 - 385;
+  // More accurate: use the standard algorithm
+  const a = Math.floor((14 - m) / 12);
+  const yy = y + 4800 - a;
+  const mm = m + 12 * a - 3;
+  jd = d + Math.floor((153 * mm + 2) / 5) + 365 * yy + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+
+  const l = jd - 1948440 + 10632;
+  const n = Math.floor((l - 1) / 10631);
+  const ll = l - 10631 * n + 354;
+  const j = Math.floor((10985 - ll) / 5316) * Math.floor((50 * ll) / 17719) + Math.floor(ll / 5670) * Math.floor((43 * ll) / 15238);
+  const lll = ll - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) - Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
+  const hijriMonth = Math.floor((24 * lll) / 709);
+  const hijriDay = lll - Math.floor((709 * hijriMonth) / 24);
+  const hijriYear = 30 * n + j - 30;
+
+  const hijriMonths = [
+    'Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani',
+    'Jumada al-Ula', 'Jumada al-Thani', 'Rajab', 'Sha\'ban',
+    'Ramadan', 'Shawwal', 'Dhul-Qi\'dah', 'Dhul-Hijjah',
+  ];
+
+  return `${hijriDay}. ${hijriMonths[hijriMonth - 1] || ''} ${hijriYear}`;
+}
 
 function isNightTime(times) {
   if (!times) return false;
@@ -57,18 +102,46 @@ export default function PrayerScreen() {
   const toggleNotification = useAppStore((s) => s.toggleNotification);
   const t = isDark ? DarkTheme : LightTheme;
   const [tab, setTab] = useState('times');
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
 
-  const dateString = new Date().toISOString().slice(0, 10);
+  const today = useMemo(() => new Date(), []);
+  const isToday = isSameDay(selectedDate, today);
+  const dateString = toDateString(selectedDate);
+
+  const canGoBack = useMemo(() => {
+    const min = new Date(today);
+    min.setDate(min.getDate() - 7);
+    return selectedDate > min;
+  }, [selectedDate, today]);
+
+  const canGoForward = useMemo(() => {
+    const max = new Date(today);
+    max.setDate(max.getDate() + 7);
+    return selectedDate < max;
+  }, [selectedDate, today]);
+
+  const goBack = useCallback(() => {
+    if (!canGoBack) return;
+    setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() - 1); return n; });
+  }, [canGoBack]);
+
+  const goForward = useCallback(() => {
+    if (!canGoForward) return;
+    setSelectedDate((d) => { const n = new Date(d); n.setDate(n.getDate() + 1); return n; });
+  }, [canGoForward]);
+
+  const goToday = useCallback(() => setSelectedDate(new Date()), []);
+
   const { data: prayerData, isLoading: timesLoading } = useQuery({
     queryKey: ['prayerTimes', location?.lat, location?.lng, method, dateString],
-    queryFn: () => fetchPrayerTimes(location.lat, location.lng, method),
+    queryFn: () => fetchPrayerTimes(location.lat, location.lng, method, selectedDate),
     enabled: !!location,
     staleTime: 1000 * 60 * 60,
   });
 
   const times = prayerData?.times || null;
   const prayerSource = prayerData?.source || null;
-  const nextPrayer = useMemo(() => (times ? getNextPrayer(times) : null), [times]);
+  const nextPrayer = useMemo(() => (isToday && times ? getNextPrayer(times) : null), [times, isToday]);
   const completedCount = Object.values(todayPrayers).filter(Boolean).length;
   const activeNotifCount = TRACKABLE_KEYS.filter((k) => notifications[k]).length;
   const allNotifsOn = activeNotifCount === TRACKABLE_KEYS.length;
@@ -117,6 +190,27 @@ export default function PrayerScreen() {
 
         {tab === 'times' && (
           <>
+            {/* Date Navigation */}
+            <Card>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Pressable onPress={goBack} style={styles.dateArrow} disabled={!canGoBack}>
+                  <Text style={{ fontSize: 20, color: canGoBack ? t.accent : t.textDim + '44' }}>←</Text>
+                </Pressable>
+                <View style={{ flex: 1, alignItems: 'center' }}>
+                  <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>{formatGregorianDE(selectedDate)}</Text>
+                  <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent, marginTop: Spacing.xs }}>{gregorianToHijri(selectedDate)}</Text>
+                  {!isToday && (
+                    <Pressable onPress={goToday} style={[styles.todayBtn, { borderColor: t.accent + '44' }]}>
+                      <Text style={{ fontSize: FontSize.xs, color: t.accent, fontWeight: '600' }}>Heute</Text>
+                    </Pressable>
+                  )}
+                </View>
+                <Pressable onPress={goForward} style={styles.dateArrow} disabled={!canGoForward}>
+                  <Text style={{ fontSize: 20, color: canGoForward ? t.accent : t.textDim + '44' }}>→</Text>
+                </Pressable>
+              </View>
+            </Card>
+
             {/* Next prayer hero card */}
             {nextPrayer && (() => {
               const nextMeta = PRAYER_META[nextPrayer.key];
@@ -137,7 +231,7 @@ export default function PrayerScreen() {
             })()}
 
             {/* Notification summary */}
-            {times && (
+            {isToday && times && (
               <Pressable onPress={toggleAllNotifications} style={[styles.notifSummary, { backgroundColor: t.accent + '10', borderColor: t.accent + '30' }]}>
                 <Text style={{ fontSize: 16 }}>{allNotifsOn ? '🔔' : '🔕'}</Text>
                 <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent, flex: 1, marginLeft: Spacing.sm }}>
@@ -454,6 +548,8 @@ const compassStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   tab: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: 'transparent' },
+  dateArrow: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  todayBtn: { marginTop: Spacing.sm, paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: BorderRadius.full, borderWidth: 1 },
   notifSummary: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
   notifTouch: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   nextPrayerCard: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1 },
