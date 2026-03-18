@@ -1,5 +1,7 @@
-// HINWEIS: Die URLs unten sind Platzhalter (nutzen Quran-Audio).
-// TODO: Ersetze mit echten Adhan-Aufnahmen wenn verfügbar.
+// Adhan-Audio-Quellen
+// Primär: islamcan.com (frei verfügbar)
+// Fallback: Die App zeigt "Audio nicht verfügbar" wenn URLs nicht erreichbar sind
+// TODO: Lokale Adhan-Dateien in assets/audio/ ablegen für offline-Nutzung
 export const ADHAN_SOUNDS = [
   {
     id: 'standard',
@@ -9,21 +11,27 @@ export const ADHAN_SOUNDS = [
   },
   {
     id: 'makkah',
-    name: 'Makkah',
-    description: 'Adhan aus der Heiligen Moschee',
-    uri: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/1.mp3',
+    name: 'Makkah Adhan',
+    description: 'Adhan aus der Heiligen Moschee in Mekka',
+    uri: 'https://www.islamcan.com/audio/adhan/azan1.mp3',
   },
   {
     id: 'madinah',
-    name: 'Madinah',
-    description: 'Adhan aus der Prophetenmoschee',
-    uri: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/2.mp3',
+    name: 'Madinah Adhan',
+    description: 'Adhan aus der Prophetenmoschee in Medina',
+    uri: 'https://www.islamcan.com/audio/adhan/azan2.mp3',
   },
   {
     id: 'mishary',
     name: 'Mishary Rashid',
     description: 'Mishary Rashid Alafasy',
-    uri: 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/3.mp3',
+    uri: 'https://www.islamcan.com/audio/adhan/azan3.mp3',
+  },
+  {
+    id: 'alaqsa',
+    name: 'Al-Aqsa Adhan',
+    description: 'Adhan aus der Al-Aqsa Moschee',
+    uri: 'https://www.islamcan.com/audio/adhan/azan4.mp3',
   },
 ];
 
