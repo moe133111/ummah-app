@@ -319,7 +319,7 @@ export default function HomeScreen() {
         })()}
 
         {/* Streak & Daily Goals side by side */}
-        <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16 }}>
           <View style={{ flex: 1 }}>
             <Card centered>
               <Text style={{ fontSize: 24 }}>{getStreakEmoji(currentStreak) || '🔥'}</Text>
@@ -376,24 +376,31 @@ export default function HomeScreen() {
         </Card>
 
         {/* Mini Dhikr Counter */}
-        <Card>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.md }}>Schneller Dhikr</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
-            <View style={{ flexDirection: 'row', gap: Spacing.xs, flex: 1 }}>
-              {DHIKR_MINI.map((d, i) => (
-                <Pressable
-                  key={i}
-                  style={[styles.miniChip, { borderColor: t.border }, miniSel === i && { borderColor: t.accent, backgroundColor: t.accent + '15' }]}
-                  onPress={() => { setMiniSel(i); setMiniCount(0); }}
-                >
-                  <Text style={{ fontSize: FontSize.xs, color: miniSel === i ? t.accent : t.textDim }}>{d.text}</Text>
-                </Pressable>
-              ))}
-            </View>
+        <Card style={{ padding: 24 }}>
+          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>📿 Schnell-Dhikr</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: Spacing.xs, marginBottom: 16 }}>
+            {DHIKR_MINI.map((d, i) => (
+              <Pressable
+                key={i}
+                style={[styles.miniChip, { borderColor: t.border }, miniSel === i && { borderColor: t.accent, backgroundColor: t.accent + '15' }]}
+                onPress={() => { setMiniSel(i); setMiniCount(0); }}
+              >
+                <Text style={{ fontSize: FontSize.xs, color: miniSel === i ? t.accent : t.textDim }}>{d.text}</Text>
+              </Pressable>
+            ))}
+          </View>
+          <Text style={{ fontSize: 18, color: t.accentLight, textAlign: 'center', marginBottom: 16 }}>{DHIKR_MINI[miniSel].arabic}</Text>
+          <View style={{ alignItems: 'center' }}>
             <Pressable onPress={() => { setMiniCount((c) => c + 1); incrementDhikr(); }} style={[styles.miniCounter, { borderColor: t.accent + '44' }]}>
-              <Text style={{ fontSize: 24, fontWeight: '700', color: t.accent }}>{miniCount}</Text>
+              <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent }}>{miniCount}</Text>
             </Pressable>
           </View>
+          <Pressable
+            onPress={() => setMiniCount(0)}
+            style={[styles.miniReset, { borderColor: t.border }]}
+          >
+            <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Zurücksetzen</Text>
+          </Pressable>
         </Card>
 
         {/* Quran Fortschritt */}
@@ -418,11 +425,12 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: Spacing.lg, paddingBottom: 100 },
+  content: { padding: 16, paddingBottom: 120 },
   badge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: BorderRadius.xl, marginTop: Spacing.sm },
   miniDot: { width: 10, height: 10, borderRadius: 5 },
   miniChip: { paddingHorizontal: Spacing.sm, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, borderWidth: 1 },
-  miniCounter: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  miniCounter: { width: 110, height: 110, borderRadius: 55, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  miniReset: { alignSelf: 'center', marginTop: 16, paddingVertical: 8, paddingHorizontal: 16, borderRadius: BorderRadius.full, borderWidth: 1 },
   prayerCountdownCard: { borderRadius: BorderRadius.md, overflow: 'hidden', borderWidth: 1, marginBottom: Spacing.md },
   prayerProgressBar: { width: '100%', height: Spacing.sm, borderRadius: Spacing.xs, overflow: 'hidden' },
   prayerProgressFill: { height: '100%', borderRadius: Spacing.xs },

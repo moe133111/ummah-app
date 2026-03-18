@@ -17,7 +17,6 @@ export default function ProfileScreen() {
   const quranStreak = useAppStore((s) => s.quranStreak) || 0;
   const dhikrStreak = useAppStore((s) => s.dhikrStreak) || 0;
   const memberSince = useAppStore((s) => s.memberSince);
-  const todayPrayers = useAppStore((s) => s.todayPrayers);
   const weeklyPrayers = useAppStore((s) => s.weeklyPrayers) || {};
   const t = isDark ? DarkTheme : LightTheme;
   const router = useRouter();
@@ -43,31 +42,31 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 100 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 120 }}>
         {/* Profile Header */}
-        <View style={styles.profileHeader}>
-          <View style={[styles.avatarLarge, { backgroundColor: t.surface, borderColor: t.accent }]}>
+        <View style={{ alignItems: 'center', marginBottom: 16 }}>
+          <View style={[styles.avatarLarge, { backgroundColor: t.surface, borderColor: t.accent, marginBottom: 12 }]}>
             <Text style={{ fontSize: 36 }}>👤</Text>
           </View>
-          <Text style={[styles.name, { color: t.text }]}>Nutzer</Text>
-          <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Mitglied seit {memberDate}</Text>
+          <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.text, marginBottom: 4 }}>Nutzer</Text>
+          <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginBottom: 16 }}>Mitglied seit {memberDate}</Text>
           {currentStreak > 0 && (
-            <View style={[styles.streakBadge, { backgroundColor: t.accent + '18' }]}>
+            <View style={[styles.streakBadge, { backgroundColor: t.accent + '18', marginBottom: 24 }]}>
               <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>🔥 {currentStreak} Tage Streak</Text>
             </View>
           )}
         </View>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - 2 columns */}
         <Text style={[styles.sectionTitle, { color: t.text }]}>Ibadah-Statistiken</Text>
         <View style={styles.statsGrid}>
           {stats.map((s) => (
             <View key={s.label} style={styles.statItem}>
-              <Card centered>
+              <View style={[styles.statCard, { backgroundColor: t.card, borderColor: t.border }]}>
                 <Text style={{ fontSize: 24 }}>{s.emoji}</Text>
-                <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>{s.value}</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, textAlign: 'center', marginTop: Spacing.xs }}>{s.label}</Text>
-              </Card>
+                <Text style={{ fontSize: 22, fontWeight: '700', color: t.accent, marginTop: 6 }}>{s.value}</Text>
+                <Text style={{ fontSize: 11, color: t.textDim, textAlign: 'center', marginTop: 6 }}>{s.label}</Text>
+              </View>
             </View>
           ))}
         </View>
@@ -86,11 +85,11 @@ export default function ProfileScreen() {
             <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>📖 Quran</Text>
             <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{quranProgress}/114 Suren</Text>
           </View>
-          <View style={[styles.progressBar, { backgroundColor: t.border }]}>
+          <View style={[styles.progressBar, { backgroundColor: t.border, marginBottom: 12 }]}>
             <View style={[styles.progressFill, { width: `${(quranProgress / 114) * 100}%`, backgroundColor: t.accent }]} />
           </View>
 
-          <View style={[styles.progressRow, { marginTop: Spacing.md }]}>
+          <View style={styles.progressRow}>
             <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>🕌 Gebete diese Woche</Text>
             <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{weekPrayers}/35</Text>
           </View>
@@ -99,22 +98,19 @@ export default function ProfileScreen() {
           </View>
         </Card>
 
-        {/* Achievements */}
+        {/* Achievements - 3 columns */}
         <Text style={[styles.sectionTitle, { color: t.text }]}>Errungenschaften</Text>
         <View style={styles.badgeGrid}>
           {ACHIEVEMENTS.map((badge) => {
             const unlocked = badge.check(storeState);
             return (
               <View key={badge.id} style={styles.badgeItem}>
-                <Card centered>
-                  <View style={[styles.badgeIcon, !unlocked && { opacity: 0.3 }]}>
-                    <Text style={{ fontSize: 28 }}>{unlocked ? badge.emoji : '🔒'}</Text>
-                  </View>
-                  <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: unlocked ? t.text : t.textDim, textAlign: 'center', marginTop: Spacing.xs }}>
+                <View style={[styles.badgeCard, { backgroundColor: t.card, borderColor: t.border }]}>
+                  <Text style={{ fontSize: 28, opacity: unlocked ? 1 : 0.3 }}>{unlocked ? badge.emoji : '🔒'}</Text>
+                  <Text style={{ fontSize: 11, fontWeight: '600', color: unlocked ? t.text : t.textDim, textAlign: 'center', marginTop: 6 }}>
                     {badge.name}
                   </Text>
-                  <Text style={{ fontSize: 9, color: t.textDim, textAlign: 'center', marginTop: Spacing.xs }}>{badge.description}</Text>
-                </Card>
+                </View>
               </View>
             );
           })}
@@ -125,10 +121,6 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  profileHeader: {
-    alignItems: 'center',
-    paddingVertical: Spacing.xl,
-  },
   avatarLarge: {
     width: 80,
     height: 80,
@@ -137,29 +129,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  name: {
-    fontSize: FontSize.xxl,
-    fontWeight: '700',
-    marginTop: Spacing.md,
-  },
   streakBadge: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.full,
-    marginTop: Spacing.md,
   },
   sectionTitle: {
     fontSize: FontSize.md,
     fontWeight: '700',
-    marginBottom: Spacing.sm,
+    marginBottom: 12,
     marginTop: Spacing.md,
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 16,
   },
   statItem: {
-    width: '50%',
+    width: '47%',
+  },
+  statCard: {
+    padding: 16,
+    minHeight: 80,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   detailBtn: {
     alignSelf: 'center',
@@ -167,8 +163,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
-    marginTop: Spacing.sm,
-    marginBottom: Spacing.sm,
+    marginBottom: 16,
     minHeight: 44,
     justifyContent: 'center',
   },
@@ -190,14 +185,16 @@ const styles = StyleSheet.create({
   badgeGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 16,
   },
   badgeItem: {
-    width: '33.33%',
+    width: '30%',
   },
-  badgeIcon: {
-    width: 44,
-    height: 44,
+  badgeCard: {
+    padding: 12,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
     alignItems: 'center',
-    justifyContent: 'center',
   },
 });
