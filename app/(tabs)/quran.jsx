@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, Pressable, TextInput, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ScrollView, Pressable, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
@@ -150,16 +150,46 @@ export default function QuranScreen() {
         )}
 
         {activeTab === 'learn' && (
-          <View style={styles.placeholderWrap}>
-            <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📚</Text>
-            <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text }}>Lernmodus</Text>
-            <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.sm, textAlign: 'center' }}>
-              Tajweed-Regeln, Aussprache-Übungen{'\n'}und Memorisierungs-Tools
-            </Text>
-            <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
-              <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Phase 2</Text>
+          <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg }}>
+            <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text, marginBottom: Spacing.lg }}>Lern-Module</Text>
+
+            {/* Arabisches Alphabet */}
+            <Pressable
+              onPress={() => router.push('/learn/alphabet')}
+              style={[styles.learnCard, { backgroundColor: cardBg, borderColor: t.border }]}
+            >
+              <Text style={{ fontSize: 32 }}>🔤</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Arabisches Alphabet</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Lerne alle 28 Buchstaben mit Aussprache und Formen</Text>
+              </View>
+              <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
+            </Pressable>
+
+            {/* Tajweed — Platzhalter */}
+            <View style={[styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: 0.5 }]}>
+              <Text style={{ fontSize: 32 }}>📖</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Tajweed-Grundlagen</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Kommt bald</Text>
+              </View>
+              <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
+                <Text style={{ color: t.accent, fontSize: 10, fontWeight: '600' }}>Bald</Text>
+              </View>
             </View>
-          </View>
+
+            {/* Vers lernen — Platzhalter */}
+            <View style={[styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: 0.5 }]}>
+              <Text style={{ fontSize: 32 }}>🧠</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Vers des Tages lernen</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Kommt bald</Text>
+              </View>
+              <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
+                <Text style={{ color: t.accent, fontSize: 10, fontWeight: '600' }}>Bald</Text>
+              </View>
+            </View>
+          </ScrollView>
         )}
 
         {activeTab === 'progress' && (
@@ -276,6 +306,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xxl,
+  },
+  learnCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 10,
+    borderWidth: 1,
+    minHeight: 72,
   },
   phaseBadge: {
     paddingHorizontal: Spacing.md,

@@ -182,6 +182,14 @@ export const useAppStore = create(
         }
       },
 
+      // Learn — alphabet progress
+      learnedLetters: [],
+      toggleLearnedLetter: (id) => set((s) => ({
+        learnedLetters: s.learnedLetters.includes(id)
+          ? s.learnedLetters.filter((x) => x !== id)
+          : [...s.learnedLetters, id],
+      })),
+
       // Dua Wall — user-posted duas (persisted locally)
       userDuas: [],
       addUserDua: (text) => set((s) => ({
@@ -326,6 +334,7 @@ export const useAppStore = create(
         weeklyDhikr: state.weeklyDhikr,
         weeklyQuranMinutes: state.weeklyQuranMinutes,
         userDuas: state.userDuas,
+        learnedLetters: state.learnedLetters,
       }),
       // Migrate old lastPrayerDate → lastStreakDate
       migrate: (persisted) => {

@@ -78,6 +78,7 @@ export default function RootLayout() {
               <Stack.Screen name="stats" options={{ headerShown: true, headerBackTitle: 'Zurück', title: 'Statistiken' }} />
               <Stack.Screen name="calendar" options={{ headerShown: true, headerBackTitle: 'Zurück', title: 'Islamischer Kalender', animation: 'slide_from_right' }} />
               <Stack.Screen name="duawall" options={{ headerShown: true, headerBackTitle: 'Zurück', title: 'Dua Wall', animation: 'slide_from_right' }} />
+              <Stack.Screen name="learn/alphabet" options={{ headerShown: true, title: 'Arabisches Alphabet', headerBackTitle: 'Quran' }} />
               <Stack.Screen name="onboarding" options={{ headerShown: false }} />
             </Stack>
           </SafeAreaView>
