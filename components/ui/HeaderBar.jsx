@@ -1,5 +1,6 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { Spacing, FontSize, BorderRadius } from '../../constants/theme';
 
 export default function HeaderBar({ title, titleAr, t }) {
@@ -18,8 +19,17 @@ export default function HeaderBar({ title, titleAr, t }) {
         )}
       </View>
       <Pressable onPress={() => router.push('/profile')} hitSlop={Spacing.sm} style={styles.avatarTouch}>
-        <View style={[styles.avatar, { backgroundColor: t.surface, borderColor: t.accent }]}>
-          <Text style={{ fontSize: 18 }}>👤</Text>
+        <View style={{
+          width: 38,
+          height: 38,
+          borderRadius: 19,
+          borderWidth: 1.5,
+          borderColor: '#B8860B',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'rgba(184,134,11,0.08)',
+        }}>
+          <Ionicons name="person-outline" size={20} color="#B8860B" />
         </View>
       </Pressable>
     </View>

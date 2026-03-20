@@ -297,18 +297,21 @@ export default function HomeScreen() {
         <HeaderBar titleAr="بِسْمِ ٱللَّهِ" title="Dein täglicher Begleiter" t={t} />
 
         {/* Date & Location */}
-        <Card centered>
-          <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>{gregorianDate}</Text>
-          {hijriDate ? <Text style={{ fontSize: FontSize.md, color: t.accent, marginTop: Spacing.xs }}>{hijriDate}</Text> : null}
-          {location?.name ? (
-            <View style={[styles.badge, { backgroundColor: t.accent + '18' }]}>
-              <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent }}>📍 {location.name}</Text>
-            </View>
-          ) : null}
-          {locationError ? (
-            <Text style={{ fontSize: 11, color: '#E65100', marginTop: 4 }}>📍 {locationError}</Text>
-          ) : null}
-        </Card>
+        <Pressable onPress={() => router.push('/calendar')}>
+          <Card centered>
+            <Text style={{ fontSize: FontSize.sm, color: t.textDim }}>{gregorianDate}</Text>
+            {hijriDate ? <Text style={{ fontSize: FontSize.md, color: t.accent, marginTop: Spacing.xs }}>{hijriDate}</Text> : null}
+            {location?.name ? (
+              <View style={[styles.badge, { backgroundColor: t.accent + '18' }]}>
+                <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent }}>📍 {location.name}</Text>
+              </View>
+            ) : null}
+            {locationError ? (
+              <Text style={{ fontSize: 11, color: '#E65100', marginTop: 4 }}>📍 {locationError}</Text>
+            ) : null}
+            <Text style={{ fontSize: 10, color: t.textDim, marginTop: 6 }}>Kalender öffnen →</Text>
+          </Card>
+        </Pressable>
 
         {/* Enhanced Prayer Countdown */}
         {nextPrayer && currentPrayer && (() => {

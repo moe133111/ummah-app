@@ -591,7 +591,7 @@ export default function SurahDetail() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['bottom']}>
       <View
         style={{ flex: 1, backgroundColor: t.bg }}
         onTouchStart={(e) => {
@@ -632,7 +632,7 @@ export default function SurahDetail() {
           windowSize={5}
           removeClippedSubviews={true}
           style={{ backgroundColor: t.bg }}
-          contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayer ? Math.max(100, insets.bottom + 80) : 16 }}
+          contentContainerStyle={{ padding: Spacing.lg, paddingTop: 8, paddingBottom: showPlayer ? Math.max(100, insets.bottom + 80) : 16 }}
           onScrollToIndexFailed={handleScrollFail}
         />
       </View>

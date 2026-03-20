@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../constants/theme';
 import { ACHIEVEMENTS } from '../features/profile/achievements';
@@ -46,8 +47,18 @@ export default function ProfileScreen() {
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 16 }}>
         {/* Profile Header */}
         <View style={{ alignItems: 'center', marginBottom: 16 }}>
-          <View style={[styles.avatarLarge, { backgroundColor: t.surface, borderColor: t.accent, marginBottom: 12 }]}>
-            <Text style={{ fontSize: 36 }}>👤</Text>
+          <View style={{
+            width: 80,
+            height: 80,
+            borderRadius: 40,
+            borderWidth: 2,
+            borderColor: '#B8860B',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(184,134,11,0.08)',
+            marginBottom: 12,
+          }}>
+            <Ionicons name="person-outline" size={36} color="#B8860B" />
           </View>
           <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.text, marginBottom: 4 }}>Nutzer</Text>
           <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginBottom: 16 }}>Mitglied seit {memberDate}</Text>
