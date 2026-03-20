@@ -8,6 +8,7 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '
 import { SURAH_LIST, QURAN_LANGUAGES, toArabicNumerals } from '../../features/quran/surahData';
 import { getSurah, saveSurah, isSurahCached } from '../../lib/database';
 import * as AudioPlayer from '../../features/quran/audioPlayer';
+import { Ionicons } from '@expo/vector-icons';
 import AyahOrnament from '../../components/ui/AyahOrnament';
 import SurahBanner from '../../components/ui/SurahBanner';
 import ShareButton from '../../components/ui/ShareButton';
@@ -389,9 +390,7 @@ export default function SurahDetail() {
                 {isLoadingThis ? (
                   <ActivityIndicator size={12} color={t.accent} />
                 ) : (
-                  <Text style={{ fontSize: 13, color: isActive ? t.accent : t.textDim }}>
-                    {isActive && isPlaying ? '⏸' : '▶'}
-                  </Text>
+                  <Ionicons name={isActive && isPlaying ? 'pause' : 'play'} size={13} color={isActive ? '#B8860B' : '#8B9BB4'} />
                 )}
               </Pressable>
             </View>
@@ -495,9 +494,7 @@ export default function SurahDetail() {
           {audioLoading && currentPlayingAyah === 0 ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text style={{ fontSize: 24, color: '#fff', marginLeft: isPlaying ? 0 : 2 }}>
-              {isPlaying ? '⏸' : '▶'}
-            </Text>
+            <Ionicons name={isPlaying ? 'pause' : 'play'} size={24} color="#fff" style={{ marginLeft: isPlaying ? 0 : 2 }} />
           )}
         </View>
         <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent, marginLeft: Spacing.md }}>
@@ -702,7 +699,7 @@ export default function SurahDetail() {
             {audioLoading ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text style={{ fontSize: 22, color: '#fff' }}>{isPlaying ? '⏸' : '▶'}</Text>
+              <Ionicons name={isPlaying ? 'pause' : 'play'} size={22} color="#fff" />
             )}
           </Pressable>
         </Pressable>

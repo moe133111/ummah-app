@@ -11,6 +11,7 @@ import { schedulePrayerNotifications } from '../../features/prayer/notifications
 import { useCompass, requestIOSPermission } from '../../features/qibla/useCompass';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
+import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 import QiblaMap from '../../components/ui/QiblaMap';
@@ -239,7 +240,7 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
                 backgroundColor: previewPlaying ? '#B8860B15' : 'transparent',
               }}
             >
-              <Text style={{ fontSize: 18, color: '#B8860B' }}>{previewPlaying ? '⏹' : '▶'}</Text>
+              <Ionicons name={previewPlaying ? 'stop' : 'play'} size={18} color="#B8860B" />
               <Text style={{ fontSize: 14, fontWeight: '600', color: '#B8860B' }}>{previewPlaying ? 'Stoppen' : 'Adhan anhören'}</Text>
             </Pressable>
           )}

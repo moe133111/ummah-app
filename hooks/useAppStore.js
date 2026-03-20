@@ -10,6 +10,7 @@ export const useAppStore = create(
       setLocation: (location) => set({ location }),
       theme: 'dark',
       toggleTheme: () => set((s) => ({ theme: s.theme === 'dark' ? 'light' : 'dark' })),
+      setTheme: (theme) => set({ theme }),
       calculationMethod: 'MWL',
       setCalculationMethod: (method) => set({ calculationMethod: method }),
       notifications: {

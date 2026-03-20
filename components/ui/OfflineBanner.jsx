@@ -7,9 +7,21 @@ export default function OfflineBanner() {
   if (isOnline) return null;
 
   return (
-    <View style={{ backgroundColor: '#E65100', paddingVertical: 8, paddingHorizontal: 16, alignItems: 'center' }}>
-      <Text style={{ fontSize: 12, color: '#fff', fontWeight: '600', textAlign: 'center' }}>
-        📡 Kein Internet — Offline-Modus aktiv
+    <View style={{
+      backgroundColor: '#E65100',
+      paddingTop: 4,
+      paddingBottom: 6,
+      paddingHorizontal: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <Text style={{
+        color: 'white',
+        fontSize: 12,
+        fontWeight: '500',
+        textAlign: 'center',
+      }}>
+        Kein Internet — Offline-Modus aktiv
       </Text>
     </View>
   );

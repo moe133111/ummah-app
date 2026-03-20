@@ -9,6 +9,7 @@ import { getWeekTotal, getTrend } from '../../features/stats/statsCalculator';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { getCurrentHijriDate, getHijriForDate } from '../../features/calendar/hijriCalendar';
 import { ISLAMIC_EVENTS, getEventsForHijriDate } from '../../features/calendar/islamicEvents';
+import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/ui/Card';
 import FeaturePreview from '../../components/ui/FeaturePreview';
 import HeaderBar from '../../components/ui/HeaderBar';
@@ -27,7 +28,7 @@ const GOAL_LIMITS = {
 
 export default function MoreScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
-  const toggleTheme = useAppStore((s) => s.toggleTheme);
+  const setTheme = useAppStore((s) => s.setTheme);
   const method = useAppStore((s) => s.calculationMethod);
   const setMethod = useAppStore((s) => s.setCalculationMethod);
   const dailyGoals = useAppStore((s) => s.dailyGoals);
@@ -267,12 +268,44 @@ export default function MoreScreen() {
         {sec === 'settings' && (
           <>
             <Card>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View>
-                  <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Dark Mode</Text>
-                  <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>{isDark ? 'Dunkel' : 'Hell'}</Text>
-                </View>
-                <Switch value={isDark} onValueChange={toggleTheme} trackColor={{ false: '#ccc', true: t.accent + '66' }} thumbColor={isDark ? t.accent : '#f4f3f4'} />
+              <Text style={{ fontSize: 13, color: t.textDim, marginBottom: 8 }}>Erscheinungsbild</Text>
+              <View style={{ flexDirection: 'row', gap: 12 }}>
+                <Pressable
+                  onPress={() => setTheme('light')}
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    paddingVertical: 14,
+                    borderRadius: 12,
+                    borderWidth: 1.5,
+                    borderColor: !isDark ? '#B8860B' : t.border,
+                    backgroundColor: !isDark ? '#B8860B15' : 'transparent',
+                  }}
+                >
+                  <Ionicons name="sunny-outline" size={20} color={!isDark ? '#B8860B' : t.textDim} />
+                  <Text style={{ fontSize: 14, fontWeight: !isDark ? '600' : '400', color: !isDark ? '#B8860B' : t.textDim }}>Light</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setTheme('dark')}
+                  style={{
+                    flex: 1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    paddingVertical: 14,
+                    borderRadius: 12,
+                    borderWidth: 1.5,
+                    borderColor: isDark ? '#B8860B' : t.border,
+                    backgroundColor: isDark ? '#B8860B15' : 'transparent',
+                  }}
+                >
+                  <Ionicons name="moon-outline" size={20} color={isDark ? '#B8860B' : t.textDim} />
+                  <Text style={{ fontSize: 14, fontWeight: isDark ? '600' : '400', color: isDark ? '#B8860B' : t.textDim }}>Dark</Text>
+                </Pressable>
               </View>
             </Card>
 
