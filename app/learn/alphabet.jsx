@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Platform } from 'react-native';
+import { View, Text, ScrollView, Pressable, Platform, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '../../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
@@ -7,6 +7,9 @@ import { ARABIC_ALPHABET } from '../../features/learn/alphabetData';
 
 const ARABIC_FONT = 'ScheherazadeNew';
 const FORM_LABELS = { isolated: 'Einzeln', initial: 'Anfang', medial: 'Mitte', final: 'Ende' };
+const GRID_PADDING = 16;
+const GAP = 10;
+const CELL_WIDTH = (Dimensions.get('window').width - GRID_PADDING * 2 - GAP * 2) / 3;
 
 export default function AlphabetScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
@@ -159,16 +162,18 @@ export default function AlphabetScreen() {
       </View>
 
       {/* Grid — 3 columns */}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-        {ARABIC_ALPHABET.map((item) => {
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+        {ARABIC_ALPHABET.map((item, index) => {
           const isLearned = learnedLetters.includes(item.id);
           return (
             <Pressable
               key={item.id}
               onPress={() => setSelectedId(item.id)}
               style={{
-                width: '31.5%',
-                aspectRatio: 1,
+                width: CELL_WIDTH,
+                height: CELL_WIDTH,
+                marginRight: (index + 1) % 3 === 0 ? 0 : GAP,
+                marginBottom: GAP,
                 backgroundColor: t.card,
                 borderRadius: BorderRadius.md,
                 borderWidth: isLearned ? 1.5 : 1,
@@ -186,7 +191,7 @@ export default function AlphabetScreen() {
               <Text style={{ fontSize: 40, color: t.text, fontFamily: ARABIC_FONT, lineHeight: 56 }}>
                 {item.letter}
               </Text>
-              <Text style={{ fontSize: 11, color: t.textDim }}>{item.name}</Text>
+              <Text style={{ fontSize: 11, color: t.textDim, marginTop: 4 }}>{item.name}</Text>
             </Pressable>
           );
         })}
