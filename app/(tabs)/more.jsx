@@ -85,7 +85,7 @@ export default function MoreScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 90 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 20 }}>
         <HeaderBar title="Mehr" t={t} />
 
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>
