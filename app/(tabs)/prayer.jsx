@@ -480,10 +480,8 @@ export default function PrayerScreen() {
                       <Text style={{ fontSize: 17, fontWeight: '600', color: isNext ? meta.color : t.text, fontVariant: ['tabular-nums'] }}>{times[key]}</Text>
                       {meta.trackable && (
                         <>
-                          <Pressable onPress={() => toggleNotification(key)} hitSlop={8} style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ fontSize: 16, color: notifS.enabled ? meta.color : t.textDim }}>
-                              {notifS.enabled ? '🔔' : '🔕'}
-                            </Text>
+                          <Pressable onPress={() => setSettingsModal(key)} hitSlop={8} style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
+                            <Ionicons name={notifS.enabled ? 'notifications' : 'notifications-off-outline'} size={18} color={notifS.enabled ? '#B8860B' : t.textDim} />
                           </Pressable>
                           <Pressable onPress={() => togglePrayerDone(key)} hitSlop={8} style={{ width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: done ? '#2E7D32' : '#B8860B', backgroundColor: done ? '#2E7D32' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
                             {done && <Ionicons name="checkmark" size={14} color="white" />}
