@@ -348,6 +348,15 @@ export default function SurahDetail() {
     await startPlaybackFromIndex(index);
   }, [isPlaying, currentPlayingAyah, startPlaybackFromIndex]);
 
+  const stopAudio = useCallback(async () => {
+    await AudioPlayer.stop();
+    setIsPlaying(false);
+    playingRef.current = false;
+    setCurrentPlayingAyah(-1);
+    currentIndexRef.current = -1;
+    setAudioLoading(false);
+  }, []);
+
   const scrollToCurrentAyah = useCallback(() => scrollToAyah(currentPlayingAyah), [currentPlayingAyah, scrollToAyah]);
 
   const keyExtractor = useCallback((i) => String(i.numberInSurah), []);
@@ -543,7 +552,7 @@ export default function SurahDetail() {
     </View>
   );
 
-  const showPlayerBar = isPlaying || currentPlayingAyah >= 0;
+  const showPlayer = isPlaying || currentPlayingAyah >= 0;
 
   if (isLoading) {
     return (
@@ -622,7 +631,7 @@ export default function SurahDetail() {
           windowSize={5}
           removeClippedSubviews={true}
           style={{ backgroundColor: t.bg }}
-          contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayerBar ? 110 : 100 }}
+          contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayer ? 90 : 16 }}
           onScrollToIndexFailed={handleScrollFail}
         />
       </View>
@@ -678,31 +687,50 @@ export default function SurahDetail() {
 
       {/* Audio error toast */}
       {audioError && !isPlaying && (
-        <View style={{ position: 'absolute', bottom: showPlayerBar ? 80 : 16, left: 16, right: 16, backgroundColor: '#E6510020', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E6510040' }}>
+        <View style={{ position: 'absolute', bottom: showPlayer ? 80 : 16, left: 16, right: 16, backgroundColor: '#E6510020', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E6510040' }}>
           <Text style={{ fontSize: 13, color: '#E65100', textAlign: 'center' }}>Audio nicht verfügbar — Quran-Text bleibt nutzbar</Text>
         </View>
       )}
 
-      {/* Floating Audio Player Bar */}
-      {showPlayerBar && (
-        <Pressable onPress={scrollToCurrentAyah} style={[styles.playerBar, { backgroundColor: isDark ? '#152238F2' : '#FFFFFFF2', borderColor: t.border }]}>
-          <View style={{ flex: 1, marginRight: Spacing.md }}>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim }} numberOfLines={1}>
-              Mishary Rashid Alafasy
+      {/* Floating Mini Player */}
+      {showPlayer && (
+        <View style={{
+          position: 'absolute',
+          bottom: 16,
+          left: 16,
+          right: 16,
+          backgroundColor: isDark ? '#152238' : '#FFFFFF',
+          borderRadius: 16,
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+          flexDirection: 'row',
+          alignItems: 'center',
+          ...Platform.select({
+            ios: { shadowColor: '#000', shadowOffset: { width: 0, height: -2 }, shadowOpacity: 0.25, shadowRadius: 8 },
+            android: { elevation: 8 },
+          }),
+          borderWidth: 1,
+          borderColor: isDark ? '#1A3055' : '#E0DCD4',
+        }}>
+          <Pressable onPress={scrollToCurrentAyah} style={{ flex: 1 }}>
+            <Text style={{ fontSize: 11, color: t.textDim }} numberOfLines={1}>Mishary Rashid Alafasy</Text>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: t.text, marginTop: 2 }} numberOfLines={1}>
+              {meta?.englishName} — Ayah {currentPlayingAyah >= 0 ? currentPlayingAyah + 1 : '-'}
             </Text>
-            <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: t.text, marginTop: Spacing.xs }} numberOfLines={1}>
-              {meta?.englishName} · Ayah {currentPlayingAyah >= 0 ? currentPlayingAyah + 1 : '-'}/{ayahs?.length}
-            </Text>
-          </View>
-          <Pressable onPress={(e) => { e.stopPropagation?.(); toggleAudio(); }}
-            style={[styles.playerPlayBtn, { backgroundColor: t.accent }]}>
-            {audioLoading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Ionicons name={isPlaying ? 'pause' : 'play'} size={22} color="#fff" />
-            )}
           </Pressable>
-        </Pressable>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <Pressable onPress={toggleAudio} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: '#B8860B', alignItems: 'center', justifyContent: 'center' }}>
+              {audioLoading ? (
+                <ActivityIndicator size="small" color="#0A1628" />
+              ) : (
+                <Ionicons name={isPlaying ? 'pause' : 'play'} size={22} color="#0A1628" />
+              )}
+            </Pressable>
+            <Pressable onPress={stopAudio} style={{ width: 36, height: 36, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="close" size={20} color={t.textDim} />
+            </Pressable>
+          </View>
+        </View>
       )}
     </SafeAreaView>
   );
@@ -822,35 +850,4 @@ const styles = StyleSheet.create({
   footerNav: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.xl },
   navBtn: { flex: 1, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1.5, alignItems: 'center', minHeight: 44 },
 
-  // --- Player bar ---
-  playerBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderTopLeftRadius: BorderRadius.xl,
-    borderTopRightRadius: BorderRadius.xl,
-    borderTopWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    ...Platform.select({
-      ios: { shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.15, shadowRadius: 10 },
-      android: { elevation: 10 },
-    }),
-  },
-  playerPlayBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Platform.select({
-      ios: { shadowColor: '#B8860B', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 6 },
-      android: { elevation: 4 },
-    }),
-  },
 });

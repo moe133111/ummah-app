@@ -13,6 +13,8 @@ export const useAppStore = create(
       setTheme: (theme) => set({ theme }),
       calculationMethod: 'MWL',
       setCalculationMethod: (method) => set({ calculationMethod: method }),
+      compassPermissionGranted: false,
+      setCompassPermission: (granted) => set({ compassPermissionGranted: granted }),
       notifications: {
         fajr: { enabled: true, adhan: false, minutesBefore: 0 },
         sunrise: { enabled: false, adhan: false, minutesBefore: 0 },

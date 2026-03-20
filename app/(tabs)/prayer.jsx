@@ -357,7 +357,6 @@ export default function PrayerScreen() {
   const tabs = [
     { id: 'times', label: 'Zeiten', emoji: '🕐' },
     { id: 'qibla', label: 'Qibla', emoji: '🧭' },
-    { id: 'tracker', label: 'Tracker', emoji: '✅' },
     { id: 'mosques', label: 'Moscheen', emoji: '🕌' },
   ];
 
@@ -457,6 +456,7 @@ export default function PrayerScreen() {
               Object.entries(PRAYER_META).map(([key, meta]) => {
                 const isNext = nextPrayer?.key === key;
                 const notifS = getNotifSettings(notifications, key);
+                const done = todayPrayers[key];
                 return (
                   <View key={key} style={[styles.prayerCard, { backgroundColor: t.card, borderColor: isNext ? meta.color + '44' : t.border }]}>
                     <View style={[styles.prayerAccentBar, { backgroundColor: meta.color }]} />
@@ -480,6 +480,11 @@ export default function PrayerScreen() {
                             <Pressable onPress={() => setSettingsModal(key)} hitSlop={Spacing.sm} style={{ minWidth: 32, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}>
                               <Text style={{ fontSize: 14, color: t.textDim }}>⚙️</Text>
                             </Pressable>
+                            <Pressable onPress={() => togglePrayerDone(key)} hitSlop={Spacing.sm} style={{ minWidth: 32, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}>
+                              <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: done ? '#2E7D32' : '#B8860B', backgroundColor: done ? '#2E7D32' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+                                {done && <Ionicons name="checkmark" size={16} color="white" />}
+                              </View>
+                            </Pressable>
                           </>
                         )}
                       </View>
@@ -489,59 +494,29 @@ export default function PrayerScreen() {
                 );
               })
             )}
+
+            {/* Prayer tracker progress */}
+            {isToday && times && (
+              <View style={{ marginTop: 12, marginBottom: 8 }}>
+                <Text style={{ fontSize: 13, color: t.textDim, textAlign: 'center' }}>{completedCount}/5 Gebete verrichtet</Text>
+                <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                  {TRACKABLE_KEYS.map((key) => {
+                    const pm = PRAYER_META[key];
+                    return (
+                      <View key={key} style={{ flex: 1, height: 4, borderRadius: 2, marginHorizontal: 2, backgroundColor: todayPrayers[key] ? pm.color : t.border }} />
+                    );
+                  })}
+                </View>
+                {completedCount === 5 && (
+                  <Text style={{ fontSize: 13, color: '#B8860B', textAlign: 'center', marginTop: 8 }}>MashaAllah! ✨</Text>
+                )}
+              </View>
+            )}
           </>
         )}
 
         {tab === 'qibla' && (
           <QiblaCompass qibla={qibla} dist={dist} t={t} location={location} />
-        )}
-
-        {tab === 'tracker' && (
-          <>
-            <Card centered>
-              <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Heute verrichtet</Text>
-              <Text style={{ fontSize: 48, fontWeight: '700', color: t.accent }}>{completedCount}/5</Text>
-              <View style={{ flexDirection: 'row', gap: 3, width: '100%', marginTop: Spacing.sm }}>
-                {TRACKABLE_KEYS.map((key) => {
-                  const meta = PRAYER_META[key];
-                  return (
-                    <View key={key} style={{ flex: 1, height: Spacing.sm, borderRadius: Spacing.xs, backgroundColor: todayPrayers[key] ? meta.color : t.border }} />
-                  );
-                })}
-              </View>
-            </Card>
-            <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text, marginBottom: Spacing.sm }}>Gebete abhaken</Text>
-            {Object.entries(PRAYER_META)
-              .filter(([, meta]) => meta.trackable)
-              .map(([key, meta]) => {
-                const done = todayPrayers[key];
-                return (
-                  <Pressable key={key} onPress={() => togglePrayerDone(key)}>
-                    <View style={[styles.trackerCard, { backgroundColor: done ? '#4CAF5010' : t.card, borderColor: done ? '#4CAF5044' : t.border }]}>
-                      <View style={[styles.prayerAccentBar, { backgroundColor: meta.color, opacity: done ? 0.4 : 1 }]} />
-                      <View style={styles.trackerCardContent}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, flex: 1 }}>
-                          <Text style={{ fontSize: 28 }}>{meta.emoji}</Text>
-                          <View>
-                            <Text style={{ fontSize: FontSize.lg, fontWeight: '600', color: done ? '#4CAF50' : t.text }}>{meta.name}</Text>
-                            <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{meta.description}</Text>
-                          </View>
-                        </View>
-                        <View style={[styles.checkbox, { borderColor: done ? '#4CAF50' : meta.color }, done && { backgroundColor: '#4CAF50' }]}>
-                          {done && <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>✓</Text>}
-                        </View>
-                      </View>
-                    </View>
-                  </Pressable>
-                );
-              })}
-            {completedCount === 5 && (
-              <Card centered style={{ borderColor: '#4CAF5044', marginTop: Spacing.sm }}>
-                <Text style={{ fontSize: 28, marginBottom: Spacing.xs }}>✨</Text>
-                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: '#4CAF50' }}>MashaAllah! Alle Gebete verrichtet!</Text>
-              </Card>
-            )}
-          </>
         )}
 
         {tab === 'mosques' && (
@@ -578,7 +553,18 @@ function polarToXY(cx, cy, r, deg) {
 
 function QiblaCompass({ qibla, dist, t, location }) {
   const { heading, available } = useCompass();
-  const [iosGranted, setIosGranted] = useState(Platform.OS !== 'ios');
+  const compassPermissionGranted = useAppStore((s) => s.compassPermissionGranted);
+  const setCompassPermission = useAppStore((s) => s.setCompassPermission);
+  const [permissionDenied, setPermissionDenied] = useState(false);
+
+  // Auto-grant on Android
+  useEffect(() => {
+    if (Platform.OS === 'android' && !compassPermissionGranted) {
+      setCompassPermission(true);
+    }
+  }, []);
+
+  const iosGranted = compassPermissionGranted || Platform.OS !== 'ios';
 
   const hasHeading = available === true;
   const compassRotation = hasHeading ? -heading : 0;
@@ -684,14 +670,28 @@ function QiblaCompass({ qibla, dist, t, location }) {
     <>
       {Platform.OS === 'ios' && !iosGranted && (
         <Card centered>
+          <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>🧭</Text>
+          <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text, textAlign: 'center', marginBottom: Spacing.sm }}>Qibla-Richtung bestimmen</Text>
+          <Text style={{ fontSize: 14, color: t.textDim, textAlign: 'center', marginBottom: Spacing.lg, lineHeight: 22 }}>
+            {permissionDenied
+              ? 'Kompass-Zugriff wurde verweigert.\nDu kannst den Zugriff in den Geräte-Einstellungen erlauben.'
+              : 'Um die Gebetsrichtung zu ermitteln, benötigt die App Zugriff auf den Kompass-Sensor.'}
+          </Text>
           <Pressable
             onPress={async () => {
               const ok = await requestIOSPermission();
-              setIosGranted(ok);
+              if (ok) {
+                setCompassPermission(true);
+                setPermissionDenied(false);
+              } else {
+                setPermissionDenied(true);
+              }
             }}
-            style={[compassStyles.iosBtn, { backgroundColor: accentColor + '18', borderColor: accentColor }]}
+            style={{ backgroundColor: accentColor, paddingVertical: 14, paddingHorizontal: 32, borderRadius: 12 }}
           >
-            <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: accentColor }}>🧭 Kompass aktivieren</Text>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: '#0A1628' }}>
+              {permissionDenied ? 'Erneut versuchen' : 'Zugriff erlauben'}
+            </Text>
           </Pressable>
         </Card>
       )}
@@ -771,7 +771,4 @@ const styles = StyleSheet.create({
   prayerAccentBar: { width: Spacing.xs, alignSelf: 'stretch' },
   prayerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: Spacing.lg, paddingHorizontal: Spacing.md },
   prayerCardGlow: { ...StyleSheet.absoluteFillObject, borderRadius: BorderRadius.md },
-  checkbox: { width: 28, height: 28, borderRadius: Spacing.sm, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  trackerCard: { flexDirection: 'row', borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.sm, overflow: 'hidden' },
-  trackerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: Spacing.lg, paddingHorizontal: Spacing.md },
 });
