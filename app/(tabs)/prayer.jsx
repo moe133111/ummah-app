@@ -458,38 +458,39 @@ export default function PrayerScreen() {
                 const notifS = getNotifSettings(notifications, key);
                 const done = todayPrayers[key];
                 return (
-                  <View key={key} style={[styles.prayerCard, { backgroundColor: t.card, borderColor: isNext ? meta.color + '44' : t.border }]}>
-                    <View style={[styles.prayerAccentBar, { backgroundColor: meta.color }]} />
-                    <View style={styles.prayerCardContent}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: Spacing.md }}>
-                        <Text style={{ fontSize: 28 }}>{meta.emoji}</Text>
-                        <View>
-                          <Text style={{ fontSize: FontSize.lg, fontWeight: isNext ? '700' : '600', color: isNext ? meta.color : t.text }}>{meta.name}</Text>
-                          <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{meta.description}</Text>
-                        </View>
-                      </View>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
-                        <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: isNext ? meta.color : t.text }}>{times[key]}</Text>
-                        {meta.trackable && (
-                          <>
-                            <Pressable onPress={() => toggleNotification(key)} hitSlop={Spacing.sm} style={styles.notifTouch}>
-                              <Text style={{ fontSize: 18, color: notifS.enabled ? meta.color : t.textDim }}>
-                                {notifS.enabled ? '🔔' : '🔕'}
-                              </Text>
-                            </Pressable>
-                            <Pressable onPress={() => setSettingsModal(key)} hitSlop={Spacing.sm} style={{ minWidth: 32, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}>
-                              <Text style={{ fontSize: 14, color: t.textDim }}>⚙️</Text>
-                            </Pressable>
-                            <Pressable onPress={() => togglePrayerDone(key)} hitSlop={Spacing.sm} style={{ minWidth: 32, minHeight: 32, alignItems: 'center', justifyContent: 'center' }}>
-                              <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: done ? '#2E7D32' : '#B8860B', backgroundColor: done ? '#2E7D32' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
-                                {done && <Ionicons name="checkmark" size={16} color="white" />}
-                              </View>
-                            </Pressable>
-                          </>
-                        )}
-                      </View>
+                  <View key={key} style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: t.card,
+                    borderRadius: BorderRadius.md,
+                    borderWidth: 1,
+                    borderColor: isNext ? 'transparent' : t.border,
+                    borderLeftWidth: isNext ? 3 : 1,
+                    borderLeftColor: isNext ? meta.color : t.border,
+                    paddingVertical: 14,
+                    paddingHorizontal: 16,
+                    marginBottom: 6,
+                  }}>
+                    <Text style={{ fontSize: 22 }}>{meta.emoji}</Text>
+                    <View style={{ flex: 1, marginLeft: 12 }}>
+                      <Text style={{ fontSize: 16, fontWeight: '600', color: isNext ? meta.color : t.text }}>{meta.name}</Text>
+                      <Text style={{ fontSize: 11, color: t.textDim, marginTop: 1 }}>{meta.description}</Text>
                     </View>
-                    {isNext && <View style={[styles.prayerCardGlow, { backgroundColor: meta.color + '0A' }]} />}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <Text style={{ fontSize: 17, fontWeight: '600', color: isNext ? meta.color : t.text, fontVariant: ['tabular-nums'] }}>{times[key]}</Text>
+                      {meta.trackable && (
+                        <>
+                          <Pressable onPress={() => toggleNotification(key)} hitSlop={8} style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ fontSize: 16, color: notifS.enabled ? meta.color : t.textDim }}>
+                              {notifS.enabled ? '🔔' : '🔕'}
+                            </Text>
+                          </Pressable>
+                          <Pressable onPress={() => togglePrayerDone(key)} hitSlop={8} style={{ width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: done ? '#2E7D32' : '#B8860B', backgroundColor: done ? '#2E7D32' : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
+                            {done && <Ionicons name="checkmark" size={14} color="white" />}
+                          </Pressable>
+                        </>
+                      )}
+                    </View>
                   </View>
                 );
               })
@@ -497,13 +498,13 @@ export default function PrayerScreen() {
 
             {/* Prayer tracker progress */}
             {isToday && times && (
-              <View style={{ marginTop: 12, marginBottom: 8 }}>
+              <View style={{ marginTop: 16, marginBottom: 8 }}>
                 <Text style={{ fontSize: 13, color: t.textDim, textAlign: 'center' }}>{completedCount}/5 Gebete verrichtet</Text>
-                <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                <View style={{ flexDirection: 'row', marginTop: 8, gap: 3 }}>
                   {TRACKABLE_KEYS.map((key) => {
                     const pm = PRAYER_META[key];
                     return (
-                      <View key={key} style={{ flex: 1, height: 4, borderRadius: 2, marginHorizontal: 2, backgroundColor: todayPrayers[key] ? pm.color : t.border }} />
+                      <View key={key} style={{ flex: 1, height: 5, borderRadius: 2.5, backgroundColor: todayPrayers[key] ? pm.color : t.border }} />
                     );
                   })}
                 </View>
@@ -765,10 +766,5 @@ const styles = StyleSheet.create({
   dateArrow: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   todayBtn: { marginTop: Spacing.sm, paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: BorderRadius.full, borderWidth: 1 },
   notifSummary: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
-  notifTouch: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   nextPrayerCard: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1 },
-  prayerCard: { flexDirection: 'row', borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.sm, overflow: 'hidden' },
-  prayerAccentBar: { width: Spacing.xs, alignSelf: 'stretch' },
-  prayerCardContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: Spacing.lg, paddingHorizontal: Spacing.md },
-  prayerCardGlow: { ...StyleSheet.absoluteFillObject, borderRadius: BorderRadius.md },
 });

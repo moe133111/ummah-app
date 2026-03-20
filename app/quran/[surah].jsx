@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Pressable, Platform, Alert, Modal } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAppStore } from '../../hooks/useAppStore';
@@ -108,6 +108,7 @@ export default function SurahDetail() {
   const setQuranLanguage = useAppStore((s) => s.setQuranLanguage);
   const setQuranSecondLanguage = useAppStore((s) => s.setQuranSecondLanguage);
   const setLastRead = useAppStore((s) => s.setLastRead);
+  const insets = useSafeAreaInsets();
   const t = isDark ? DarkTheme : LightTheme;
 
   const [showLangPicker, setShowLangPicker] = useState(null);
@@ -631,7 +632,7 @@ export default function SurahDetail() {
           windowSize={5}
           removeClippedSubviews={true}
           style={{ backgroundColor: t.bg }}
-          contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayer ? 90 : 16 }}
+          contentContainerStyle={{ padding: Spacing.lg, paddingBottom: showPlayer ? Math.max(100, insets.bottom + 80) : 16 }}
           onScrollToIndexFailed={handleScrollFail}
         />
       </View>
@@ -687,7 +688,7 @@ export default function SurahDetail() {
 
       {/* Audio error toast */}
       {audioError && !isPlaying && (
-        <View style={{ position: 'absolute', bottom: showPlayer ? 80 : 16, left: 16, right: 16, backgroundColor: '#E6510020', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E6510040' }}>
+        <View style={{ position: 'absolute', bottom: showPlayer ? Math.max(100, insets.bottom + 80) : Math.max(32, insets.bottom + 12), left: 16, right: 16, backgroundColor: '#E6510020', borderRadius: 12, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E6510040' }}>
           <Text style={{ fontSize: 13, color: '#E65100', textAlign: 'center' }}>Audio nicht verfügbar — Quran-Text bleibt nutzbar</Text>
         </View>
       )}
@@ -696,7 +697,7 @@ export default function SurahDetail() {
       {showPlayer && (
         <View style={{
           position: 'absolute',
-          bottom: 16,
+          bottom: Math.max(32, insets.bottom + 12),
           left: 16,
           right: 16,
           backgroundColor: isDark ? '#152238' : '#FFFFFF',
