@@ -190,6 +190,14 @@ export const useAppStore = create(
           : [...s.learnedLetters, id],
       })),
 
+      // Learn — tajweed progress
+      learnedTajweedRules: [],
+      toggleLearnedTajweedRule: (id) => set((s) => ({
+        learnedTajweedRules: s.learnedTajweedRules.includes(id)
+          ? s.learnedTajweedRules.filter((x) => x !== id)
+          : [...s.learnedTajweedRules, id],
+      })),
+
       // Dua Wall — user-posted duas (persisted locally)
       userDuas: [],
       addUserDua: (text) => set((s) => ({
@@ -335,6 +343,7 @@ export const useAppStore = create(
         weeklyQuranMinutes: state.weeklyQuranMinutes,
         userDuas: state.userDuas,
         learnedLetters: state.learnedLetters,
+        learnedTajweedRules: state.learnedTajweedRules,
       }),
       // Migrate old lastPrayerDate → lastStreakDate
       migrate: (persisted) => {
