@@ -1,22 +1,37 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Image } from 'react-native';
 import { useAppStore } from '../../hooks/useAppStore';
-import { DarkTheme, LightTheme } from '../../constants/theme';
 
-function TabIcon({ emoji, focused }) {
-  return <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.5 }}>{emoji}</Text>;
+function TabIcon({ source, focused }) {
+  return (
+    <Image
+      source={source}
+      style={{
+        width: 24,
+        height: 24,
+        tintColor: focused ? '#B8860B' : '#8B9BB4',
+        resizeMode: 'contain',
+      }}
+    />
+  );
 }
 
 export default function TabLayout() {
   const isDark = useAppStore((s) => s.theme === 'dark');
-  const t = isDark ? DarkTheme : LightTheme;
   return (
-    <Tabs screenOptions={{ headerShown: false, tabBarStyle: { backgroundColor: isDark ? '#0D1B2E' : '#FFFFFF', borderTopColor: t.border, borderTopWidth: 1, height: 85, paddingBottom: 28, paddingTop: 8 }, tabBarActiveTintColor: t.accent, tabBarInactiveTintColor: t.textDim, tabBarLabelStyle: { fontSize: 11, fontWeight: '600' }, sceneStyle: { backgroundColor: isDark ? '#0A1628' : '#F8F6F0' } }}>
-      <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ focused }) => <TabIcon emoji="🕌" focused={focused} /> }} />
-      <Tabs.Screen name="quran" options={{ title: 'Quran', tabBarIcon: ({ focused }) => <TabIcon emoji="📖" focused={focused} /> }} />
-      <Tabs.Screen name="prayer" options={{ title: 'Gebet', tabBarIcon: ({ focused }) => <TabIcon emoji="🕐" focused={focused} /> }} />
-      <Tabs.Screen name="dhikr" options={{ title: 'Dhikr', tabBarIcon: ({ focused }) => <TabIcon emoji="📿" focused={focused} /> }} />
-      <Tabs.Screen name="more" options={{ title: 'Mehr', tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" focused={focused} /> }} />
+    <Tabs screenOptions={{
+      headerShown: false,
+      tabBarStyle: { backgroundColor: isDark ? '#0D1B2E' : '#FFFFFF', borderTopColor: isDark ? '#1A3055' : '#E0DCD4', borderTopWidth: 1, height: 85, paddingBottom: 28, paddingTop: 8 },
+      tabBarActiveTintColor: '#B8860B',
+      tabBarInactiveTintColor: '#8B9BB4',
+      tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+      sceneStyle: { backgroundColor: isDark ? '#0A1628' : '#F8F6F0' },
+    }}>
+      <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ focused }) => <TabIcon source={require('../../assets/icons/home.png')} focused={focused} /> }} />
+      <Tabs.Screen name="quran" options={{ title: 'Quran', tabBarIcon: ({ focused }) => <TabIcon source={require('../../assets/icons/quran.png')} focused={focused} /> }} />
+      <Tabs.Screen name="prayer" options={{ title: 'Gebet', tabBarIcon: ({ focused }) => <TabIcon source={require('../../assets/icons/prayer.png')} focused={focused} /> }} />
+      <Tabs.Screen name="dhikr" options={{ title: 'Dhikr', tabBarIcon: ({ focused }) => <TabIcon source={require('../../assets/icons/dhikr.png')} focused={focused} /> }} />
+      <Tabs.Screen name="more" options={{ title: 'Mehr', tabBarIcon: ({ focused }) => <TabIcon source={require('../../assets/icons/more.png')} focused={focused} /> }} />
     </Tabs>
   );
 }
