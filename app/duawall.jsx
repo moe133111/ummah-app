@@ -273,7 +273,7 @@ export default function DuaWallScreen() {
             <Text style={{ fontSize: 13, color: t.textDim, marginTop: 8, textAlign: 'center' }}>Teile dein Bittgebet mit der Ummah</Text>
           </View>
         }
-        contentContainerStyle={{ padding: 16, paddingBottom: 120 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 16 }}
       />
     </KeyboardAvoidingView>
   );

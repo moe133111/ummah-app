@@ -291,7 +291,7 @@ export default function HomeScreen() {
   const dailyDua = DUAS[getDailyIndex(DUAS)];
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={['top']}>
       <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={styles.content}>
         {/* Header */}
         <HeaderBar titleAr="بِسْمِ ٱللَّهِ" title="Dein täglicher Begleiter" t={t} />
@@ -476,7 +476,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { padding: 16, paddingBottom: 20 },
+  content: { padding: 16, paddingBottom: 16 },
   badge: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs, borderRadius: BorderRadius.xl, marginTop: Spacing.sm },
   miniDot: { width: 10, height: 10, borderRadius: 5 },
   miniChip: { paddingHorizontal: Spacing.sm, paddingVertical: Spacing.sm, borderRadius: BorderRadius.full, borderWidth: 1 },

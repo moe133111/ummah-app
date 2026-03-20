@@ -85,7 +85,7 @@ export default function QuranScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={['top']}>
       <View style={{ flex: 1, backgroundColor: t.bg }}>
         {/* Header row */}
         <View style={styles.headerRow}>
@@ -145,7 +145,7 @@ export default function QuranScreen() {
             renderItem={renderSurah}
             ListHeaderComponent={ListHeader}
             style={{ backgroundColor: t.bg }}
-            contentContainerStyle={{ paddingHorizontal: Spacing.lg, paddingBottom: 20 }}
+            contentContainerStyle={{ paddingHorizontal: Spacing.lg, paddingBottom: 16 }}
           />
         )}
 

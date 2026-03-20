@@ -140,7 +140,7 @@ export default function DhikrScreen() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top']}>
       {/* Focus Mode Modal */}
       <Modal visible={focusMode} animationType="fade" statusBarTranslucent>
         <StatusBar style="light" backgroundColor="#000" />
@@ -171,7 +171,7 @@ export default function DhikrScreen() {
         </Pressable>
       </Modal>
 
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 20 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 16 }}>
         <HeaderBar title="Dhikr & Duas" t={t} />
 
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>

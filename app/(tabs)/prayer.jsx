@@ -361,8 +361,8 @@ export default function PrayerScreen() {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 20 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top']}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 16 }}>
         <HeaderBar title="Gebet" t={t} />
 
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg }}>

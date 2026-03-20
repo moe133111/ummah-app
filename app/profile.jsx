@@ -43,7 +43,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 120 }}>
+      <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg, paddingBottom: 16 }}>
         {/* Profile Header */}
         <View style={{ alignItems: 'center', marginBottom: 16 }}>
           <View style={[styles.avatarLarge, { backgroundColor: t.surface, borderColor: t.accent, marginBottom: 12 }]}>

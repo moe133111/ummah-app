@@ -187,7 +187,7 @@ export default function CalendarScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
-    <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: 16, paddingBottom: 16 }}>
       {/* Month Navigation */}
       <Card>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
