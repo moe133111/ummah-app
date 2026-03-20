@@ -158,7 +158,7 @@ export default function AlphabetScreen() {
         </View>
       </View>
 
-      {/* Grid — 4 columns */}
+      {/* Grid — 3 columns */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
         {ARABIC_ALPHABET.map((item) => {
           const isLearned = learnedLetters.includes(item.id);
@@ -167,7 +167,7 @@ export default function AlphabetScreen() {
               key={item.id}
               onPress={() => setSelectedId(item.id)}
               style={{
-                width: '23%',
+                width: '31.5%',
                 aspectRatio: 1,
                 backgroundColor: t.card,
                 borderRadius: BorderRadius.md,
@@ -183,10 +183,10 @@ export default function AlphabetScreen() {
                   <Ionicons name="checkmark-circle" size={14} color={t.accent} />
                 </View>
               )}
-              <Text style={{ fontSize: 36, color: t.text, fontFamily: ARABIC_FONT, lineHeight: 50 }}>
+              <Text style={{ fontSize: 40, color: t.text, fontFamily: ARABIC_FONT, lineHeight: 56 }}>
                 {item.letter}
               </Text>
-              <Text style={{ fontSize: 10, color: t.textDim }}>{item.name}</Text>
+              <Text style={{ fontSize: 11, color: t.textDim }}>{item.name}</Text>
             </Pressable>
           );
         })}
