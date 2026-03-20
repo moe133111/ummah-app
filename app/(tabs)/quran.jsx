@@ -85,7 +85,7 @@ export default function QuranScreen() {
   );
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={['top']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={[]}>
       <View style={{ flex: 1, backgroundColor: t.bg }}>
         {/* Header row */}
         <View style={styles.headerRow}>

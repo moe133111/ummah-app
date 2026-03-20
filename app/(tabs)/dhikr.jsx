@@ -140,7 +140,7 @@ export default function DhikrScreen() {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} edges={[]}>
       {/* Focus Mode Modal */}
       <Modal visible={focusMode} animationType="fade" statusBarTranslucent>
         <StatusBar style="light" backgroundColor="#000" />
