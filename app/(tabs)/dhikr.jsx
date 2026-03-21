@@ -1,3 +1,7 @@
+// Letzte Verifizierung: 2026-03-21
+// Quran-Verse (SLEEP_CONTENT): geprüft gegen Uthmani-Mushaf
+// Dhikr-Texte: Tashkeel geprüft
+// Duas: geprüft gegen Hisn al-Muslim / Sahih Hadith-Quellen
 import { View, Text, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -30,7 +34,7 @@ const SLEEP_CONTENT = [
   {
     id: 'sleep-dua',
     title: 'Dua vor dem Schlafen',
-    ref: 'Sahih al-Bukhari 6324',
+    ref: 'Sahih al-Bukhari 6314',
     arabic: 'بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا',
     transliteration: 'Bismika Allahumma amutu wa ahya.',
     translation: 'In Deinem Namen, o Allah, sterbe ich und lebe ich.',

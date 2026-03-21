@@ -1,3 +1,6 @@
+// Letzte Verifizierung: 2026-03-21
+// Duas: geprüft gegen Hisn al-Muslim / Sahih Hadith-Quellen
+// Quran-Verse in Duas: geprüft gegen Uthmani-Mushaf
 export const DUAS = [
   // ═══════════════════════════════════════
   // Kategorie 1: Morgen 🌅
@@ -54,7 +57,7 @@ export const DUAS = [
     arabic: "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
     transliteration: "Bismika Allahumma amutu wa ahya",
     translation: "In Deinem Namen, o Allah, sterbe ich und lebe ich.",
-    source: "Sahih al-Bukhari 6312",
+    source: "Sahih al-Bukhari 6314",
   },
   {
     id: 6,
@@ -149,20 +152,20 @@ export const DUAS = [
     title: "Dua vor dem Essen",
     category: "Essen",
     emoji: "🍽",
-    arabic: "بِسْمِ اللَّهِ وَعَلَى بَرَكَةِ اللَّهِ",
-    transliteration: "Bismillahi wa 'ala barakatillah",
-    translation: "Im Namen Allahs und mit dem Segen Allahs.",
-    source: "Sunan Abu Dawud 3767",
+    arabic: "بِسْمِ اللَّهِ",
+    transliteration: "Bismillah",
+    translation: "Im Namen Allahs. (Wenn vergessen: بِسْمِ اللَّهِ فِي أَوَّلِهِ وَآخِرِهِ — Im Namen Allahs, am Anfang und am Ende.)",
+    source: "Sunan Abu Dawud 3767, Sunan at-Tirmidhi 1858",
   },
   {
     id: 15,
     title: "Dua nach dem Essen",
     category: "Essen",
     emoji: "🍽",
-    arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَٰذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ",
+    arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَطْعَمَنِي هَذَا وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ",
     transliteration: "Alhamdu lillahil-ladhi at'amani hadha wa razaqanihi min ghayri hawlin minni wa la quwwah",
     translation: "Alles Lob gebührt Allah, Der mir dies zu essen gab und mich damit versorgte, ohne Macht und Kraft von mir.",
-    source: "Sunan at-Tirmidhi 3458",
+    source: "Sunan Abu Dawud 4023, Sunan at-Tirmidhi 3458",
   },
   {
     id: 16,
@@ -345,10 +348,10 @@ export const DUAS = [
     title: "Dua beim Verlassen des Hauses",
     category: "Alltag",
     emoji: "🏠",
-    arabic: "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
-    transliteration: "Bismillahi tawakkaltu 'alallahi wa la hawla wa la quwwata illa billah",
-    translation: "Im Namen Allahs, ich vertraue auf Allah, und es gibt keine Macht und keine Kraft außer bei Allah.",
-    source: "Sunan at-Tirmidhi 3426",
+    arabic: "بِسْمِ اللَّهِ تَوَكَّلْتُ عَلَى اللَّهِ لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+    transliteration: "Bismillahi tawakkaltu 'alallahi la hawla wa la quwwata illa billah",
+    translation: "Im Namen Allahs, ich vertraue auf Allah, es gibt keine Macht und keine Kraft außer bei Allah.",
+    source: "Sunan Abu Dawud 5095, Sunan at-Tirmidhi 3426",
   },
   {
     id: 33,

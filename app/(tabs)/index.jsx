@@ -1,3 +1,7 @@
+// Letzte Verifizierung: 2026-03-21
+// Quran-Verse (DAILY_AYAHS): Uthmani-Schrift, geprüft gegen Standardmushaf
+// Hadithe (DAILY_HADITHS): Quellen-Nummern verifiziert gegen Hadith-Sammlungen
+// Dhikr-Texte: Tashkeel geprüft
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle } from 'react-native-svg';
@@ -62,10 +66,10 @@ const DAILY_HADITHS = [
   { arabic: 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', text: 'Die Besten unter euch sind diejenigen, die den Quran lernen und ihn lehren.', source: 'Sahih al-Bukhari 5027' },
   { arabic: 'لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ', text: 'Keiner von euch glaubt wirklich, bis er für seinen Bruder liebt, was er für sich selbst liebt.', source: 'Sahih al-Bukhari 13' },
   { arabic: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ', text: 'Der Muslim ist derjenige, vor dessen Zunge und Hand die anderen Muslime sicher sind.', source: 'Sahih al-Bukhari 10' },
-  { arabic: '', text: 'Hüte dich vor den verbotenen Dingen, dann wirst du der frömmste der Menschen sein. Sei zufrieden mit dem, was Allah dir zugeteilt hat, dann wirst du der reichste der Menschen sein.', source: 'Sahih al-Bukhari 6018' },
+  { arabic: '', text: 'Hüte dich vor den verbotenen Dingen, dann wirst du der frömmste der Menschen sein. Sei zufrieden mit dem, was Allah dir zugeteilt hat, dann wirst du der reichste der Menschen sein.', source: 'Sunan at-Tirmidhi 2305' },
   { arabic: 'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ', text: 'Wer an Allah und den Jüngsten Tag glaubt, der soll Gutes sprechen oder schweigen.', source: 'Sahih al-Bukhari 6018' },
-  { arabic: 'أَكْمَلُ الْمُؤْمِنِينَ إِيمَانًا أَحْسَنُهُمْ خُلُقًا', text: 'Die vollkommensten Gläubigen im Glauben sind diejenigen mit dem besten Charakter.', source: 'Sahih Muslim 1810' },
-  { arabic: 'إِنَّ أَوَّلَ مَا يُحَاسَبُ بِهِ الْعَبْدُ يَوْمَ الْقِيَامَةِ مِنْ عَمَلِهِ صَلَاتُهُ', text: 'Das erste, worüber der Mensch am Tag der Auferstehung befragt wird, ist das Gebet.', source: 'Sahih Muslim 82' },
+  { arabic: 'أَكْمَلُ الْمُؤْمِنِينَ إِيمَانًا أَحْسَنُهُمْ خُلُقًا', text: 'Die vollkommensten Gläubigen im Glauben sind diejenigen mit dem besten Charakter.', source: 'Sunan at-Tirmidhi 1162' },
+  { arabic: 'إِنَّ أَوَّلَ مَا يُحَاسَبُ بِهِ الْعَبْدُ يَوْمَ الْقِيَامَةِ مِنْ عَمَلِهِ صَلَاتُهُ', text: 'Das erste, worüber der Mensch am Tag der Auferstehung befragt wird, ist das Gebet.', source: 'Sunan an-Nasa\'i 465' },
   { arabic: 'بَيْنَ الرَّجُلِ وَبَيْنَ الشِّرْكِ وَالْكُفْرِ تَرْكُ الصَّلَاةِ', text: 'Zwischen einem Menschen und dem Unglauben liegt das Unterlassen des Gebets.', source: 'Sahih Muslim 82' },
   { arabic: 'أَنْ تَعْبُدَ اللَّهَ كَأَنَّكَ تَرَاهُ فَإِنْ لَمْ تَكُنْ تَرَاهُ فَإِنَّهُ يَرَاكَ', text: 'Bete so, als ob du Allah siehst. Denn wenn du Ihn auch nicht siehst, so sieht Er doch dich.', source: 'Sahih al-Bukhari 50' },
   { arabic: 'مَنْ صَامَ رَمَضَانَ إِيمَانًا وَاحْتِسَابًا غُفِرَ لَهُ مَا تَقَدَّمَ مِنْ ذَنْبِهِ', text: 'Wer den Ramadan aus Glauben und in der Hoffnung auf Belohnung fastet, dem werden seine früheren Sünden vergeben.', source: 'Sahih al-Bukhari 38' },
@@ -75,17 +79,17 @@ const DAILY_HADITHS = [
   { arabic: 'يَسِّرُوا وَلَا تُعَسِّرُوا وَبَشِّرُوا وَلَا تُنَفِّرُوا', text: 'Erleichtert und erschwert nicht. Bringt frohe Botschaft und schreckt nicht ab.', source: 'Sahih al-Bukhari 69' },
   { arabic: 'لَيْسَ الشَّدِيدُ بِالصُّرَعَةِ إِنَّمَا الشَّدِيدُ الَّذِي يَمْلِكُ نَفْسَهُ عِنْدَ الْغَضَبِ', text: 'Der Starke ist nicht derjenige, der andere im Ringen besiegt, sondern der Starke ist derjenige, der sich bei Zorn beherrscht.', source: 'Sahih al-Bukhari 6114' },
   { arabic: 'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيُكْرِمْ جَارَهُ', text: 'Wer an Allah und den Jüngsten Tag glaubt, der soll seinen Nachbarn gut behandeln.', source: 'Sahih al-Bukhari 6019' },
-  { arabic: 'ارْحَمُوا مَنْ فِي الْأَرْضِ يَرْحَمْكُمْ مَنْ فِي السَّمَاءِ', text: 'Seid barmherzig zu denen auf der Erde, und der, Der im Himmel ist, wird barmherzig zu euch sein.', source: 'Sahih Muslim 2319' },
+  { arabic: 'ارْحَمُوا مَنْ فِي الْأَرْضِ يَرْحَمْكُمْ مَنْ فِي السَّمَاءِ', text: 'Seid barmherzig zu denen auf der Erde, und der, Der im Himmel ist, wird barmherzig zu euch sein.', source: 'Sunan at-Tirmidhi 1924' },
   { arabic: 'إِذَا مَاتَ الْإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ إِلَّا مِنْ صَدَقَةٍ جَارِيَةٍ أَوْ عِلْمٍ يُنْتَفَعُ بِهِ أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ', text: 'Wenn der Sohn Adams stirbt, hören seine Taten auf — außer drei: eine fortdauernde Spende, nützliches Wissen und ein rechtschaffenes Kind, das für ihn betet.', source: 'Sahih Muslim 1631' },
   { arabic: 'مَنْ يُرِدِ اللَّهُ بِهِ خَيْرًا يُفَقِّهْهُ فِي الدِّينِ', text: 'Wem Allah Gutes will, dem gibt Er Verständnis in der Religion.', source: 'Sahih al-Bukhari 71' },
-  { arabic: '', text: 'Schaut auf diejenigen, die unter euch stehen, und nicht auf diejenigen, die über euch stehen. So werdet ihr die Gunst Allahs nicht gering schätzen.', source: 'Sahih Muslim 2963' },
+  { arabic: '', text: 'Schaut auf diejenigen, die unter euch stehen, und nicht auf diejenigen, die über euch stehen. So werdet ihr die Gunst Allahs nicht gering schätzen.', source: 'Sahih al-Bukhari 6490, Sahih Muslim 2963' },
   { arabic: 'عَجَبًا لِأَمْرِ الْمُؤْمِنِ إِنَّ أَمْرَهُ كُلَّهُ خَيْرٌ', text: 'Wie wunderbar ist die Angelegenheit des Gläubigen! All seine Angelegenheiten sind gut für ihn.', source: 'Sahih Muslim 2999' },
-  { arabic: '', text: 'Wer nicht für das Geringe dankt, wird auch nicht für das Viele danken.', source: 'Sahih Muslim 2963' },
+  { arabic: '', text: 'Wer nicht für das Geringe dankt, wird auch nicht für das Viele danken.', source: 'Musnad Ahmad 7938' },
   { arabic: 'الْكَلِمَةُ الطَّيِّبَةُ صَدَقَةٌ', text: 'Ein gutes Wort ist eine Sadaqah (mildtätige Gabe).', source: 'Sahih al-Bukhari 2989' },
-  { arabic: '', text: 'Lass deinen Zorn, und das Paradies gehört dir.', source: 'Sahih Muslim 2608' },
+  { arabic: '', text: 'Lass deinen Zorn, und das Paradies gehört dir.', source: 'Musnad Ahmad 22161' },
   { arabic: 'إِنَّ الدِّينَ يُسْرٌ وَلَنْ يُشَادَّ الدِّينَ أَحَدٌ إِلَّا غَلَبَهُ', text: 'Die Religion ist leicht. Wer die Religion zu übertreiben versucht, den wird sie überwältigen.', source: 'Sahih al-Bukhari 39' },
   { arabic: 'الطُّهُورُ شَطْرُ الْإِيمَانِ وَالْحَمْدُ لِلَّهِ تَمْلَأُ الْمِيزَانَ', text: 'Die Reinheit ist die Hälfte des Glaubens, und Alhamdulillah füllt die Waage.', source: 'Sahih Muslim 223' },
-  { arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ', text: 'Der beste Dhikr ist La ilaha illallah, und die beste Bittgebete ist Alhamdulillah.', source: 'Sahih Muslim 2137' },
+  { arabic: 'أَفْضَلُ الذِّكْرِ لَا إِلَهَ إِلَّا اللَّهُ وَأَفْضَلُ الدُّعَاءِ الْحَمْدُ لِلَّهِ', text: 'Der beste Dhikr ist La ilaha illallah, und das beste Bittgebet ist Alhamdulillah.', source: 'Sunan at-Tirmidhi 3383' },
   { arabic: '', text: 'Wer zwei Dinge aus den Besitztümern Allahs am Morgen und am Abend spricht, tritt ins Paradies ein: Subhanallah wal-Hamdulillah je hundertmal.', source: 'Sahih Muslim 2692' },
   { arabic: 'الدُّنْيَا سِجْنُ الْمُؤْمِنِ وَجَنَّةُ الْكَافِرِ', text: 'Die Welt ist das Gefängnis des Gläubigen und das Paradies des Ungläubigen.', source: 'Sahih Muslim 2956' },
 ];
