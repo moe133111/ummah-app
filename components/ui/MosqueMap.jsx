@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, ActivityIndicator, Pressable, Linking } from 'r
 import { useState, useEffect, useCallback } from 'react';
 import { WebView } from 'react-native-webview';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import AppIcon from './AppIcon';
 import { BorderRadius, Spacing, FontSize } from '../../constants/theme';
 
 const CACHE_KEY = 'mosque_cache';
@@ -169,7 +171,7 @@ window.ReactNativeWebView.postMessage('loaded');
       {/* Error state */}
       {error && !loading && (
         <View style={[styles.statusCard, { backgroundColor: t.card, borderColor: t.border }]}>
-          <Text style={{ fontSize: 20, marginRight: Spacing.sm }}>⚠️</Text>
+          <Ionicons name="warning-outline" size={20} color="#E6A700" style={{ marginRight: Spacing.sm }} />
           <Text style={{ color: t.textDim, fontSize: FontSize.sm, flex: 1 }}>{error}</Text>
           <Pressable onPress={fetchMosques} style={[styles.retryBtn, { borderColor: t.accent }]}>
             <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Erneut</Text>
@@ -180,7 +182,7 @@ window.ReactNativeWebView.postMessage('loaded');
       {/* Mosque list */}
       {!loading && !error && mosques.length === 0 && (
         <View style={[styles.statusCard, { backgroundColor: t.card, borderColor: t.border }]}>
-          <Text style={{ fontSize: 20, marginRight: Spacing.sm }}>🕌</Text>
+          <AppIcon name="mosque" size={20} color="#8B9BB4" style={{ marginRight: Spacing.sm }} />
           <Text style={{ color: t.textDim, fontSize: FontSize.sm }}>Keine Moscheen in der Nähe gefunden</Text>
         </View>
       )}
@@ -199,7 +201,7 @@ window.ReactNativeWebView.postMessage('loaded');
                 { backgroundColor: t.card, borderColor: t.border, opacity: pressed ? 0.7 : 1 },
               ]}
             >
-              <Text style={{ fontSize: 24, marginRight: Spacing.md }}>🕌</Text>
+              <AppIcon name="mosque" size={24} color="#B8860B" style={{ marginRight: Spacing.md }} />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }} numberOfLines={1}>
                   {m.name}

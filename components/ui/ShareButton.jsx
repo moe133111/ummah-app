@@ -1,5 +1,6 @@
 import { View, Text, Pressable, Modal, StyleSheet } from 'react-native';
 import { useState, useRef, useCallback } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import ShareCard from './ShareCard';
 import { shareAsImage } from '../../lib/sharing';
 
@@ -30,7 +31,7 @@ export default function ShareButton({ type, arabic, translation, reference, tran
         ]}
       >
         {({ pressed }) => (
-          <Text style={{ fontSize: 14, color: pressed ? t.accent : t.textDim }}>📤</Text>
+          <Ionicons name="share-outline" size={14} color={pressed ? t.accent : t.textDim} />
         )}
       </Pressable>
 
