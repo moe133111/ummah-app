@@ -266,7 +266,7 @@ export default function DhikrScreen() {
                   ]}
                   onPress={() => setAdhkarPeriod('morning')}
                 >
-                  <AppIcon name="daynight" size={22} color={adhkarPeriod === 'morning' ? t.accent : t.textDim} />
+                  <Ionicons name="sunny-outline" size={20} color={adhkarPeriod === 'morning' ? '#B8860B' : t.textDim} />
                   <Text style={{ fontSize: FontSize.md, fontWeight: adhkarPeriod === 'morning' ? '700' : '500', color: adhkarPeriod === 'morning' ? t.accent : t.textDim }}>Morgen</Text>
                 </Pressable>
                 <Pressable
@@ -277,7 +277,7 @@ export default function DhikrScreen() {
                   ]}
                   onPress={() => setAdhkarPeriod('evening')}
                 >
-                  <AppIcon name="daynight" size={22} color={adhkarPeriod === 'evening' ? t.accent : t.textDim} />
+                  <Ionicons name="moon-outline" size={20} color={adhkarPeriod === 'evening' ? '#B8860B' : t.textDim} />
                   <Text style={{ fontSize: FontSize.md, fontWeight: adhkarPeriod === 'evening' ? '700' : '500', color: adhkarPeriod === 'evening' ? t.accent : t.textDim }}>Abend</Text>
                 </Pressable>
               </View>
