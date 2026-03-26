@@ -11,6 +11,7 @@ const CUSTOM_ICONS = {
   qibla: require('../../assets/icons/qibla.png'),
   calendar: require('../../assets/icons/calendar.png'),
   tasbih: require('../../assets/icons/tasbih.png'),
+  daynight: require('../../assets/icons/daynight.png'),
 };
 
 export function AppIcon({ name, size = 20, color = '#B8860B', style }) {

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Platform, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Platform, ActivityIndicator, Modal, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -16,6 +16,7 @@ import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 import QiblaMap from '../../components/ui/QiblaMap';
 import MosqueMap from '../../components/ui/MosqueMap';
+import AppIcon from '../../components/ui/AppIcon';
 
 const REMINDER_OPTIONS = [
   { value: 0, label: 'Sofort' },
@@ -357,7 +358,7 @@ export default function PrayerScreen() {
   const tabs = [
     { id: 'times', label: 'Zeiten', icon: 'time-outline' },
     { id: 'qibla', label: 'Qibla', icon: 'compass-outline' },
-    { id: 'mosques', label: 'Moscheen', icon: 'business-outline' },
+    { id: 'mosques', label: 'Moscheen', icon: 'mosque', isCustom: true },
   ];
 
   return (
@@ -372,7 +373,11 @@ export default function PrayerScreen() {
               style={[styles.tab, tab === tb.id && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
               onPress={() => setTab(tb.id)}
             >
-              <Ionicons name={tb.icon} size={20} color={tab === tb.id ? t.accent : t.textDim} style={{ marginBottom: Spacing.xs }} />
+              {tb.isCustom ? (
+                <AppIcon name={tb.icon} size={20} color={tab === tb.id ? t.accent : t.textDim} style={{ marginBottom: Spacing.xs }} />
+              ) : (
+                <Ionicons name={tb.icon} size={20} color={tab === tb.id ? t.accent : t.textDim} style={{ marginBottom: Spacing.xs }} />
+              )}
               <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: tab === tb.id ? t.accent : t.textDim }}>{tb.label}</Text>
             </Pressable>
           ))}
@@ -612,7 +617,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
                 <Stop offset="100%" stopColor={accentColor} stopOpacity="0" />
               </RadialGradient>
             </Defs>
-            <Circle cx={CX} cy={CY} r={OUTER_R} stroke={accentColor} strokeWidth={2} fill="none" />
+            <Circle cx={CX} cy={CY} r={OUTER_R} stroke={accentColor + '40'} strokeWidth={2} fill="none" />
             <Circle cx={CX} cy={CY} r={INNER_R} stroke={borderColor} strokeWidth={1} strokeDasharray="4,4" fill="none" />
             {ticks}
             {dirs.map((d) => {
@@ -631,11 +636,11 @@ function QiblaCompass({ qibla, dist, t, location }) {
               </>
             )}
             <Circle cx={CX} cy={CY} r={14} fill="url(#glow)" />
-            <Circle cx={CX} cy={CY} r={5} fill={accentColor} />
+            <Circle cx={CX} cy={CY} r={4} fill={accentColor} />
           </Svg>
           {qibla !== null && (
-            <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 14, top: kaabaPos.y - 14 }]}>
-              <Ionicons name="navigate" size={22} color="#B8860B" />
+            <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 16, top: kaabaPos.y - 16 }]}>
+              <Image source={require('../../assets/icons/qibla.png')} style={{ width: 32, height: 32, tintColor: '#B8860B', resizeMode: 'contain' }} />
             </View>
           )}
         </View>
@@ -705,7 +710,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
           </Defs>
 
           <G rotation={compassRotation} origin={`${CX}, ${CY}`}>
-            <Circle cx={CX} cy={CY} r={OUTER_R} stroke={accentColor} strokeWidth={2} fill="none" />
+            <Circle cx={CX} cy={CY} r={OUTER_R} stroke={accentColor + '40'} strokeWidth={2} fill="none" />
             <Circle cx={CX} cy={CY} r={INNER_R} stroke={borderColor} strokeWidth={1} strokeDasharray="4,4" fill="none" />
             {ticks}
             {dirs.map((d) => {
@@ -728,12 +733,12 @@ function QiblaCompass({ qibla, dist, t, location }) {
           )}
 
           <Circle cx={CX} cy={CY} r={14} fill="url(#glow)" />
-          <Circle cx={CX} cy={CY} r={5} fill={accentColor} />
+          <Circle cx={CX} cy={CY} r={4} fill={accentColor} />
         </Svg>
 
         {qibla !== null && (
-          <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 14, top: kaabaPos.y - 14 }]}>
-            <Ionicons name="navigate" size={22} color="#B8860B" />
+          <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 16, top: kaabaPos.y - 16 }]}>
+            <Image source={require('../../assets/icons/qibla.png')} style={{ width: 32, height: 32, tintColor: '#B8860B', resizeMode: 'contain' }} />
           </View>
         )}
       </View>
@@ -755,7 +760,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
 
 const compassStyles = StyleSheet.create({
   compassContainer: { alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginVertical: Spacing.lg, width: COMPASS_SIZE, height: COMPASS_SIZE },
-  kaabaEmoji: { position: 'absolute', width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+  kaabaEmoji: { position: 'absolute', width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   iosBtn: { paddingHorizontal: Spacing.xxl, paddingVertical: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1 },
 });
 

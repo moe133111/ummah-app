@@ -100,7 +100,7 @@ export default function DhikrScreen() {
   const tabs = [
     { id: 'dhikr', label: 'Dhikr', iconName: 'tasbih', isCustom: true },
     { id: 'duas', label: 'Duas', iconName: 'prayer', isCustom: true },
-    { id: 'adhkar', label: 'Adhkar', iconName: 'sunny-outline', isCustom: false },
+    { id: 'adhkar', label: 'Adhkar', iconName: 'daynight', isCustom: true },
     { id: 'sleep', label: 'Schlaf', iconName: 'moon-outline', isCustom: false },
     { id: 'favorites', label: 'Favoriten', iconName: 'star-outline', isCustom: false },
   ];
@@ -266,7 +266,7 @@ export default function DhikrScreen() {
                   ]}
                   onPress={() => setAdhkarPeriod('morning')}
                 >
-                  <Ionicons name="sunny" size={22} color={adhkarPeriod === 'morning' ? t.accent : t.textDim} />
+                  <AppIcon name="daynight" size={22} color={adhkarPeriod === 'morning' ? t.accent : t.textDim} />
                   <Text style={{ fontSize: FontSize.md, fontWeight: adhkarPeriod === 'morning' ? '700' : '500', color: adhkarPeriod === 'morning' ? t.accent : t.textDim }}>Morgen</Text>
                 </Pressable>
                 <Pressable
@@ -277,7 +277,7 @@ export default function DhikrScreen() {
                   ]}
                   onPress={() => setAdhkarPeriod('evening')}
                 >
-                  <Ionicons name="moon-outline" size={22} color={adhkarPeriod === 'evening' ? t.accent : t.textDim} />
+                  <AppIcon name="daynight" size={22} color={adhkarPeriod === 'evening' ? t.accent : t.textDim} />
                   <Text style={{ fontSize: FontSize.md, fontWeight: adhkarPeriod === 'evening' ? '700' : '500', color: adhkarPeriod === 'evening' ? t.accent : t.textDim }}>Abend</Text>
                 </Pressable>
               </View>
