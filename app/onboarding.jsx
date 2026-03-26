@@ -107,7 +107,7 @@ export default function Onboarding() {
         <View style={styles.page}>
           <View style={styles.content}>
             <Text style={styles.bismillah}>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</Text>
-            <Text style={styles.appName}>Ummah</Text>
+            <Text style={styles.appName}>Imaniq</Text>
             <Text style={styles.subtitle}>Dein islamischer Begleiter</Text>
             <Text style={styles.desc}>
               Gebetszeiten, Quran, Qibla-Kompass{'\n'}und Duas — alles in einer App.

@@ -1,5 +1,5 @@
 /**
- * Ummah App Theme System
+ * Imaniq Theme System
  * Islamische Ästhetik: Dunkelgrün + Gold + meditatives Dark-Mode
  */
 

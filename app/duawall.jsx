@@ -65,7 +65,7 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
           type="dua"
           arabic={arabic ? item.text : ''}
           translation={arabic ? '' : item.text}
-          reference={isOwn ? 'Bittgebet — Ummah App' : 'Dua Wall — Ummah App'}
+          reference={isOwn ? 'Bittgebet — Imaniq' : 'Dua Wall — Imaniq'}
           transliteration=""
           t={t}
         />
@@ -213,7 +213,7 @@ export default function DuaWallScreen() {
         <TextInput
           value={text}
           onChangeText={setText}
-          placeholder="Teile dein Bittgebet mit der Ummah..."
+          placeholder="Teile dein Bittgebet mit der Community..."
           placeholderTextColor={t.textDim}
           multiline
           maxLength={500}
@@ -272,7 +272,7 @@ export default function DuaWallScreen() {
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
             <AppIcon name="prayer" size={48} color={t.textDim} style={{ marginBottom: 12 }} />
             <Text style={{ fontSize: 16, fontWeight: '600', color: t.text, textAlign: 'center' }}>Sei der Erste der eine Dua teilt</Text>
-            <Text style={{ fontSize: 13, color: t.textDim, marginTop: 8, textAlign: 'center' }}>Teile dein Bittgebet mit der Ummah</Text>
+            <Text style={{ fontSize: 13, color: t.textDim, marginTop: 8, textAlign: 'center' }}>Teile dein Bittgebet mit der Community</Text>
           </View>
         }
         contentContainerStyle={{ padding: 16, paddingBottom: 16 }}
