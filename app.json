@@ -1,24 +1,30 @@
 {
   "expo": {
-    "name": "Ummah",
-    "slug": "ummah-app",
-    "version": "0.1.0",
+    "name": "Imaniq",
+    "slug": "imaniq",
+    "version": "1.0.0",
     "orientation": "portrait",
-    "scheme": "ummah",
+    "scheme": "imaniq",
+    "description": "Imaniq — Dein islamischer Begleiter",
     "userInterfaceStyle": "automatic",
-    "splash": { "backgroundColor": "#0A1628" },
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#0A1628"
+    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ummah.app",
+      "bundleIdentifier": "com.imaniq.app",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Wird für die Berechnung der Gebetszeiten und Qibla-Richtung benötigt.",
         "NSMotionUsageDescription": "Wird für den Qibla-Kompass benötigt."
       }
     },
     "android": {
-      "adaptiveIcon": { "backgroundColor": "#0A1628" },
-      "package": "com.ummah.app",
+      "package": "com.imaniq.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0A1628"
+      },
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "VIBRATE"]
     },
     "plugins": ["expo-router", "expo-location", "expo-sensors", "expo-notifications"],

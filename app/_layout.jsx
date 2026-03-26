@@ -1,19 +1,9 @@
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useAppStore } from '../hooks/useAppStore';
-
-const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 300000, retry: 2 } } });
 
 export default function RootLayout() {
-  const theme = useAppStore((s) => s.theme);
   return (
-    <QueryClientProvider client={queryClient}>
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="quran/[surah]" options={{ headerShown: true, headerStyle: { backgroundColor: theme === 'dark' ? '#0A1628' : '#F8F6F0' }, headerTintColor: theme === 'dark' ? '#E8E0D4' : '#1A1A2E' }} />
-      </Stack>
-    </QueryClientProvider>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+    </Stack>
   );
 }

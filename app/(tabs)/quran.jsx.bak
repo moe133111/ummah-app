@@ -1,0 +1,320 @@
+import { View, Text, StyleSheet, FlatList, ScrollView, Pressable, TextInput } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState, useMemo } from 'react';
+import { useRouter } from 'expo-router';
+import { useAppStore } from '../../hooks/useAppStore';
+import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '../../constants/theme';
+import { SURAH_LIST } from '../../features/quran/surahData';
+import LanguagePicker from '../../components/ui/LanguagePicker';
+import { FONTS, getArabicDisplayFont } from '../../lib/fonts';
+import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '../../components/ui/AppIcon';
+
+const SUB_TABS = [
+  { id: 'read', label: 'Lesen' },
+  { id: 'learn', label: 'Lernen' },
+  { id: 'progress', label: 'Mein Fortschritt' },
+];
+
+export default function QuranScreen() {
+  const isDark = useAppStore((s) => s.theme === 'dark');
+  const lastRead = useAppStore((s) => s.lastReadSurah);
+  const quranLanguage = useAppStore((s) => s.quranLanguage);
+  const quranSecondLanguage = useAppStore((s) => s.quranSecondLanguage);
+  const setQuranLanguage = useAppStore((s) => s.setQuranLanguage);
+  const setQuranSecondLanguage = useAppStore((s) => s.setQuranSecondLanguage);
+  const t = isDark ? DarkTheme : LightTheme;
+  const router = useRouter();
+  const [search, setSearch] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [activeTab, setActiveTab] = useState('read');
+
+  const filtered = useMemo(() => {
+    if (!search.trim()) return SURAH_LIST;
+    const q = search.toLowerCase();
+    return SURAH_LIST.filter(s => s.name.includes(q) || s.englishName.toLowerCase().includes(q) || String(s.number).includes(q));
+  }, [search]);
+
+  const cardBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+
+  const renderSurah = ({ item }) => {
+    const isLastRead = item.number === lastRead;
+
+    return (
+      <Pressable
+        style={[styles.surahCard, { backgroundColor: isLastRead ? t.accent + '12' : cardBg }, isLastRead && { borderWidth: 1, borderColor: t.accent + '30' }]}
+        onPress={() => router.push(`/quran/${item.number}`)}
+      >
+        <Text style={[styles.surahNum, { color: t.textDim }]}>{item.number}</Text>
+        <Text
+          style={[styles.surahArabic, { color: isDark ? '#E8E0D4' : t.text, fontFamily: FONTS.arabicDisplay || getArabicDisplayFont() }]}
+          numberOfLines={1}
+        >
+          {item.name}
+        </Text>
+        <View style={styles.surahInfo}>
+          <Text style={[styles.surahEnglish, { color: t.text }]}>{item.englishName}</Text>
+          <Text style={[styles.surahTranslation, { color: t.textDim }]}>{item.englishTranslation}</Text>
+        </View>
+      </Pressable>
+    );
+  };
+
+  const ListHeader = () => (
+    <View>
+      {/* Language pickers */}
+      <View style={styles.langRow}>
+        <LanguagePicker label="Sprache 1" value={quranLanguage} onChange={setQuranLanguage} t={t} />
+        <LanguagePicker label="Sprache 2" value={quranSecondLanguage} onChange={setQuranSecondLanguage} allowClear t={t} />
+      </View>
+
+      {/* Continue reading */}
+      {lastRead > 0 && (
+        <Pressable
+          onPress={() => router.push(`/quran/${lastRead}`)}
+          style={[styles.continueCard, { backgroundColor: Colors.green, borderColor: Colors.greenLight + '44' }]}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: FontSize.xs, color: '#ffffffaa' }}>Weiterlesen</Text>
+            <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: '#fff', marginTop: Spacing.xs }}>
+              {SURAH_LIST[lastRead - 1]?.englishName} — {SURAH_LIST[lastRead - 1]?.name}
+            </Text>
+          </View>
+          <AppIcon name="quran" size={28} color="#fff" />
+        </Pressable>
+      )}
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={[]}>
+      <View style={{ flex: 1, backgroundColor: t.bg }}>
+        {/* Header row */}
+        <View style={styles.headerRow}>
+          <Text style={[styles.headerTitle, { color: t.text }]}>Quran</Text>
+          <View style={{ flexDirection: 'row', gap: Spacing.md }}>
+            {lastRead > 0 && (
+              <Pressable onPress={() => router.push(`/quran/${lastRead}`)} hitSlop={Spacing.sm} style={styles.headerIcon}>
+                <Ionicons name="bookmark-outline" size={22} color={t.accent} />
+              </Pressable>
+            )}
+            <Pressable onPress={() => setShowSearch(!showSearch)} hitSlop={Spacing.sm} style={styles.headerIcon}>
+              <Ionicons name="search-outline" size={22} color={t.accent} />
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Sub-tabs */}
+        <View style={styles.tabRow}>
+          {SUB_TABS.map((tab) => (
+            <Pressable key={tab.id} onPress={() => setActiveTab(tab.id)} style={styles.tabBtn}>
+              <Text style={[
+                styles.tabText,
+                { color: activeTab === tab.id ? t.accent : t.textDim },
+                activeTab === tab.id && styles.tabTextActive,
+              ]}>
+                {tab.label}
+              </Text>
+              {activeTab === tab.id && <View style={[styles.tabUnderline, { backgroundColor: t.accent }]} />}
+            </Pressable>
+          ))}
+        </View>
+
+        {/* Search bar (toggled) */}
+        {showSearch && (
+          <View style={[styles.searchWrap, { backgroundColor: t.surface, borderColor: t.border }]}>
+            <Ionicons name="search-outline" size={16} color={t.textDim} style={{ marginRight: Spacing.sm }} />
+            <TextInput
+              style={{ flex: 1, paddingVertical: Spacing.md, fontSize: FontSize.md, color: t.text }}
+              placeholder="Sure suchen..."
+              placeholderTextColor={t.textDim}
+              value={search}
+              onChangeText={setSearch}
+              autoFocus
+            />
+            {search.length > 0 && (
+              <Pressable onPress={() => setSearch('')} hitSlop={Spacing.sm}>
+                <Text style={{ fontSize: 18, color: t.textDim }}>✕</Text>
+              </Pressable>
+            )}
+          </View>
+        )}
+
+        {activeTab === 'read' && (
+          <FlatList
+            data={filtered}
+            keyExtractor={i => String(i.number)}
+            renderItem={renderSurah}
+            ListHeaderComponent={ListHeader}
+            style={{ backgroundColor: t.bg }}
+            contentContainerStyle={{ paddingHorizontal: Spacing.lg, paddingBottom: 16 }}
+          />
+        )}
+
+        {activeTab === 'learn' && (
+          <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={{ padding: Spacing.lg }}>
+            <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text, marginBottom: Spacing.lg }}>Lern-Module</Text>
+
+            {/* Arabisches Alphabet */}
+            <Pressable
+              onPress={() => router.push('/learn/alphabet')}
+              style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
+            >
+              <Ionicons name="text-outline" size={32} color={t.accent} />
+              <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Arabisches Alphabet</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Alle 28 Buchstaben mit Aussprache</Text>
+              </View>
+              <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
+            </Pressable>
+
+            {/* Tajweed-Grundlagen */}
+            <Pressable
+              onPress={() => router.push('/learn/tajweed')}
+              style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
+            >
+              <AppIcon name="quran" size={32} color={t.accent} />
+              <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Tajweed-Grundlagen</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Regeln der Quran-Rezitation</Text>
+              </View>
+              <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
+            </Pressable>
+
+            {/* Vers des Tages lernen */}
+            <Pressable
+              onPress={() => router.push('/learn/daily-verse')}
+              style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
+            >
+              <Ionicons name="bulb-outline" size={32} color={t.accent} />
+              <View style={{ flex: 1, marginLeft: Spacing.md }}>
+                <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Vers des Tages lernen</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Tägliche Memorisierung</Text>
+              </View>
+              <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
+            </Pressable>
+          </ScrollView>
+        )}
+
+        {activeTab === 'progress' && (
+          <View style={styles.placeholderWrap}>
+            <Ionicons name="stats-chart-outline" size={48} color={t.accent} style={{ marginBottom: Spacing.md }} />
+            <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text }}>Mein Fortschritt</Text>
+            <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.sm, textAlign: 'center' }}>
+              Verfolge deinen Quran-Lesefortschritt{'\n'}und setze persönliche Ziele
+            </Text>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1 },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+  },
+  headerTitle: {
+    fontSize: FontSize.xxl,
+    fontWeight: '700',
+  },
+  headerIcon: {
+    minWidth: 44,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabRow: {
+    flexDirection: 'row',
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    gap: Spacing.xl,
+  },
+  tabBtn: {
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  tabText: {
+    fontSize: FontSize.md,
+    fontWeight: '500',
+  },
+  tabTextActive: {
+    fontWeight: '700',
+  },
+  tabUnderline: {
+    height: 2,
+    width: '100%',
+    marginTop: Spacing.xs,
+    borderRadius: 1,
+  },
+  langRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.md },
+  searchWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    paddingHorizontal: Spacing.md,
+  },
+  continueCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    marginBottom: Spacing.lg,
+  },
+  surahCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.sm,
+    minHeight: 85,
+  },
+  surahNum: {
+    fontSize: 24,
+    fontWeight: '300',
+    width: 50,
+    textAlign: 'center',
+  },
+  surahArabic: {
+    fontSize: 32,
+    flex: 1,
+    textAlign: 'center',
+    lineHeight: 54,
+  },
+  surahInfo: {
+    alignItems: 'flex-end',
+    width: 140,
+  },
+  surahEnglish: {
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  surahTranslation: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  placeholderWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.xxl,
+  },
+  learnCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    minHeight: 72,
+  },
+});
