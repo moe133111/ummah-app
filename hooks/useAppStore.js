@@ -3,6 +3,20 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { calculateStreak, getTodayString, getYesterdayString } from '../features/streaks/streakManager';
 
+// Migrate data from old storage key to new one (one-time)
+const OLD_STORAGE_KEY = 'ummah-app-storage';
+const STORAGE_KEY = 'imaniq-app-storage';
+
+AsyncStorage.getItem(OLD_STORAGE_KEY).then(async (oldData) => {
+  if (oldData) {
+    const newData = await AsyncStorage.getItem(STORAGE_KEY);
+    if (!newData) {
+      await AsyncStorage.setItem(STORAGE_KEY, oldData);
+    }
+    await AsyncStorage.removeItem(OLD_STORAGE_KEY);
+  }
+}).catch(() => {});
+
 export const useAppStore = create(
   persist(
     (set, get) => ({

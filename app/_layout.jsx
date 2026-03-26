@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -35,6 +36,14 @@ export default function RootLayout() {
     'ScheherazadeNew-Bold': require('../assets/fonts/ScheherazadeNew-Bold.ttf'),
   });
 
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const unsub = useAppStore.persist.onFinishHydration(() => setHydrated(true));
+    // If already hydrated (e.g. sync storage or fast load)
+    if (useAppStore.persist.hasHydrated()) setHydrated(true);
+    return () => unsub();
+  }, []);
+
   useEffect(() => {
     requestNotificationPermission();
     initDatabase();
@@ -46,6 +55,10 @@ export default function RootLayout() {
     checkDailyReset();
     resetDailyProgressIfNewDay();
   }, []);
+
+  if (!fontsLoaded || !hydrated) {
+    return <View style={{ flex: 1, backgroundColor: '#0A1628' }} />;
+  }
 
   if (!onboardingComplete) {
     return (
