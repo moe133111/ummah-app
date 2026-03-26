@@ -44,7 +44,7 @@ const ShareCard = forwardRef(function ShareCard(
         ) : null}
 
         {/* Branding */}
-        <Text style={styles.branding}>Ummah App</Text>
+        <Text style={styles.branding}>Imaniq</Text>
       </View>
     </View>
   );
