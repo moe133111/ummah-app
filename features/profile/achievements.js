@@ -69,4 +69,18 @@ export const ACHIEVEMENTS = [
     description: 'Alle 114 Suren gelesen',
     check: (s) => (s.surahsRead || []).length >= 114,
   },
+  {
+    id: 'hafiz_starter',
+    emoji: '🧠',
+    name: 'Hafiz-Starter',
+    description: '10 Verse auswendig gelernt',
+    check: (s) => (s.memorizedVerses || []).length >= 10,
+  },
+  {
+    id: 'memory_master',
+    emoji: '🏆',
+    name: 'Gedächtnis-Meister',
+    description: '30 Verse auswendig gelernt',
+    check: (s) => (s.memorizedVerses || []).length >= 30,
+  },
 ];

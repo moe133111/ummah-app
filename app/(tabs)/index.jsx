@@ -461,6 +461,20 @@ export default function HomeScreen() {
           </Pressable>
         </Card>
 
+        {/* Vers des Tages */}
+        <Pressable onPress={() => router.push('/learn/daily-verse')}>
+          <Card>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 24, marginRight: Spacing.md }}>🧠</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>Vers des Tages wartet auf dich</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Jeden Tag einen neuen Vers auswendig lernen</Text>
+              </View>
+              <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
+            </View>
+          </Card>
+        </Pressable>
+
         {/* Quran Fortschritt */}
         <Pressable onPress={() => router.push(`/quran/${lastReadSurah}`)}>
           <Card>

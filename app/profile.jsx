@@ -18,12 +18,13 @@ export default function ProfileScreen() {
   const fajrStreak = useAppStore((s) => s.fajrStreak) || 0;
   const quranStreak = useAppStore((s) => s.quranStreak) || 0;
   const dhikrStreak = useAppStore((s) => s.dhikrStreak) || 0;
+  const memorizedVerses = useAppStore((s) => s.memorizedVerses) || [];
   const memberSince = useAppStore((s) => s.memberSince);
   const weeklyPrayers = useAppStore((s) => s.weeklyPrayers) || {};
   const t = isDark ? DarkTheme : LightTheme;
   const router = useRouter();
 
-  const storeState = { totalPrayers, totalDhikr, surahsRead, longestStreak, fajrStreak };
+  const storeState = { totalPrayers, totalDhikr, surahsRead, longestStreak, fajrStreak, memorizedVerses };
 
   const weekPrayers = getWeekTotal(weeklyPrayers);
 
@@ -38,6 +39,7 @@ export default function ProfileScreen() {
     { emoji: '🌅', value: fajrStreak, label: 'Fajr-Streak' },
     { emoji: '📖', value: quranStreak, label: 'Quran-Streak' },
     { emoji: '📿', value: dhikrStreak, label: 'Dhikr-Streak' },
+    { emoji: '🧠', value: memorizedVerses.length, label: 'Verse auswendig' },
   ];
 
   const quranProgress = surahsRead.length;

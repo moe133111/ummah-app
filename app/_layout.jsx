@@ -80,6 +80,7 @@ export default function RootLayout() {
               <Stack.Screen name="duawall" options={{ headerShown: true, headerBackTitle: 'Zurück', title: 'Dua Wall', animation: 'slide_from_right' }} />
               <Stack.Screen name="learn/alphabet" options={{ headerShown: true, title: 'Arabisches Alphabet', headerBackTitle: 'Quran' }} />
               <Stack.Screen name="learn/tajweed" options={{ headerShown: true, title: 'Tajweed-Grundlagen', headerBackTitle: 'Quran' }} />
+              <Stack.Screen name="learn/daily-verse" options={{ headerShown: true, title: 'Vers des Tages', headerBackTitle: 'Quran' }} />
               <Stack.Screen name="onboarding" options={{ headerShown: false }} />
             </Stack>
           </SafeAreaView>

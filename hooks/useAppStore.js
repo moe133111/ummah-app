@@ -198,6 +198,14 @@ export const useAppStore = create(
           : [...s.learnedTajweedRules, id],
       })),
 
+      // Learn — memorized verses
+      memorizedVerses: [],
+      toggleMemorizedVerse: (ref) => set((s) => ({
+        memorizedVerses: (s.memorizedVerses || []).includes(ref)
+          ? (s.memorizedVerses || []).filter((x) => x !== ref)
+          : [...(s.memorizedVerses || []), ref],
+      })),
+
       // Dua Wall — user-posted duas (persisted locally)
       userDuas: [],
       addUserDua: (text) => set((s) => ({
@@ -344,6 +352,7 @@ export const useAppStore = create(
         userDuas: state.userDuas,
         learnedLetters: state.learnedLetters,
         learnedTajweedRules: state.learnedTajweedRules,
+        memorizedVerses: state.memorizedVerses,
       }),
       // Migrate old lastPrayerDate → lastStreakDate
       migrate: (persisted) => {

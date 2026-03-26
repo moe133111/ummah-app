@@ -179,17 +179,18 @@ export default function QuranScreen() {
               <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
             </Pressable>
 
-            {/* Vers lernen — Platzhalter */}
-            <View style={[styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: 0.5 }]}>
+            {/* Vers des Tages lernen */}
+            <Pressable
+              onPress={() => router.push('/learn/daily-verse')}
+              style={[styles.learnCard, { backgroundColor: cardBg, borderColor: t.border }]}
+            >
               <Text style={{ fontSize: 32 }}>🧠</Text>
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Vers des Tages lernen</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Kommt bald</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Jeden Tag einen neuen Vers auswendig lernen</Text>
               </View>
-              <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
-                <Text style={{ color: t.accent, fontSize: 10, fontWeight: '600' }}>Bald</Text>
-              </View>
-            </View>
+              <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
+            </Pressable>
           </ScrollView>
         )}
 
