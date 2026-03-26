@@ -5,6 +5,8 @@ import { useAppStore } from '../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../constants/theme';
 import { getWeekData, getWeekTotal, getLastWeekTotal, getMonthTotal, getLastMonthTotal, getTrendPercent, WEEKDAY_LABELS } from '../features/stats/statsCalculator';
 import Card from '../components/ui/Card';
+import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '../components/ui/AppIcon';
 
 const BAR_MAX_HEIGHT = 120;
 
@@ -59,7 +61,7 @@ function TrendBadge({ current, previous, label }) {
   );
 }
 
-function MonthCompareRow({ emoji, label, thisMonth, lastMonth, t }) {
+function MonthCompareRow({ iconName, isCustom, label, thisMonth, lastMonth, t }) {
   const pct = lastMonth === 0 ? (thisMonth > 0 ? 100 : 0) : Math.round(((thisMonth - lastMonth) / lastMonth) * 100);
   const isUp = pct > 0;
   const isSame = pct === 0;
@@ -69,7 +71,11 @@ function MonthCompareRow({ emoji, label, thisMonth, lastMonth, t }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: Spacing.sm }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 }}>
-        <Text style={{ fontSize: 20 }}>{emoji}</Text>
+        {isCustom ? (
+          <AppIcon name={iconName} size={20} color={t.accent} />
+        ) : (
+          <Ionicons name={iconName} size={20} color={t.accent} />
+        )}
         <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>{label}</Text>
       </View>
       <View style={{ alignItems: 'flex-end' }}>
@@ -119,7 +125,7 @@ export default function StatsScreen() {
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ fontSize: 22 }}>🕌</Text>
+              <AppIcon name="mosque" size={22} color={t.accent} />
               <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>Gebete</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
@@ -140,7 +146,7 @@ export default function StatsScreen() {
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ fontSize: 22 }}>📿</Text>
+              <AppIcon name="tasbih" size={22} color={t.accent} />
               <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>Dhikr</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
@@ -161,7 +167,7 @@ export default function StatsScreen() {
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ fontSize: 22 }}>📖</Text>
+              <AppIcon name="quran" size={22} color={t.accent} />
               <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>Quran</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
@@ -182,11 +188,11 @@ export default function StatsScreen() {
         <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text, marginTop: Spacing.md, marginBottom: Spacing.sm }}>Monatsvergleich</Text>
         <Card>
           <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: Spacing.sm }}>Dieser Monat vs. letzter Monat</Text>
-          <MonthCompareRow emoji="🕌" label="Gebete" thisMonth={prayerMonth} lastMonth={prayerLastMonth} t={t} />
+          <MonthCompareRow iconName="mosque" isCustom label="Gebete" thisMonth={prayerMonth} lastMonth={prayerLastMonth} t={t} />
           <View style={{ height: 1, backgroundColor: t.border, marginVertical: 4 }} />
-          <MonthCompareRow emoji="📿" label="Dhikr" thisMonth={dhikrMonth} lastMonth={dhikrLastMonth} t={t} />
+          <MonthCompareRow iconName="tasbih" isCustom label="Dhikr" thisMonth={dhikrMonth} lastMonth={dhikrLastMonth} t={t} />
           <View style={{ height: 1, backgroundColor: t.border, marginVertical: 4 }} />
-          <MonthCompareRow emoji="📖" label="Quran (Min)" thisMonth={quranMonth} lastMonth={quranLastMonth} t={t} />
+          <MonthCompareRow iconName="quran" isCustom label="Quran (Min)" thisMonth={quranMonth} lastMonth={quranLastMonth} t={t} />
         </Card>
 
       </ScrollView>

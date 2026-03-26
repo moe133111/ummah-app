@@ -14,6 +14,8 @@ import { MORNING_ADHKAR, EVENING_ADHKAR } from '../../features/dhikr/adhkarData'
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
 import ShareButton from '../../components/ui/ShareButton';
+import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '../../components/ui/AppIcon';
 
 const DHIKR = [
   { id: 1, arabic: 'سُبْحَانَ اللَّهِ', text: 'SubhanAllah', target: 33 },
@@ -96,11 +98,11 @@ export default function DhikrScreen() {
   }, [count, sel]);
 
   const tabs = [
-    { id: 'dhikr', label: 'Dhikr', emoji: '📿' },
-    { id: 'duas', label: 'Duas', emoji: '🤲' },
-    { id: 'adhkar', label: 'Adhkar', emoji: '🌅' },
-    { id: 'sleep', label: 'Schlaf', emoji: '🌙' },
-    { id: 'favorites', label: 'Favoriten', emoji: '⭐' },
+    { id: 'dhikr', label: 'Dhikr', iconName: 'tasbih', isCustom: true },
+    { id: 'duas', label: 'Duas', iconName: 'prayer', isCustom: true },
+    { id: 'adhkar', label: 'Adhkar', iconName: 'sunny-outline', isCustom: false },
+    { id: 'sleep', label: 'Schlaf', iconName: 'moon-outline', isCustom: false },
+    { id: 'favorites', label: 'Favoriten', iconName: 'star-outline', isCustom: false },
   ];
 
   const favDuas = DUAS.filter((d) => favorites.includes(d.id));
@@ -114,7 +116,7 @@ export default function DhikrScreen() {
       <Card>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, flex: 1 }}>
-            <Text style={{ fontSize: 24 }}>{dua.emoji || '🤲'}</Text>
+            <AppIcon name="prayer" size={24} color={t.accent} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: expanded === dua.id ? t.accent : t.text }}>{dua.title}</Text>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>{dua.category}</Text>
@@ -122,7 +124,7 @@ export default function DhikrScreen() {
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
             <Pressable onPress={() => toggleFavorite(dua.id)} hitSlop={Spacing.sm} style={styles.favTouch}>
-              <Text style={{ fontSize: 18 }}>{favorites.includes(dua.id) ? '⭐' : '☆'}</Text>
+              <Ionicons name={favorites.includes(dua.id) ? 'star' : 'star-outline'} size={18} color={favorites.includes(dua.id) ? '#D4A843' : t.textDim} />
             </Pressable>
             <Text style={{ fontSize: 18, color: t.textDim, transform: [{ rotate: expanded === dua.id ? '180deg' : '0deg' }] }}>▾</Text>
           </View>
@@ -165,7 +167,7 @@ export default function DhikrScreen() {
             ))}
           </View>
           {count >= sel.target && (
-            <Text style={styles.focusComplete}>✨ MashaAllah!</Text>
+            <Text style={styles.focusComplete}>MashaAllah!</Text>
           )}
           <View style={styles.focusExitWrap}>
             <Pressable onPress={() => setFocusMode(false)} style={styles.focusExitBtn}>
@@ -185,7 +187,11 @@ export default function DhikrScreen() {
               style={[styles.tab, tab === tb.id && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
               onPress={() => setTab(tb.id)}
             >
-              <Text style={{ fontSize: 18, marginBottom: Spacing.xs }}>{tb.emoji}</Text>
+              {tb.isCustom ? (
+                <AppIcon name={tb.iconName} size={18} color={tab === tb.id ? t.accent : t.textDim} style={{ marginBottom: Spacing.xs }} />
+              ) : (
+                <Ionicons name={tb.iconName} size={18} color={tab === tb.id ? t.accent : t.textDim} style={{ marginBottom: Spacing.xs }} />
+              )}
               <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: tab === tb.id ? t.accent : t.textDim }}>{tb.label}</Text>
             </Pressable>
           ))}
@@ -223,12 +229,12 @@ export default function DhikrScreen() {
                 style={[styles.resetBtn, { borderColor: t.accent, backgroundColor: t.accent + '15' }]}
                 onPress={() => setFocusMode(true)}
               >
-                <Text style={{ fontSize: FontSize.sm, color: t.accent }}>🧘 Focus Mode</Text>
+                <Text style={{ fontSize: FontSize.sm, color: t.accent }}>Focus Mode</Text>
               </Pressable>
             </View>
             {count >= sel.target && (
               <Card centered style={{ borderColor: t.accent + '44' }}>
-                <Text style={{ fontSize: 28, marginBottom: Spacing.xs }}>✨</Text>
+                <Ionicons name="sparkles" size={28} color={t.accent} style={{ marginBottom: Spacing.xs }} />
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.accent }}>MashaAllah! Ziel erreicht!</Text>
               </Card>
             )}
@@ -260,7 +266,7 @@ export default function DhikrScreen() {
                   ]}
                   onPress={() => setAdhkarPeriod('morning')}
                 >
-                  <Text style={{ fontSize: 22 }}>☀️</Text>
+                  <Ionicons name="sunny" size={22} color={adhkarPeriod === 'morning' ? t.accent : t.textDim} />
                   <Text style={{ fontSize: FontSize.md, fontWeight: adhkarPeriod === 'morning' ? '700' : '500', color: adhkarPeriod === 'morning' ? t.accent : t.textDim }}>Morgen</Text>
                 </Pressable>
                 <Pressable
@@ -271,7 +277,7 @@ export default function DhikrScreen() {
                   ]}
                   onPress={() => setAdhkarPeriod('evening')}
                 >
-                  <Text style={{ fontSize: 22 }}>🌙</Text>
+                  <Ionicons name="moon-outline" size={22} color={adhkarPeriod === 'evening' ? t.accent : t.textDim} />
                   <Text style={{ fontSize: FontSize.md, fontWeight: adhkarPeriod === 'evening' ? '700' : '500', color: adhkarPeriod === 'evening' ? t.accent : t.textDim }}>Abend</Text>
                 </Pressable>
               </View>
@@ -288,7 +294,7 @@ export default function DhikrScreen() {
 
               {allDone && (
                 <Card centered style={{ borderColor: '#D4A843' + '44', backgroundColor: '#D4A843' + '0A' }}>
-                  <Text style={{ fontSize: 28, marginBottom: Spacing.sm }}>✨</Text>
+                  <Ionicons name="sparkles" size={28} color="#D4A843" style={{ marginBottom: Spacing.sm }} />
                   <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: '#D4A843' }}>MashaAllah! Alle Adhkar erledigt</Text>
                 </Card>
               )}
@@ -321,7 +327,7 @@ export default function DhikrScreen() {
                         ]}
                       >
                         {done ? (
-                          <Text style={{ fontSize: 18 }}>✅</Text>
+                          <Ionicons name="checkmark-circle" size={18} color="#2E7D32" />
                         ) : (
                           <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: t.accent }}>{currentCount}/{adhkar.repetitions}</Text>
                         )}
@@ -351,7 +357,7 @@ export default function DhikrScreen() {
         {tab === 'sleep' && (
           <>
             <Card centered style={{ backgroundColor: isDark ? '#060E1A' : t.card }}>
-              <Text style={{ fontSize: 40 }}>🌙</Text>
+              <Ionicons name="moon" size={40} color={t.accentLight} />
               <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.accentLight, marginTop: Spacing.sm }}>Schlafmodus</Text>
               <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs, textAlign: 'center' }}>Abend-Duas und Suren vor dem Schlafen</Text>
             </Card>
@@ -382,7 +388,7 @@ export default function DhikrScreen() {
           <>
             {favDuas.length === 0 ? (
               <Card centered>
-                <Text style={{ fontSize: 36, marginBottom: Spacing.md }}>⭐</Text>
+                <Ionicons name="star-outline" size={36} color={t.textDim} style={{ marginBottom: Spacing.md }} />
                 <Text style={{ fontSize: FontSize.md, color: t.textDim, textAlign: 'center' }}>
                   Noch keine Favoriten.{'\n'}Markiere Duas mit dem Stern-Symbol.
                 </Text>

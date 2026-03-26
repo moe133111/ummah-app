@@ -207,7 +207,7 @@ function NotificationSettingsModal({ visible, onClose, prayerKey, t }) {
 
           {/* Title */}
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 20 }}>
-            <Text style={{ fontSize: 28, marginRight: 12 }}>{meta.emoji}</Text>
+            <Ionicons name={meta.icon} size={28} color={meta.color} style={{ marginRight: 12 }} />
             <Text style={{ fontSize: 18, fontWeight: '700', color: t.text, flex: 1 }}>{meta.name} Benachrichtigung</Text>
           </View>
 
@@ -355,9 +355,9 @@ export default function PrayerScreen() {
   const dist = location ? distanceToKaaba(location.lat, location.lng) : null;
 
   const tabs = [
-    { id: 'times', label: 'Zeiten', emoji: '🕐' },
-    { id: 'qibla', label: 'Qibla', emoji: '🧭' },
-    { id: 'mosques', label: 'Moscheen', emoji: '🕌' },
+    { id: 'times', label: 'Zeiten', icon: 'time-outline' },
+    { id: 'qibla', label: 'Qibla', icon: 'compass-outline' },
+    { id: 'mosques', label: 'Moscheen', icon: 'business-outline' },
   ];
 
   return (
@@ -372,7 +372,7 @@ export default function PrayerScreen() {
               style={[styles.tab, tab === tb.id && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
               onPress={() => setTab(tb.id)}
             >
-              <Text style={{ fontSize: 20, marginBottom: Spacing.xs }}>{tb.emoji}</Text>
+              <Ionicons name={tb.icon} size={20} color={tab === tb.id ? t.accent : t.textDim} style={{ marginBottom: Spacing.xs }} />
               <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: tab === tb.id ? t.accent : t.textDim }}>{tb.label}</Text>
             </Pressable>
           ))}
@@ -408,7 +408,7 @@ export default function PrayerScreen() {
                 <View style={{ borderRadius: BorderRadius.md, overflow: 'hidden', marginBottom: Spacing.md }}>
                   {nightMode && <NightStars t={t} />}
                   <View style={[styles.nextPrayerCard, { backgroundColor: nextMeta.color + '18', borderColor: nextMeta.color + '44' }]}>
-                    <Text style={{ fontSize: 48 }}>{nextMeta.emoji}</Text>
+                    <Ionicons name={nextMeta.icon} size={48} color={nextMeta.color} />
                     <View style={{ marginLeft: Spacing.md, flex: 1 }}>
                       <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Nächstes Gebet</Text>
                       <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: nextMeta.color }}>{nextPrayer.name}</Text>
@@ -423,7 +423,7 @@ export default function PrayerScreen() {
             {/* Notification summary */}
             {isToday && times && (
               <Pressable onPress={toggleAllNotifications} style={[styles.notifSummary, { backgroundColor: t.accent + '10', borderColor: t.accent + '30' }]}>
-                <Text style={{ fontSize: 16 }}>{allNotifsOn ? '🔔' : '🔕'}</Text>
+                <Ionicons name={allNotifsOn ? 'notifications' : 'notifications-off-outline'} size={16} color={t.accent} />
                 <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent, flex: 1, marginLeft: Spacing.sm }}>
                   {activeNotifCount}/5 Benachrichtigungen aktiv
                 </Text>
@@ -434,13 +434,13 @@ export default function PrayerScreen() {
             {prayerSource && (
               <View style={{ alignItems: 'center', marginBottom: Spacing.sm }}>
                 <Text style={{ fontSize: FontSize.xs, color: prayerSource === 'local' ? '#E6A700' : t.textDim, textAlign: 'center' }}>
-                  {prayerSource === 'aladhan' ? 'via Aladhan API' : prayerSource === 'cache' ? 'via Aladhan (Cache)' : '⚠️ Offline-Berechnung — Zeiten können leicht abweichen'}
+                  {prayerSource === 'aladhan' ? 'via Aladhan API' : prayerSource === 'cache' ? 'via Aladhan (Cache)' : 'Offline-Berechnung — Zeiten können leicht abweichen'}
                 </Text>
               </View>
             )}
             {locationError && (
               <View style={{ alignItems: 'center', marginBottom: Spacing.sm, backgroundColor: '#E6510015', padding: Spacing.sm, borderRadius: BorderRadius.sm }}>
-                <Text style={{ fontSize: FontSize.xs, color: '#E65100', textAlign: 'center' }}>📍 {locationError} — Fallback auf Berlin</Text>
+                <Text style={{ fontSize: FontSize.xs, color: '#E65100', textAlign: 'center' }}>{locationError} — Fallback auf Berlin</Text>
               </View>
             )}
 
@@ -448,7 +448,7 @@ export default function PrayerScreen() {
             {loading || timesLoading || !times ? (
               <Card>
                 <View style={{ alignItems: 'center', paddingVertical: Spacing.xxl }}>
-                  {timesLoading ? <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: Spacing.sm }} /> : <Text style={{ fontSize: 28, marginBottom: Spacing.sm }}>📍</Text>}
+                  {timesLoading ? <ActivityIndicator size="small" color={t.accent} style={{ marginBottom: Spacing.sm }} /> : <Ionicons name="location-outline" size={28} color={t.textDim} style={{ marginBottom: Spacing.sm }} />}
                   <Text style={{ color: t.textDim }}>{timesLoading ? 'Gebetszeiten werden geladen...' : 'Standort wird ermittelt...'}</Text>
                 </View>
               </Card>
@@ -471,7 +471,7 @@ export default function PrayerScreen() {
                     paddingHorizontal: 16,
                     marginBottom: 6,
                   }}>
-                    <Text style={{ fontSize: 22 }}>{meta.emoji}</Text>
+                    <Ionicons name={meta.icon} size={22} color={isNext ? meta.color : t.textDim} />
                     <View style={{ flex: 1, marginLeft: 12 }}>
                       <Text style={{ fontSize: 16, fontWeight: '600', color: isNext ? meta.color : t.text }}>{meta.name}</Text>
                       <Text style={{ fontSize: 11, color: t.textDim, marginTop: 1 }}>{meta.description}</Text>
@@ -507,7 +507,7 @@ export default function PrayerScreen() {
                   })}
                 </View>
                 {completedCount === 5 && (
-                  <Text style={{ fontSize: 13, color: '#B8860B', textAlign: 'center', marginTop: 8 }}>MashaAllah! ✨</Text>
+                  <Text style={{ fontSize: 13, color: '#B8860B', textAlign: 'center', marginTop: 8 }}>MashaAllah!</Text>
                 )}
               </View>
             )}
@@ -635,7 +635,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
           </Svg>
           {qibla !== null && (
             <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 14, top: kaabaPos.y - 14 }]}>
-              <Text style={{ fontSize: 22 }}>🕋</Text>
+              <Ionicons name="navigate" size={22} color="#B8860B" />
             </View>
           )}
         </View>
@@ -659,7 +659,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
   if (available === null) {
     return (
       <Card centered>
-        <Text style={{ fontSize: 28, marginBottom: Spacing.sm }}>🧭</Text>
+        <Ionicons name="compass-outline" size={28} color={t.textDim} style={{ marginBottom: Spacing.sm }} />
         <Text style={{ color: t.textDim }}>Kompass wird initialisiert...</Text>
       </Card>
     );
@@ -669,7 +669,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
     <>
       {Platform.OS === 'ios' && !iosGranted && (
         <Card centered>
-          <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>🧭</Text>
+          <Ionicons name="compass-outline" size={48} color={t.accent} style={{ marginBottom: Spacing.md }} />
           <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text, textAlign: 'center', marginBottom: Spacing.sm }}>Qibla-Richtung bestimmen</Text>
           <Text style={{ fontSize: 14, color: t.textDim, textAlign: 'center', marginBottom: Spacing.lg, lineHeight: 22 }}>
             {permissionDenied
@@ -733,7 +733,7 @@ function QiblaCompass({ qibla, dist, t, location }) {
 
         {qibla !== null && (
           <View style={[compassStyles.kaabaEmoji, { left: kaabaPos.x - 14, top: kaabaPos.y - 14 }]}>
-            <Text style={{ fontSize: 22 }}>🕋</Text>
+            <Ionicons name="navigate" size={22} color="#B8860B" />
           </View>
         )}
       </View>

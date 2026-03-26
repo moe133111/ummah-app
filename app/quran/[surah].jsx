@@ -569,7 +569,7 @@ export default function SurahDetail() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }}>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-          <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📖</Text>
+          <Ionicons name="book-outline" size={48} color={t.accent} style={{ marginBottom: Spacing.md }} />
           <Text style={{ fontSize: 18, fontWeight: '700', color: t.text, textAlign: 'center', marginBottom: 8 }}>
             Sure konnte nicht geladen werden
           </Text>

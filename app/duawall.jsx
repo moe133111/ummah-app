@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { View, Text, TextInput, Pressable, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '../components/ui/AppIcon';
 import { useAppStore } from '../hooks/useAppStore';
 import { DarkTheme, LightTheme } from '../constants/theme';
 import { MOCK_DUAS } from '../features/community/mockDuas';
@@ -102,7 +104,7 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
             backgroundColor: hasAmeen ? t.accent + '15' : 'transparent',
           }}
         >
-          <Text style={{ fontSize: 16 }}>🤲</Text>
+          <AppIcon name="prayer" size={16} color={hasAmeen ? t.accent : t.textDim} />
           <Text style={{ fontSize: 13, fontWeight: '500', color: hasAmeen ? t.accent : t.textDim }}>
             Ameen · {ameenCount}
           </Text>
@@ -122,7 +124,7 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
             backgroundColor: hasHeart ? t.accent + '15' : 'transparent',
           }}
         >
-          <Text style={{ fontSize: 16 }}>❤️</Text>
+          <Ionicons name={hasHeart ? 'heart' : 'heart-outline'} size={16} color={hasHeart ? '#E57373' : t.textDim} />
           <Text style={{ fontSize: 13, fontWeight: '500', color: hasHeart ? t.accent : t.textDim }}>
             {heartCount}
           </Text>
@@ -195,7 +197,7 @@ export default function DuaWallScreen() {
         <Text style={{ fontSize: 30, fontFamily: 'ScheherazadeNew', color: t.accent }}>
           بِسْمِ ٱللَّٰهِ
         </Text>
-        <Text style={{ fontSize: 24, marginTop: 4 }}>🤲</Text>
+        <AppIcon name="prayer" size={24} color={t.accent} style={{ marginTop: 4 }} />
         <Text style={{ fontSize: 20, fontWeight: '700', color: t.text, marginTop: 4 }}>Dua Wall</Text>
       </View>
 
@@ -268,7 +270,7 @@ export default function DuaWallScreen() {
         ListHeaderComponent={header}
         ListEmptyComponent={
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-            <Text style={{ fontSize: 48, marginBottom: 12 }}>🤲</Text>
+            <AppIcon name="prayer" size={48} color={t.textDim} style={{ marginBottom: 12 }} />
             <Text style={{ fontSize: 16, fontWeight: '600', color: t.text, textAlign: 'center' }}>Sei der Erste der eine Dua teilt</Text>
             <Text style={{ fontSize: 13, color: t.textDim, marginTop: 8, textAlign: 'center' }}>Teile dein Bittgebet mit der Ummah</Text>
           </View>

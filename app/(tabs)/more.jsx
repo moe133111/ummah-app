@@ -11,6 +11,7 @@ import { getCurrentHijriDate, getHijriForDate } from '../../features/calendar/hi
 import { getEventsForHijriDate } from '../../features/calendar/islamicEvents';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/ui/Card';
+import AppIcon from '../../components/ui/AppIcon';
 import FeaturePreview from '../../components/ui/FeaturePreview';
 import HeaderBar from '../../components/ui/HeaderBar';
 
@@ -21,9 +22,9 @@ const HIJRI_MONTH_NAMES = [
 ];
 
 const GOAL_LIMITS = {
-  dhikr: { min: 50, max: 500, step: 50, emoji: '📿', label: 'Dhikr' },
-  quran: { min: 5, max: 50, step: 5, emoji: '📖', label: 'Quran Verse' },
-  dua: { min: 3, max: 20, step: 1, emoji: '🤲', label: 'Duas' },
+  dhikr: { min: 50, max: 500, step: 50, iconName: 'tasbih', isCustom: true, label: 'Dhikr' },
+  quran: { min: 5, max: 50, step: 5, iconName: 'quran', isCustom: true, label: 'Quran Verse' },
+  dua: { min: 3, max: 20, step: 1, iconName: 'prayer', isCustom: true, label: 'Duas' },
 };
 
 export default function MoreScreen() {
@@ -79,9 +80,9 @@ export default function MoreScreen() {
   const methods = getAvailableMethods();
 
   const sections = [
-    { id: 'tools', label: 'Tools', emoji: '🛠️' },
-    { id: 'community', label: 'Community', emoji: '🌍' },
-    { id: 'settings', label: 'Settings', emoji: '⚙️' },
+    { id: 'tools', label: 'Tools', icon: 'construct-outline' },
+    { id: 'community', label: 'Community', icon: 'globe-outline' },
+    { id: 'settings', label: 'Settings', icon: 'settings-outline' },
   ];
 
   return (
@@ -96,7 +97,7 @@ export default function MoreScreen() {
               style={[styles.tab, sec === s.id && { backgroundColor: t.accent + '18', borderColor: t.accent + '44' }]}
               onPress={() => setSec(s.id)}
             >
-              <Text style={{ fontSize: 20, marginBottom: Spacing.xs }}>{s.emoji}</Text>
+              <Ionicons name={s.icon} size={20} color={sec === s.id ? t.accent : t.textDim} style={{ marginBottom: Spacing.xs }} />
               <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: sec === s.id ? t.accent : t.textDim }}>{s.label}</Text>
             </Pressable>
           ))}
@@ -108,19 +109,19 @@ export default function MoreScreen() {
               style={[styles.calendarBtn, { backgroundColor: t.accent + '10', borderColor: t.accent + '30' }]}
               onPress={() => router.push('/calendar')}
             >
-              <Text style={{ fontSize: 32 }}>📅</Text>
+              <AppIcon name="calendar" size={32} color={t.accent} />
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>Islamischer Kalender</Text>
                 <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>
                   {hijriTodayStr || 'Hijri-Datum, Feiertage & Gebetszeiten'}
                 </Text>
               </View>
-              <Text style={{ fontSize: 20, color: t.accent }}>→</Text>
+              <Ionicons name="chevron-forward" size={20} color={t.accent} />
             </Pressable>
 
             {nextHoliday && (
               <View style={[styles.nextHoliday, { backgroundColor: t.accent + '08', borderColor: t.accent + '20' }]}>
-                <Text style={{ fontSize: 24 }}>{nextHoliday.emoji}</Text>
+                <Ionicons name={nextHoliday.icon || 'calendar-outline'} size={24} color={t.accent} />
                 <View style={{ flex: 1, marginLeft: Spacing.md }}>
                   <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>{nextHoliday.name}</Text>
                   <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>{nextHoliday.gregStr}</Text>
@@ -137,7 +138,7 @@ export default function MoreScreen() {
             <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm }}>
               <View style={{ flex: 1 }}>
                 <Card centered>
-                  <Text style={{ fontSize: 22 }}>🕌</Text>
+                  <AppIcon name="mosque" size={22} color={t.accent} />
                   <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>{prayerWeekTotal}/35</Text>
                   <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Gebete/Woche</Text>
                   {prayerTrend !== 'same' && <Text style={{ fontSize: FontSize.xs, color: prayerTrend === 'up' ? '#4CAF50' : '#F44336', marginTop: Spacing.xs }}>{prayerTrend === 'up' ? '↑' : '↓'}</Text>}
@@ -145,7 +146,7 @@ export default function MoreScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Card centered>
-                  <Text style={{ fontSize: 22 }}>📿</Text>
+                  <AppIcon name="tasbih" size={22} color={t.accent} />
                   <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>{dhikrWeekTotal}</Text>
                   <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Dhikr/Woche</Text>
                   {dhikrTrend !== 'same' && <Text style={{ fontSize: FontSize.xs, color: dhikrTrend === 'up' ? '#4CAF50' : '#F44336', marginTop: Spacing.xs }}>{dhikrTrend === 'up' ? '↑' : '↓'}</Text>}
@@ -153,7 +154,7 @@ export default function MoreScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Card centered>
-                  <Text style={{ fontSize: 22 }}>📖</Text>
+                  <AppIcon name="quran" size={22} color={t.accent} />
                   <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.accent, marginTop: Spacing.xs }}>{quranWeekTotal} Min</Text>
                   <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>Quran/Woche</Text>
                 </Card>
@@ -167,12 +168,12 @@ export default function MoreScreen() {
             </Pressable>
 
             <FeaturePreview
-              emoji="🌙"
+              icon={<Ionicons name="moon-outline" size={36} color={t.accent} />}
               title="Ramadan-Tools"
               description="Iftar/Suhoor-Zeiten & Fasten-Tracker"
             />
             <FeaturePreview
-              emoji="💰"
+              icon={<Ionicons name="calculator-outline" size={36} color={t.accent} />}
               title="Zakat-Rechner"
               description="Berechne deinen Zakat-Betrag"
             />
@@ -183,7 +184,7 @@ export default function MoreScreen() {
           <>
             <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.md }}>
-                <Text style={{ fontSize: 32 }}>🎯</Text>
+                <Ionicons name="help-circle-outline" size={32} color={t.accent} />
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>Islam Quiz</Text>
                   <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Teste dein Wissen</Text>
@@ -197,18 +198,18 @@ export default function MoreScreen() {
             <Card>
               <Pressable onPress={() => router.push('/duawall')}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md }}>
-                  <Text style={{ fontSize: 32 }}>🤲</Text>
+                  <AppIcon name="prayer" size={32} color={t.accent} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Dua Wall</Text>
                     <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Duas teilen & Ameen sagen</Text>
                   </View>
-                  <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
+                  <Ionicons name="chevron-forward" size={18} color={t.textDim} />
                 </View>
               </Pressable>
             </Card>
 
             <FeaturePreview
-              emoji="🌍"
+              icon={<AppIcon name="tasbih" size={36} color={t.accent} />}
               title="Globaler Dhikr"
               description="Gemeinsam mit der Ummah zählen"
             />
@@ -295,7 +296,7 @@ export default function MoreScreen() {
                     {location ? ` (${location.lat.toFixed(2)}, ${location.lng.toFixed(2)})` : ''}
                   </Text>
                 </View>
-                <Text style={{ fontSize: 20 }}>📍</Text>
+                <Ionicons name="location-outline" size={20} color={t.accent} />
               </View>
             </Card>
 
@@ -305,7 +306,7 @@ export default function MoreScreen() {
                   <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Sprache</Text>
                   <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Deutsch</Text>
                 </View>
-                <Text style={{ fontSize: 20 }}>🌐</Text>
+                <Ionicons name="globe-outline" size={20} color={t.accent} />
               </View>
             </Card>
 
@@ -317,7 +318,7 @@ export default function MoreScreen() {
                   <View key={key} style={{ marginBottom: Spacing.md }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
-                        <Text style={{ fontSize: 18 }}>{limits.emoji}</Text>
+                        {limits.isCustom ? <AppIcon name={limits.iconName} size={18} color={t.accent} /> : <Ionicons name={limits.iconName} size={18} color={t.accent} />}
                         <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>{limits.label}</Text>
                       </View>
                       <Switch

@@ -2,6 +2,7 @@ import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '../components/ui/AppIcon';
 import { useAppStore } from '../hooks/useAppStore';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../constants/theme';
 import { ACHIEVEMENTS } from '../features/profile/achievements';
@@ -33,13 +34,13 @@ export default function ProfileScreen() {
     : 'Heute';
 
   const stats = [
-    { emoji: '🔥', value: currentStreak, label: 'Aktuelle Streak' },
-    { emoji: '⭐', value: longestStreak, label: 'Längste Streak' },
-    { emoji: '🕌', value: totalPrayers, label: 'Gebete verrichtet' },
-    { emoji: '🌅', value: fajrStreak, label: 'Fajr-Streak' },
-    { emoji: '📖', value: quranStreak, label: 'Quran-Streak' },
-    { emoji: '📿', value: dhikrStreak, label: 'Dhikr-Streak' },
-    { emoji: '🧠', value: memorizedVerses.length, label: 'Verse auswendig' },
+    { icon: 'flame-outline', value: currentStreak, label: 'Aktuelle Streak' },
+    { icon: 'star-outline', value: longestStreak, label: 'Längste Streak' },
+    { icon: 'mosque', isCustom: true, value: totalPrayers, label: 'Gebete verrichtet' },
+    { icon: 'sunny-outline', value: fajrStreak, label: 'Fajr-Streak' },
+    { icon: 'quran', isCustom: true, value: quranStreak, label: 'Quran-Streak' },
+    { icon: 'tasbih', isCustom: true, value: dhikrStreak, label: 'Dhikr-Streak' },
+    { icon: 'bulb-outline', value: memorizedVerses.length, label: 'Verse auswendig' },
   ];
 
   const quranProgress = surahsRead.length;
@@ -66,7 +67,10 @@ export default function ProfileScreen() {
           <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginBottom: 16 }}>Mitglied seit {memberDate}</Text>
           {currentStreak > 0 && (
             <View style={[styles.streakBadge, { backgroundColor: t.accent + '18', marginBottom: 24 }]}>
-              <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>🔥 {currentStreak} Tage Streak</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Ionicons name="flame" size={18} color={t.accent} />
+                <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>{currentStreak} Tage Streak</Text>
+              </View>
             </View>
           )}
         </View>
@@ -77,7 +81,11 @@ export default function ProfileScreen() {
           {stats.map((s) => (
             <View key={s.label} style={styles.statItem}>
               <View style={[styles.statCard, { backgroundColor: t.card, borderColor: t.border }]}>
-                <Text style={{ fontSize: 24 }}>{s.emoji}</Text>
+                {s.isCustom ? (
+                  <AppIcon name={s.icon} size={24} color={t.accent} />
+                ) : (
+                  <Ionicons name={s.icon} size={24} color={t.accent} />
+                )}
                 <Text style={{ fontSize: 22, fontWeight: '700', color: t.accent, marginTop: 6 }}>{s.value}</Text>
                 <Text style={{ fontSize: 11, color: t.textDim, textAlign: 'center', marginTop: 6 }}>{s.label}</Text>
               </View>
@@ -96,7 +104,10 @@ export default function ProfileScreen() {
         <Text style={[styles.sectionTitle, { color: t.text }]}>Fortschritt</Text>
         <Card>
           <View style={styles.progressRow}>
-            <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>📖 Quran</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <AppIcon name="quran" size={14} color={t.accent} />
+              <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>Quran</Text>
+            </View>
             <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{quranProgress}/114 Suren</Text>
           </View>
           <View style={[styles.progressBar, { backgroundColor: t.border, marginBottom: 12 }]}>
@@ -104,7 +115,10 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.progressRow}>
-            <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>🕌 Gebete diese Woche</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <AppIcon name="mosque" size={14} color={t.accent} />
+              <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>Gebete diese Woche</Text>
+            </View>
             <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{weekPrayers}/35</Text>
           </View>
           <View style={[styles.progressBar, { backgroundColor: t.border }]}>
@@ -120,7 +134,11 @@ export default function ProfileScreen() {
             return (
               <View key={badge.id} style={styles.badgeItem}>
                 <View style={[styles.badgeCard, { backgroundColor: t.card, borderColor: t.border }]}>
-                  <Text style={{ fontSize: 28, opacity: unlocked ? 1 : 0.3 }}>{unlocked ? badge.emoji : '🔒'}</Text>
+                  {unlocked ? (
+                    <Ionicons name={badge.icon || 'trophy-outline'} size={28} color={t.accent} />
+                  ) : (
+                    <Ionicons name="lock-closed-outline" size={28} color={t.textDim} style={{ opacity: 0.3 }} />
+                  )}
                   <Text style={{ fontSize: 11, fontWeight: '600', color: unlocked ? t.text : t.textDim, textAlign: 'center', marginTop: 6 }}>
                     {badge.name}
                   </Text>

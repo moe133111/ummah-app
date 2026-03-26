@@ -8,6 +8,7 @@ import Svg, { Circle } from 'react-native-svg';
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocation } from '../../hooks/useLocation';
 import { useAppStore } from '../../hooks/useAppStore';
 import { fetchPrayerTimes, getNextPrayer } from '../../features/prayer/prayerCalculation';
@@ -15,6 +16,7 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../co
 import { DUAS } from '../../features/duas/duaData';
 import Card from '../../components/ui/Card';
 import HeaderBar from '../../components/ui/HeaderBar';
+import AppIcon from '../../components/ui/AppIcon';
 import { getStreakEmoji, getStreakMessage } from '../../features/streaks/streakManager';
 import { PRAYER_META, TRACKABLE_KEYS } from '../../features/prayer/prayerMeta';
 import ShareButton from '../../components/ui/ShareButton';
@@ -154,9 +156,9 @@ function getPrayerProgress(times) {
 }
 
 const GOAL_META = {
-  dhikr: { emoji: '📿', label: 'Dhikr' },
-  quran: { emoji: '📖', label: 'Quran' },
-  dua: { emoji: '🤲', label: 'Duas' },
+  dhikr: { iconName: 'tasbih', isCustom: true, label: 'Dhikr' },
+  quran: { iconName: 'quran', isCustom: true, label: 'Quran' },
+  dua: { iconName: 'prayer', isCustom: true, label: 'Duas' },
 };
 
 function DailyGoalsRing({ goals, progress, t, expanded, onToggle }) {
@@ -213,12 +215,12 @@ function DailyGoalsDetail({ goals, progress, t }) {
           <View key={key} style={{ marginBottom: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 16 }}>{meta.emoji}</Text>
+                {meta.isCustom ? <AppIcon name={meta.iconName} size={16} color={t.accent} /> : <Ionicons name={meta.iconName} size={16} color={t.accent} />}
                 <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: done ? '#D4A843' : t.text }}>{meta.label}</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: done ? '#D4A843' : t.accent }}>{current}/{target}</Text>
-                {done && <Text style={{ fontSize: 14 }}>✅</Text>}
+                {done && <Ionicons name="checkmark-circle" size={14} color="#D4A843" />}
               </View>
             </View>
             <View style={{ height: 4, borderRadius: 2, backgroundColor: t.border, overflow: 'hidden' }}>
@@ -307,11 +309,17 @@ export default function HomeScreen() {
             {hijriDate ? <Text style={{ fontSize: FontSize.md, color: t.accent, marginTop: Spacing.xs }}>{hijriDate}</Text> : null}
             {location?.name ? (
               <View style={[styles.badge, { backgroundColor: t.accent + '18' }]}>
-                <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent }}>📍 {location.name}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Ionicons name="location-outline" size={14} color={t.accent} />
+                  <Text style={{ fontSize: FontSize.xs, fontWeight: '600', color: t.accent }}>{location.name}</Text>
+                </View>
               </View>
             ) : null}
             {locationError ? (
-              <Text style={{ fontSize: 11, color: '#E65100', marginTop: 4 }}>📍 {locationError}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                <Ionicons name="location-outline" size={12} color="#E65100" />
+                <Text style={{ fontSize: 11, color: '#E65100' }}>{locationError}</Text>
+              </View>
             ) : null}
             <Text style={{ fontSize: 10, color: t.textDim, marginTop: 6 }}>Kalender öffnen →</Text>
           </Card>
@@ -331,7 +339,7 @@ export default function HomeScreen() {
                   <View>
                     <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Aktuelles Gebet</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: Spacing.xs }}>
-                      <Text style={{ fontSize: 24 }}>{curMeta.emoji}</Text>
+                      <Ionicons name={curMeta.icon} size={24} color={curMeta.color} />
                       <View>
                         <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: t.text }}>{currentPrayer.name}</Text>
                         <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{curMeta.description}</Text>
@@ -345,7 +353,7 @@ export default function HomeScreen() {
                         <Text style={{ fontSize: FontSize.xl, fontWeight: '700', color: nextMeta.color }}>{nextPrayer.name}</Text>
                         <Text style={{ fontSize: FontSize.xs, color: t.textDim }}>{nextMeta.description}</Text>
                       </View>
-                      <Text style={{ fontSize: 24 }}>{nextMeta.emoji}</Text>
+                      <Ionicons name={nextMeta.icon} size={24} color={nextMeta.color} />
                     </View>
                   </View>
                 </View>
@@ -393,7 +401,10 @@ export default function HomeScreen() {
         {/* Ayah des Tages */}
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg }}>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Ayah des Tages</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <AppIcon name="quran" size={14} color={t.textDim} />
+              <Text style={{ fontSize: 10, color: t.textDim, textTransform: 'uppercase', letterSpacing: 2 }}>Ayah des Tages</Text>
+            </View>
             <ShareButton type="ayah" arabic={dailyAyah.arabic} translation={dailyAyah.translation} reference={dailyAyah.ref} t={t} />
           </View>
           <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
@@ -406,7 +417,10 @@ export default function HomeScreen() {
         {/* Hadith des Tages */}
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg }}>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Hadith des Tages</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Ionicons name="document-text-outline" size={14} color={t.textDim} />
+              <Text style={{ fontSize: 10, color: t.textDim, textTransform: 'uppercase', letterSpacing: 2 }}>Hadith des Tages</Text>
+            </View>
             <ShareButton type="hadith" arabic={dailyHadith.arabic} translation={dailyHadith.text} reference={dailyHadith.source} t={t} />
           </View>
           {dailyHadith.arabic ? (
@@ -421,7 +435,10 @@ export default function HomeScreen() {
         {/* Dua des Tages */}
         <Card>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.lg }}>
-            <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1 }}>Dua des Tages</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <AppIcon name="prayer" size={14} color={t.textDim} />
+              <Text style={{ fontSize: 10, color: t.textDim, textTransform: 'uppercase', letterSpacing: 2 }}>Dua des Tages</Text>
+            </View>
             <ShareButton type="dua" arabic={dailyDua.arabic} translation={dailyDua.translation} reference="Hisn al-Muslim" transliteration={dailyDua.transliteration} t={t} />
           </View>
           <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
@@ -435,7 +452,10 @@ export default function HomeScreen() {
 
         {/* Mini Dhikr Counter */}
         <Card style={{ padding: 24 }}>
-          <Text style={{ fontSize: FontSize.xs, color: t.textDim, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>📿 Schnell-Dhikr</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <AppIcon name="tasbih" size={14} color={t.textDim} />
+            <Text style={{ fontSize: 10, color: t.textDim, textTransform: 'uppercase', letterSpacing: 2 }}>Schnell-Dhikr</Text>
+          </View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: Spacing.xs, marginBottom: 16 }}>
             {DHIKR_MINI.map((d, i) => (
               <Pressable
@@ -449,7 +469,7 @@ export default function HomeScreen() {
           </View>
           <Text style={{ fontSize: 18, color: t.accentLight, textAlign: 'center', marginBottom: 16, fontFamily: 'ScheherazadeNew' }}>{DHIKR_MINI[miniSel].arabic}</Text>
           <View style={{ alignItems: 'center' }}>
-            <Pressable onPress={() => { setMiniCount((c) => c + 1); incrementDhikr(); }} style={[styles.miniCounter, { borderColor: t.accent + '44' }]}>
+            <Pressable onPress={() => { setMiniCount((c) => c + 1); incrementDhikr(); }} style={({ pressed }) => [styles.miniCounter, { borderColor: t.accent + '44', transform: [{ scale: pressed ? 0.95 : 1 }] }]}>
               <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent }}>{miniCount}</Text>
             </Pressable>
           </View>
@@ -462,21 +482,21 @@ export default function HomeScreen() {
         </Card>
 
         {/* Vers des Tages */}
-        <Pressable onPress={() => router.push('/learn/daily-verse')}>
+        <Pressable onPress={() => router.push('/learn/daily-verse')} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
           <Card>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontSize: 24, marginRight: Spacing.md }}>🧠</Text>
+              <Ionicons name="bulb-outline" size={24} color={t.accent} style={{ marginRight: Spacing.md }} />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>Vers des Tages</Text>
                 <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Heute auswendig lernen</Text>
               </View>
-              <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
+              <Ionicons name="chevron-forward" size={18} color={t.textDim} />
             </View>
           </Card>
         </Pressable>
 
         {/* Quran Fortschritt */}
-        <Pressable onPress={() => router.push(`/quran/${lastReadSurah}`)}>
+        <Pressable onPress={() => router.push(`/quran/${lastReadSurah}`)} style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}>
           <Card>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <View>

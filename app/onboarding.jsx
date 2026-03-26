@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import { useAppStore } from '../hooks/useAppStore';
 import { Colors, DarkTheme, Spacing, FontSize, BorderRadius } from '../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 const t = DarkTheme;
@@ -147,7 +148,7 @@ export default function Onboarding() {
         {/* Screen 2: Location */}
         <View style={styles.page}>
           <View style={styles.content}>
-            <Text style={styles.screenIcon}>📍</Text>
+            <Ionicons name="location-outline" size={48} color="#B8860B" style={{ marginBottom: 16 }} />
             <Text style={styles.screenTitle}>Standort</Text>
             <Text style={styles.desc}>
               Dein Standort wird benötigt, um{'\n'}genaue Gebetszeiten zu berechnen{'\n'}und die Qibla-Richtung zu bestimmen.
@@ -155,11 +156,11 @@ export default function Onboarding() {
 
             <View style={styles.infoCard}>
               <View style={styles.infoRow}>
-                <Text style={styles.infoIcon}>🕌</Text>
+                <Ionicons name="business-outline" size={20} color="#B8860B" style={{ marginRight: 10 }} />
                 <Text style={styles.infoText}>Präzise Gebetszeiten für deinen Ort</Text>
               </View>
               <View style={styles.infoRow}>
-                <Text style={styles.infoIcon}>🧭</Text>
+                <Ionicons name="compass-outline" size={20} color="#B8860B" style={{ marginRight: 10 }} />
                 <Text style={styles.infoText}>Qibla-Kompass zeigt Richtung nach Mekka</Text>
               </View>
             </View>
@@ -185,7 +186,7 @@ export default function Onboarding() {
         {/* Screen 3: Prayer Settings */}
         <View style={styles.page}>
           <View style={styles.content}>
-            <Text style={styles.screenIcon}>🕋</Text>
+            <Ionicons name="navigate" size={48} color="#B8860B" style={{ marginBottom: 16 }} />
             <Text style={styles.screenTitle}>Gebetszeiten</Text>
 
             <View style={styles.section}>

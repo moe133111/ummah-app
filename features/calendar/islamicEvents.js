@@ -5,7 +5,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Islamisches Neujahr',
     nameAr: 'رأس السنة الهجرية',
-    emoji: '🌙',
+    icon: 'moon-outline',
     hijriMonth: 1,
     startDay: 1,
     endDay: null,
@@ -15,7 +15,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Aschura',
     nameAr: 'عاشوراء',
-    emoji: '🕌',
+    icon: 'business-outline',
     hijriMonth: 1,
     startDay: 10,
     endDay: null,
@@ -25,7 +25,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Mawlid an-Nabi',
     nameAr: 'المولد النبوي',
-    emoji: '🕋',
+    icon: 'star-outline',
     hijriMonth: 3,
     startDay: 12,
     endDay: null,
@@ -35,7 +35,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Isra und Miraj',
     nameAr: 'الإسراء والمعراج',
-    emoji: '✨',
+    icon: 'sparkles',
     hijriMonth: 7,
     startDay: 27,
     endDay: null,
@@ -45,7 +45,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Laylat al-Bara\'a',
     nameAr: 'ليلة البراءة',
-    emoji: '🌕',
+    icon: 'ellipse-outline',
     hijriMonth: 8,
     startDay: 15,
     endDay: null,
@@ -55,7 +55,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Ramadan',
     nameAr: 'رمضان',
-    emoji: '🌙',
+    icon: 'moon-outline',
     hijriMonth: 9,
     startDay: 1,
     endDay: 30,
@@ -65,7 +65,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Laylat al-Qadr',
     nameAr: 'ليلة القدر',
-    emoji: '🌟',
+    icon: 'sparkles',
     hijriMonth: 9,
     startDay: 27,
     endDay: null,
@@ -75,7 +75,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Eid al-Fitr',
     nameAr: 'عيد الفطر',
-    emoji: '🎉',
+    icon: 'gift-outline',
     hijriMonth: 10,
     startDay: 1,
     endDay: 3,
@@ -85,7 +85,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Erste 10 Tage Dhul Hijja',
     nameAr: 'عشر ذي الحجة',
-    emoji: '🕋',
+    icon: 'calendar-outline',
     hijriMonth: 12,
     startDay: 1,
     endDay: 10,
@@ -95,7 +95,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Arafat-Tag',
     nameAr: 'يوم عرفة',
-    emoji: '🤲',
+    icon: 'hand-left-outline',
     hijriMonth: 12,
     startDay: 9,
     endDay: null,
@@ -105,7 +105,7 @@ export const ISLAMIC_EVENTS = [
   {
     name: 'Eid al-Adha',
     nameAr: 'عيد الأضحى',
-    emoji: '🐑',
+    icon: 'gift-outline',
     hijriMonth: 12,
     startDay: 10,
     endDay: 13,

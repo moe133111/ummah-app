@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -23,7 +24,7 @@ export default class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0A1628', padding: 32 }}>
-          <Text style={{ fontSize: 48, marginBottom: 16 }}>😔</Text>
+          <Ionicons name="alert-circle-outline" size={48} color="#E8E0D4" style={{ marginBottom: 16 }} />
           <Text style={{ fontSize: 20, fontWeight: '700', color: '#E8E0D4', textAlign: 'center', marginBottom: 8 }}>
             Etwas ist schiefgelaufen
           </Text>

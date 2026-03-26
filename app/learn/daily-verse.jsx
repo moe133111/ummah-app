@@ -7,6 +7,7 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../co
 import { MEMORIZE_VERSES, getTodayVerseIndex, getDayInCycle, getGlobalAyahNumber } from '../../features/learn/dailyVerseData';
 import { SURAH_LIST } from '../../features/quran/surahData';
 import { FONTS } from '../../lib/fonts';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function DailyVerseScreen() {
   const isDark = useAppStore((s) => s.theme === 'dark');
@@ -141,7 +142,7 @@ export default function DailyVerseScreen() {
     return (
       <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={[]}>
         <View style={styles.centered}>
-          <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📡</Text>
+          <Ionicons name="cloud-offline-outline" size={48} color={t.textDim} style={{ marginBottom: Spacing.md }} />
           <Text style={{ color: t.textDim, fontSize: FontSize.md, textAlign: 'center', paddingHorizontal: Spacing.xxl }}>{error}</Text>
           <Pressable onPress={fetchVerseData} style={[styles.retryBtn, { borderColor: t.accent }]}>
             <Text style={{ color: t.accent, fontWeight: '600' }}>Erneut versuchen</Text>
@@ -177,7 +178,7 @@ export default function DailyVerseScreen() {
         }]}>
           {hidden ? (
             <View style={styles.hiddenOverlay}>
-              <Text style={{ fontSize: 48 }}>🧠</Text>
+              <Ionicons name="bulb-outline" size={48} color={t.accent} />
               <Text style={{ fontSize: FontSize.md, color: t.textDim, marginTop: Spacing.md, textAlign: 'center' }}>
                 Versuche den Vers aus dem Gedächtnis aufzusagen
               </Text>
@@ -220,7 +221,7 @@ export default function DailyVerseScreen() {
               onPress={handlePlay}
               style={({ pressed }) => [styles.toolBtn, { backgroundColor: isPlaying ? t.accent + '20' : t.accent + '10', opacity: pressed ? 0.8 : 1 }]}
             >
-              <Text style={{ fontSize: 18 }}>{isPlaying ? '⏹' : '🔊'}</Text>
+              <Ionicons name={isPlaying ? 'stop' : 'volume-high-outline'} size={18} color={t.accent} />
               <Text style={{ color: t.accent, fontWeight: '600', marginLeft: Spacing.sm }}>
                 {isPlaying ? 'Stoppen' : 'Anhören'}
               </Text>
@@ -233,7 +234,7 @@ export default function DailyVerseScreen() {
                 borderColor: t.accent + '40',
               }]}
             >
-              <Text style={{ fontSize: 18 }}>🔁</Text>
+              <Ionicons name="repeat-outline" size={18} color={t.accent} />
               <Text style={{ color: t.accent, fontWeight: '600', marginLeft: Spacing.sm }}>
                 3x {repeatMode ? 'An' : 'Aus'}
               </Text>
@@ -245,7 +246,7 @@ export default function DailyVerseScreen() {
             onPress={() => setHidden(true)}
             style={({ pressed }) => [styles.toolBtn, { backgroundColor: t.accent + '10', marginTop: Spacing.sm, opacity: pressed ? 0.8 : 1 }]}
           >
-            <Text style={{ fontSize: 18 }}>🙈</Text>
+            <Ionicons name="eye-off-outline" size={18} color={t.accent} />
             <Text style={{ color: t.accent, fontWeight: '600', marginLeft: Spacing.sm }}>Verbergen & Testen</Text>
           </Pressable>
 
@@ -257,7 +258,7 @@ export default function DailyVerseScreen() {
               borderColor: isMemorized ? t.accent : t.border,
             }]}
           >
-            <Text style={{ fontSize: 20 }}>{isMemorized ? '✅' : '⬜'}</Text>
+            <Ionicons name={isMemorized ? 'checkmark-circle' : 'square-outline'} size={20} color={isMemorized ? t.accent : t.textDim} />
             <Text style={{
               color: isMemorized ? t.accent : t.text,
               fontWeight: '700',

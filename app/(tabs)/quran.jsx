@@ -7,6 +7,8 @@ import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius, Colors } from '
 import { SURAH_LIST } from '../../features/quran/surahData';
 import LanguagePicker from '../../components/ui/LanguagePicker';
 import { FONTS, getArabicDisplayFont } from '../../lib/fonts';
+import { Ionicons } from '@expo/vector-icons';
+import AppIcon from '../../components/ui/AppIcon';
 
 const SUB_TABS = [
   { id: 'read', label: 'Lesen' },
@@ -78,7 +80,7 @@ export default function QuranScreen() {
               {SURAH_LIST[lastRead - 1]?.englishName} — {SURAH_LIST[lastRead - 1]?.name}
             </Text>
           </View>
-          <Text style={{ fontSize: 28 }}>📖</Text>
+          <AppIcon name="quran" size={28} color="#fff" />
         </Pressable>
       )}
     </View>
@@ -93,11 +95,11 @@ export default function QuranScreen() {
           <View style={{ flexDirection: 'row', gap: Spacing.md }}>
             {lastRead > 0 && (
               <Pressable onPress={() => router.push(`/quran/${lastRead}`)} hitSlop={Spacing.sm} style={styles.headerIcon}>
-                <Text style={{ fontSize: 22 }}>🔖</Text>
+                <Ionicons name="bookmark-outline" size={22} color={t.accent} />
               </Pressable>
             )}
             <Pressable onPress={() => setShowSearch(!showSearch)} hitSlop={Spacing.sm} style={styles.headerIcon}>
-              <Text style={{ fontSize: 22 }}>🔍</Text>
+              <Ionicons name="search-outline" size={22} color={t.accent} />
             </Pressable>
           </View>
         </View>
@@ -121,7 +123,7 @@ export default function QuranScreen() {
         {/* Search bar (toggled) */}
         {showSearch && (
           <View style={[styles.searchWrap, { backgroundColor: t.surface, borderColor: t.border }]}>
-            <Text style={{ fontSize: 16, marginRight: Spacing.sm }}>🔍</Text>
+            <Ionicons name="search-outline" size={16} color={t.textDim} style={{ marginRight: Spacing.sm }} />
             <TextInput
               style={{ flex: 1, paddingVertical: Spacing.md, fontSize: FontSize.md, color: t.text }}
               placeholder="Sure suchen..."
@@ -158,7 +160,7 @@ export default function QuranScreen() {
               onPress={() => router.push('/learn/alphabet')}
               style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
             >
-              <Text style={{ fontSize: 32 }}>🔤</Text>
+              <Ionicons name="text-outline" size={32} color={t.accent} />
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Arabisches Alphabet</Text>
                 <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Alle 28 Buchstaben mit Aussprache</Text>
@@ -171,7 +173,7 @@ export default function QuranScreen() {
               onPress={() => router.push('/learn/tajweed')}
               style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
             >
-              <Text style={{ fontSize: 32 }}>📖</Text>
+              <AppIcon name="quran" size={32} color={t.accent} />
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Tajweed-Grundlagen</Text>
                 <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Regeln der Quran-Rezitation</Text>
@@ -184,7 +186,7 @@ export default function QuranScreen() {
               onPress={() => router.push('/learn/daily-verse')}
               style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
             >
-              <Text style={{ fontSize: 32 }}>🧠</Text>
+              <Ionicons name="bulb-outline" size={32} color={t.accent} />
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Vers des Tages lernen</Text>
                 <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Tägliche Memorisierung</Text>
@@ -196,7 +198,7 @@ export default function QuranScreen() {
 
         {activeTab === 'progress' && (
           <View style={styles.placeholderWrap}>
-            <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📊</Text>
+            <Ionicons name="stats-chart-outline" size={48} color={t.accent} style={{ marginBottom: Spacing.md }} />
             <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text }}>Mein Fortschritt</Text>
             <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.sm, textAlign: 'center' }}>
               Verfolge deinen Quran-Lesefortschritt{'\n'}und setze persönliche Ziele

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 
 import { getEventsForHijriDate } from '../features/calendar/islamicEvents';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '../hooks/useAppStore';
 import { DarkTheme, LightTheme, FontSize, Spacing, BorderRadius } from '../constants/theme';
 import Card from '../components/ui/Card';
@@ -305,7 +306,7 @@ export default function CalendarScreen() {
                     marginBottom: Spacing.sm,
                   }}
                 >
-                  <Text style={{ fontSize: 24, marginRight: Spacing.md }}>{ev.emoji}</Text>
+                  <Ionicons name={ev.icon || 'calendar-outline'} size={24} color={t.accent} style={{ marginRight: Spacing.md }} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.accent }}>{ev.name}</Text>
                     <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>{ev.nameAr}</Text>
@@ -333,7 +334,7 @@ export default function CalendarScreen() {
                 borderBottomColor: t.border,
               }}
             >
-              <Text style={{ fontSize: 24, marginRight: Spacing.md }}>{ev.emoji}</Text>
+              <Ionicons name={ev.icon || 'calendar-outline'} size={24} color={t.accent} style={{ marginRight: Spacing.md }} />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>{ev.name}</Text>
                 <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>{ev.gregStr}</Text>
