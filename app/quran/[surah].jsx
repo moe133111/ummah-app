@@ -238,8 +238,6 @@ export default function SurahDetail() {
     scrollToAyah(nextIdx);
 
     const nextGlobalNum = currentAyahs[nextIdx].number;
-    console.log('[SurahDetail] Auto-advancing to ayah index', nextIdx, 'global:', nextGlobalNum);
-
     if (!nextGlobalNum) {
       console.error('[SurahDetail] Missing global number for ayah index', nextIdx);
       setIsPlaying(false);
@@ -287,7 +285,6 @@ export default function SurahDetail() {
       scrollToAyah(index);
       const globalNum = currentAyahs[index].number;
       if (!globalNum) throw new Error(`Ayah ${index + 1} hat keine globale Nummer.`);
-      console.log('[SurahDetail] Starting playback at index', index, 'global:', globalNum);
       await AudioPlayer.initAudioMode();
       await AudioPlayer.playAyah(globalNum);
       setAudioLoading(false);

@@ -16,7 +16,6 @@ export async function initAudioMode() {
       staysActiveInBackground: true,
       shouldDuckAndroid: true,
     });
-    console.log('[AudioPlayer] Audio mode initialized');
   } catch (err) {
     console.error('[AudioPlayer] Failed to set audio mode:', err);
   }
@@ -61,7 +60,6 @@ export async function playAyah(globalNumber) {
   await unloadCurrent();
 
   const url = PRIMARY_URL(globalNumber);
-  console.log('[AudioPlayer] Playing ayah', globalNumber, 'URL:', url);
 
   // Try primary URL first, then fallback
   for (const tryUrl of [url, FALLBACK_URL(globalNumber)]) {
@@ -80,7 +78,6 @@ export async function playAyah(globalNumber) {
       );
       sound = newSound;
       isLoadingAudio = false;
-      console.log('[AudioPlayer] Playback started from:', tryUrl);
       return true;
     } catch (err) {
       console.warn('[AudioPlayer] Failed to load from', tryUrl, ':', err.message);
@@ -99,7 +96,6 @@ export async function pause() {
   if (sound) {
     try {
       await sound.pauseAsync();
-      console.log('[AudioPlayer] Paused');
     } catch (err) {
       console.error('[AudioPlayer] Pause failed:', err);
     }
@@ -112,7 +108,6 @@ export async function resume() {
       const status = await sound.getStatusAsync();
       if (status.isLoaded && !status.isPlaying) {
         await sound.playAsync();
-        console.log('[AudioPlayer] Resumed');
         return true;
       }
     } catch (err) {
@@ -124,7 +119,6 @@ export async function resume() {
 
 export async function stop() {
   await unloadCurrent();
-  console.log('[AudioPlayer] Stopped');
 }
 
 export function setOnFinish(callback) {

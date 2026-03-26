@@ -8,7 +8,7 @@ import { getAvailableMethods, METHOD_RECOMMENDATIONS } from '../../features/pray
 import { getWeekTotal, getTrend } from '../../features/stats/statsCalculator';
 import { DarkTheme, LightTheme, Spacing, FontSize, BorderRadius } from '../../constants/theme';
 import { getCurrentHijriDate, getHijriForDate } from '../../features/calendar/hijriCalendar';
-import { ISLAMIC_EVENTS, getEventsForHijriDate } from '../../features/calendar/islamicEvents';
+import { getEventsForHijriDate } from '../../features/calendar/islamicEvents';
 import { Ionicons } from '@expo/vector-icons';
 import Card from '../../components/ui/Card';
 import FeaturePreview from '../../components/ui/FeaturePreview';
@@ -169,34 +169,18 @@ export default function MoreScreen() {
             <FeaturePreview
               emoji="🌙"
               title="Ramadan-Tools"
-              description={'Iftar/Suhoor-Zeiten, Fasten-Tracker\nund mehr — kommt bald inshaAllah'}
-              phase="Phase 2"
-            />
-            <FeaturePreview
-              emoji="🤖"
-              title="KI-Islamberater"
-              description={'Stelle Fragen zu Islam, Fiqh\nund täglicher Praxis'}
-              phase="Phase 3"
+              description="Iftar/Suhoor-Zeiten & Fasten-Tracker"
             />
             <FeaturePreview
               emoji="💰"
               title="Zakat-Rechner"
-              description="Berechne deinen Zakat-Betrag basierend auf deinem Vermögen"
-              phase="Phase 2"
+              description="Berechne deinen Zakat-Betrag"
             />
           </>
         )}
 
         {sec === 'community' && (
           <>
-            <Card centered>
-              <Text style={{ fontSize: 36 }}>🌍</Text>
-              <Text style={{ fontSize: FontSize.lg, fontWeight: '700', color: t.text, marginTop: Spacing.sm }}>Community</Text>
-              <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs, textAlign: 'center' }}>
-                Verbinde dich mit der globalen Ummah
-              </Text>
-            </Card>
-
             <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.md }}>
                 <Text style={{ fontSize: 32 }}>🎯</Text>
@@ -205,62 +189,28 @@ export default function MoreScreen() {
                   <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Teste dein Wissen</Text>
                 </View>
               </View>
-              <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-                {[{ label: 'Singleplayer', icon: '👤' }, { label: 'Multiplayer', icon: '👥' }, { label: 'Ranking', icon: '🏅' }].map((item) => (
-                  <View key={item.label} style={[styles.quizChip, { backgroundColor: t.surface, borderColor: t.border }]}>
-                    <Text style={{ fontSize: 16 }}>{item.icon}</Text>
-                    <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>{item.label}</Text>
-                  </View>
-                ))}
-              </View>
               <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
-                <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Phase 2</Text>
+                <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Bald</Text>
               </View>
             </Card>
 
             <Card>
               <Pressable onPress={() => router.push('/duawall')}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.sm }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md }}>
                   <Text style={{ fontSize: 32 }}>🤲</Text>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: FontSize.md, fontWeight: '700', color: t.text }}>Live Dua Wall</Text>
-                    <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Anonyme Duas teilen & Ameen sagen</Text>
+                    <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Dua Wall</Text>
+                    <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.xs }}>Duas teilen & Ameen sagen</Text>
                   </View>
+                  <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
                 </View>
-                <View style={[styles.duaWallPreview, { backgroundColor: t.surface, borderColor: t.border }]}>
-                  <Text style={{ fontSize: FontSize.sm, color: t.textDim, fontStyle: 'italic' }}>"Ya Allah, heile alle Kranken..."</Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, marginTop: Spacing.xs }}>
-                    <Text style={{ fontSize: 14 }}>🤲</Text>
-                    <Text style={{ fontSize: FontSize.xs, color: t.accent }}>Ameen · 127</Text>
-                  </View>
-                </View>
-                <Pressable
-                  onPress={() => router.push('/duawall')}
-                  style={[styles.calendarBtn, { backgroundColor: t.accent + '10', borderColor: t.accent + '20' }]}
-                >
-                  <Text style={{ fontSize: 20, marginRight: Spacing.sm }}>🤲</Text>
-                  <Text style={{ fontSize: FontSize.sm, fontWeight: '700', color: t.accent }}>Dua Wall öffnen</Text>
-                </Pressable>
               </Pressable>
             </Card>
 
             <FeaturePreview
               emoji="🌍"
               title="Globaler Dhikr"
-              description="Zähle gemeinsam mit Muslimen weltweit — ein globaler Tasbih-Counter"
-              phase="Phase 3"
-            />
-            <FeaturePreview
-              emoji="🏆"
-              title="Community Challenges"
-              description={'Wöchentliche Herausforderungen:\nQuran lesen, Dhikr, Fasten, Sadaqah'}
-              phase="Phase 3"
-            />
-            <FeaturePreview
-              emoji="🕌"
-              title="Live Prayer Map"
-              description="Sieh, wer gerade betet — eine interaktive Weltkarte der Ummah"
-              phase="Phase 4"
+              description="Gemeinsam mit der Ummah zählen"
             />
           </>
         )}
@@ -357,9 +307,6 @@ export default function MoreScreen() {
                 </View>
                 <Text style={{ fontSize: 20 }}>🌐</Text>
               </View>
-              <View style={{ backgroundColor: t.accent + '10', padding: Spacing.sm, borderRadius: BorderRadius.md, marginTop: Spacing.md }}>
-                <Text style={{ fontSize: FontSize.xs, color: t.accent, textAlign: 'center' }}>Türkisch priorisiert in Phase 2</Text>
-              </View>
             </Card>
 
             <Card>
@@ -404,13 +351,23 @@ export default function MoreScreen() {
 
             <Card centered>
               <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginBottom: Spacing.xs }}>Ummah App</Text>
-              <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginBottom: Spacing.lg }}>Version 0.3.0</Text>
-              <Text style={{ fontSize: FontSize.md, color: t.textDim, textAlign: 'center', lineHeight: 24 }}>
-                Dein täglicher islamischer Begleiter.{'\n'}
+              <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginBottom: Spacing.sm }}>Version 1.0.0 · Build 2026.03</Text>
+              <Text style={{ fontSize: FontSize.sm, color: t.textDim, textAlign: 'center', lineHeight: 22 }}>
                 Gebetszeiten · Quran · Dhikr · Duas{'\n'}
-                Qibla · Hijri-Kalender · Community{'\n\n'}
-                Entwickelt mit ❤️ und Tawakkul
+                Qibla · Hijri-Kalender · Community
               </Text>
+              <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.md }}>
+                Kontakt: ummah.app.feedback@gmail.com
+              </Text>
+              <Pressable
+                onPress={() => {
+                  const { Linking } = require('react-native');
+                  Linking.openURL('mailto:ummah.app.feedback@gmail.com?subject=Ummah App Feedback');
+                }}
+                style={({ pressed }) => [styles.detailBtn, { borderColor: t.accent + '44', marginTop: Spacing.md, marginBottom: 0, opacity: pressed ? 0.8 : 1 }]}
+              >
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>Feedback geben</Text>
+              </Pressable>
             </Card>
           </>
         )}
@@ -424,8 +381,6 @@ const styles = StyleSheet.create({
   methodRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.sm },
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 12, height: 12, borderRadius: 6 },
-  quizChip: { flex: 1, alignItems: 'center', paddingVertical: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1 },
-  duaWallPreview: { padding: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1 },
   goalBtn: { width: 44, height: 44, borderRadius: 22, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   calendarBtn: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },
   nextHoliday: { flexDirection: 'row', alignItems: 'center', padding: Spacing.md, borderRadius: BorderRadius.md, borderWidth: 1, marginBottom: Spacing.md },

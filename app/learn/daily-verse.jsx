@@ -218,7 +218,7 @@ export default function DailyVerseScreen() {
           <View style={styles.toolRow}>
             <Pressable
               onPress={handlePlay}
-              style={[styles.toolBtn, { backgroundColor: isPlaying ? t.accent + '20' : t.accent + '10' }]}
+              style={({ pressed }) => [styles.toolBtn, { backgroundColor: isPlaying ? t.accent + '20' : t.accent + '10', opacity: pressed ? 0.8 : 1 }]}
             >
               <Text style={{ fontSize: 18 }}>{isPlaying ? '⏹' : '🔊'}</Text>
               <Text style={{ color: t.accent, fontWeight: '600', marginLeft: Spacing.sm }}>
@@ -227,7 +227,7 @@ export default function DailyVerseScreen() {
             </Pressable>
             <Pressable
               onPress={() => setRepeatMode(!repeatMode)}
-              style={[styles.toolBtn, {
+              style={({ pressed }) => [styles.toolBtn, { opacity: pressed ? 0.8 : 1,
                 backgroundColor: repeatMode ? t.accent + '20' : t.accent + '10',
                 borderWidth: repeatMode ? 1 : 0,
                 borderColor: t.accent + '40',
@@ -243,7 +243,7 @@ export default function DailyVerseScreen() {
           {/* Hide & Test */}
           <Pressable
             onPress={() => setHidden(true)}
-            style={[styles.toolBtn, { backgroundColor: t.accent + '10', marginTop: Spacing.sm }]}
+            style={({ pressed }) => [styles.toolBtn, { backgroundColor: t.accent + '10', marginTop: Spacing.sm, opacity: pressed ? 0.8 : 1 }]}
           >
             <Text style={{ fontSize: 18 }}>🙈</Text>
             <Text style={{ color: t.accent, fontWeight: '600', marginLeft: Spacing.sm }}>Verbergen & Testen</Text>
@@ -252,7 +252,7 @@ export default function DailyVerseScreen() {
           {/* Mark as memorized */}
           <Pressable
             onPress={() => toggleMemorizedVerse(verseRef)}
-            style={[styles.memorizeBtn, {
+            style={({ pressed }) => [styles.memorizeBtn, { opacity: pressed ? 0.8 : 1,
               backgroundColor: isMemorized ? t.accent + '20' : t.accent + '08',
               borderColor: isMemorized ? t.accent : t.border,
             }]}

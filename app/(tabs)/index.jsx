@@ -397,7 +397,7 @@ export default function HomeScreen() {
             <ShareButton type="ayah" arabic={dailyAyah.arabic} translation={dailyAyah.translation} reference={dailyAyah.ref} t={t} />
           </View>
           <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
-            <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight }}>{dailyAyah.arabic}</Text>
+            <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight, fontFamily: 'ScheherazadeNew' }}>{dailyAyah.arabic}</Text>
           </View>
           <Text style={{ fontSize: 14, color: t.text, marginTop: 8, lineHeight: 22 }}>{dailyAyah.translation}</Text>
           <Text style={{ fontSize: 11, color: t.textDim, marginTop: 8 }}>— {dailyAyah.ref}</Text>
@@ -411,7 +411,7 @@ export default function HomeScreen() {
           </View>
           {dailyHadith.arabic ? (
             <View style={{ padding: 14, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 10 }}>
-              <Text style={{ fontSize: 22, lineHeight: 40, textAlign: 'right', color: t.accentLight }}>{dailyHadith.arabic}</Text>
+              <Text style={{ fontSize: 22, lineHeight: 40, textAlign: 'right', color: t.accentLight, fontFamily: 'ScheherazadeNew' }}>{dailyHadith.arabic}</Text>
             </View>
           ) : null}
           <Text style={{ fontSize: 14, fontStyle: 'italic', color: t.text, lineHeight: 22 }}>"{dailyHadith.text}"</Text>
@@ -425,7 +425,7 @@ export default function HomeScreen() {
             <ShareButton type="dua" arabic={dailyDua.arabic} translation={dailyDua.translation} reference="Hisn al-Muslim" transliteration={dailyDua.transliteration} t={t} />
           </View>
           <View style={{ padding: 20, borderRadius: 12, backgroundColor: t.accent + '08', marginBottom: 8 }}>
-            <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight }}>{dailyDua.arabic}</Text>
+            <Text style={{ fontSize: 26, lineHeight: 50, textAlign: 'center', color: t.accentLight, fontFamily: 'ScheherazadeNew' }}>{dailyDua.arabic}</Text>
           </View>
           {dailyDua.transliteration ? (
             <Text style={{ fontSize: 13, color: t.accent, fontStyle: 'italic', marginTop: 8 }}>{dailyDua.transliteration}</Text>
@@ -447,7 +447,7 @@ export default function HomeScreen() {
               </Pressable>
             ))}
           </View>
-          <Text style={{ fontSize: 18, color: t.accentLight, textAlign: 'center', marginBottom: 16 }}>{DHIKR_MINI[miniSel].arabic}</Text>
+          <Text style={{ fontSize: 18, color: t.accentLight, textAlign: 'center', marginBottom: 16, fontFamily: 'ScheherazadeNew' }}>{DHIKR_MINI[miniSel].arabic}</Text>
           <View style={{ alignItems: 'center' }}>
             <Pressable onPress={() => { setMiniCount((c) => c + 1); incrementDhikr(); }} style={[styles.miniCounter, { borderColor: t.accent + '44' }]}>
               <Text style={{ fontSize: 36, fontWeight: '700', color: t.accent }}>{miniCount}</Text>
@@ -467,8 +467,8 @@ export default function HomeScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 24, marginRight: Spacing.md }}>🧠</Text>
               <View style={{ flex: 1 }}>
-                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>Vers des Tages wartet auf dich</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Jeden Tag einen neuen Vers auswendig lernen</Text>
+                <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.text }}>Vers des Tages</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.xs }}>Heute auswendig lernen</Text>
               </View>
               <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
             </View>

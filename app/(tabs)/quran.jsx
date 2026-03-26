@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, ScrollView, Pressable, TextInput, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ScrollView, Pressable, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
@@ -156,12 +156,12 @@ export default function QuranScreen() {
             {/* Arabisches Alphabet */}
             <Pressable
               onPress={() => router.push('/learn/alphabet')}
-              style={[styles.learnCard, { backgroundColor: cardBg, borderColor: t.border }]}
+              style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
             >
               <Text style={{ fontSize: 32 }}>🔤</Text>
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Arabisches Alphabet</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Lerne alle 28 Buchstaben mit Aussprache und Formen</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Alle 28 Buchstaben mit Aussprache</Text>
               </View>
               <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
             </Pressable>
@@ -169,12 +169,12 @@ export default function QuranScreen() {
             {/* Tajweed-Grundlagen */}
             <Pressable
               onPress={() => router.push('/learn/tajweed')}
-              style={[styles.learnCard, { backgroundColor: cardBg, borderColor: t.border }]}
+              style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
             >
               <Text style={{ fontSize: 32 }}>📖</Text>
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Tajweed-Grundlagen</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Lerne die Regeln der Quran-Rezitation</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Regeln der Quran-Rezitation</Text>
               </View>
               <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
             </Pressable>
@@ -182,12 +182,12 @@ export default function QuranScreen() {
             {/* Vers des Tages lernen */}
             <Pressable
               onPress={() => router.push('/learn/daily-verse')}
-              style={[styles.learnCard, { backgroundColor: cardBg, borderColor: t.border }]}
+              style={({ pressed }) => [styles.learnCard, { backgroundColor: cardBg, borderColor: t.border, opacity: pressed ? 0.8 : 1 }]}
             >
               <Text style={{ fontSize: 32 }}>🧠</Text>
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <Text style={{ fontSize: FontSize.md, fontWeight: '600', color: t.text }}>Vers des Tages lernen</Text>
-                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Jeden Tag einen neuen Vers auswendig lernen</Text>
+                <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: 2 }}>Tägliche Memorisierung</Text>
               </View>
               <Text style={{ fontSize: 18, color: t.textDim }}>›</Text>
             </Pressable>
@@ -201,9 +201,6 @@ export default function QuranScreen() {
             <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: Spacing.sm, textAlign: 'center' }}>
               Verfolge deinen Quran-Lesefortschritt{'\n'}und setze persönliche Ziele
             </Text>
-            <View style={[styles.phaseBadge, { backgroundColor: t.accent + '10' }]}>
-              <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>Phase 2</Text>
-            </View>
           </View>
         )}
       </View>
@@ -274,9 +271,9 @@ const styles = StyleSheet.create({
   surahCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 8,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.sm,
     minHeight: 85,
   },
   surahNum: {
@@ -312,16 +309,10 @@ const styles = StyleSheet.create({
   learnCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 10,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
     borderWidth: 1,
     minHeight: 72,
-  },
-  phaseBadge: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.full,
-    marginTop: Spacing.lg,
   },
 });

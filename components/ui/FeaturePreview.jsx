@@ -14,7 +14,7 @@ export default function FeaturePreview({ emoji, title, description, phase }) {
         <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginTop: 4, textAlign: 'center', lineHeight: 20 }}>{description}</Text>
       ) : null}
       <View style={{ backgroundColor: t.accent + '10', paddingHorizontal: 12, paddingVertical: 6, borderRadius: BorderRadius.full, marginTop: Spacing.md }}>
-        <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>{phase || 'Kommt bald'}</Text>
+        <Text style={{ color: t.accent, fontSize: FontSize.xs, fontWeight: '600' }}>{phase || 'Bald'}</Text>
       </View>
     </Card>
   );
