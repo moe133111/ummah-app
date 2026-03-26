@@ -36,13 +36,11 @@ export default function RootLayout() {
     'ScheherazadeNew-Bold': require('../assets/fonts/ScheherazadeNew-Bold.ttf'),
   });
 
-  const [hydrated, setHydrated] = useState(false);
+  const [hydrated, setHydrated] = useState(useAppStore.persist.hasHydrated());
   useEffect(() => {
-    const unsub = useAppStore.persist.onFinishHydration(() => setHydrated(true));
-    // If already hydrated (e.g. sync storage or fast load)
-    if (useAppStore.persist.hasHydrated()) setHydrated(true);
-    return () => unsub();
-  }, []);
+    if (hydrated) return;
+    return useAppStore.persist.onFinishHydration(() => setHydrated(true));
+  }, [hydrated]);
 
   useEffect(() => {
     requestNotificationPermission();
