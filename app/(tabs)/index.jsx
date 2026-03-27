@@ -1,4 +1,4 @@
-// Letzte Verifizierung: 2026-03-21
+// Letzte Verifizierung: 2026-03-27
 // Quran-Verse (DAILY_AYAHS): Uthmani-Schrift, geprüft gegen Standardmushaf
 // Hadithe (DAILY_HADITHS): Quellen-Nummern verifiziert gegen Hadith-Sammlungen
 // Dhikr-Texte: Tashkeel geprüft

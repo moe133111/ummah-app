@@ -1,4 +1,4 @@
-// Letzte Verifizierung: 2026-03-21
+// Letzte Verifizierung: 2026-03-27
 // Quran-Verse (SLEEP_CONTENT): geprüft gegen Uthmani-Mushaf
 // Dhikr-Texte: Tashkeel geprüft
 // Duas: geprüft gegen Hisn al-Muslim / Sahih Hadith-Quellen

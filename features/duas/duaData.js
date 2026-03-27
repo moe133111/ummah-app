@@ -1,4 +1,4 @@
-// Letzte Verifizierung: 2026-03-21
+// Letzte Verifizierung: 2026-03-27
 // Duas: geprüft gegen Hisn al-Muslim / Sahih Hadith-Quellen
 // Quran-Verse in Duas: geprüft gegen Uthmani-Mushaf
 export const DUAS = [

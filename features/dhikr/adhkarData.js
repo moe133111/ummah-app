@@ -1,3 +1,4 @@
+// Arabische Texte verifiziert: 2026-03-27
 export const MORNING_ADHKAR = [
   {
     id: 1,
