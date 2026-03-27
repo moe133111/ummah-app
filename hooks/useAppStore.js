@@ -311,7 +311,7 @@ export const useAppStore = create(
       },
     }),
     {
-      name: 'ummah-app-storage',
+      name: 'imaniq-app-storage',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         theme: state.theme,

@@ -65,7 +65,7 @@ function DuaCard({ item, isOwn, t, ameenSet, heartSet, onAmeen, onHeart }) {
           type="dua"
           arabic={arabic ? item.text : ''}
           translation={arabic ? '' : item.text}
-          reference={isOwn ? 'Bittgebet — Ummah App' : 'Dua Wall — Ummah App'}
+          reference={isOwn ? 'Bittgebet — Imaniq' : 'Dua Wall — Imaniq'}
           transliteration=""
           t={t}
         />

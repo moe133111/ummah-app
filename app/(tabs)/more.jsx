@@ -351,19 +351,19 @@ export default function MoreScreen() {
             </Card>
 
             <Card centered>
-              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginBottom: Spacing.xs }}>Ummah App</Text>
+              <Text style={{ fontSize: FontSize.xxl, fontWeight: '700', color: t.accent, marginBottom: Spacing.xs }}>Imaniq</Text>
               <Text style={{ fontSize: FontSize.sm, color: t.textDim, marginBottom: Spacing.sm }}>Version 1.0.0 · Build 2026.03</Text>
               <Text style={{ fontSize: FontSize.sm, color: t.textDim, textAlign: 'center', lineHeight: 22 }}>
                 Gebetszeiten · Quran · Dhikr · Duas{'\n'}
                 Qibla · Hijri-Kalender · Community
               </Text>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.md }}>
-                Kontakt: ummah.app.feedback@gmail.com
+                Kontakt: feedback@imaniq.com
               </Text>
               <Pressable
                 onPress={() => {
                   const { Linking } = require('react-native');
-                  Linking.openURL('mailto:ummah.app.feedback@gmail.com?subject=Ummah App Feedback');
+                  Linking.openURL('mailto:feedback@imaniq.com?subject=Imaniq Feedback');
                 }}
                 style={({ pressed }) => [styles.detailBtn, { borderColor: t.accent + '44', marginTop: Spacing.md, marginBottom: 0, opacity: pressed ? 0.8 : 1 }]}
               >
