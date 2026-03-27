@@ -300,7 +300,7 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: t.bg }]} edges={[]}>
       <ScrollView style={{ flex: 1, backgroundColor: t.bg }} contentContainerStyle={styles.content}>
         {/* Header */}
-        <HeaderBar titleAr="بِسْمِ ٱللَّهِ" title="Dein täglicher Begleiter" t={t} />
+        <HeaderBar titleAr="بِسْمِ ٱللَّهِ" title="Dein islamischer Begleiter" t={t} />
 
         {/* Date & Location */}
         <Pressable onPress={() => router.push('/calendar')}>

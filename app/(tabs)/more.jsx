@@ -211,7 +211,7 @@ export default function MoreScreen() {
             <FeaturePreview
               icon={<AppIcon name="tasbih" size={36} color={t.accent} />}
               title="Globaler Dhikr"
-              description="Gemeinsam mit der Ummah zählen"
+              description="Gemeinsam mit der Community zählen"
             />
           </>
         )}
@@ -358,12 +358,12 @@ export default function MoreScreen() {
                 Qibla · Hijri-Kalender · Community
               </Text>
               <Text style={{ fontSize: FontSize.xs, color: t.textDim, marginTop: Spacing.md }}>
-                Kontakt: feedback@imaniq.com
+                Kontakt: imaniq.app@gmail.com
               </Text>
               <Pressable
                 onPress={() => {
                   const { Linking } = require('react-native');
-                  Linking.openURL('mailto:feedback@imaniq.com?subject=Imaniq Feedback');
+                  Linking.openURL('mailto:imaniq.app@gmail.com?subject=Imaniq Feedback');
                 }}
                 style={({ pressed }) => [styles.detailBtn, { borderColor: t.accent + '44', marginTop: Spacing.md, marginBottom: 0, opacity: pressed ? 0.8 : 1 }]}
               >
