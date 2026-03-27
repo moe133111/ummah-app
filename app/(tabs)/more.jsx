@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Pressable, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Switch, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
@@ -362,7 +362,6 @@ export default function MoreScreen() {
               </Text>
               <Pressable
                 onPress={() => {
-                  const { Linking } = require('react-native');
                   Linking.openURL('mailto:imaniq.app@gmail.com?subject=Imaniq Feedback');
                 }}
                 style={({ pressed }) => [styles.detailBtn, { borderColor: t.accent + '44', marginTop: Spacing.md, marginBottom: 0, opacity: pressed ? 0.8 : 1 }]}
@@ -370,6 +369,27 @@ export default function MoreScreen() {
                 <Text style={{ fontSize: FontSize.sm, fontWeight: '600', color: t.accent }}>Feedback geben</Text>
               </Pressable>
             </Card>
+
+            <Pressable onPress={() => Linking.openURL('https://buymeacoffee.com/imaniq')}>
+              <View style={{
+                backgroundColor: t.card,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: t.border,
+                padding: 20,
+                marginBottom: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+              }}>
+                <Ionicons name="heart-outline" size={24} color="#E53935" />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontSize: 16, fontWeight: '600', color: t.text }}>Imaniq unterstützen</Text>
+                  <Text style={{ fontSize: 12, color: t.textDim, marginTop: 2 }}>Hilf uns die App weiterzuentwickeln — jede Spende zählt!</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={t.textDim} />
+              </View>
+            </Pressable>
           </>
         )}
       </ScrollView>
